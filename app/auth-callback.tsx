@@ -10,51 +10,34 @@ export default function AuthCallback() {
 
   useEffect(() => {
     let mounted = true;
-
     async function finish(url: string) {
       const { params, errorCode } = QueryParams.getQueryParams(url);
-
-      if (errorCode) {
-        if (mounted) router.replace("/sign-in");
-        return;
-      }
-
+      if (errorCode) return mounted && router.replace("/sign-in");
+      let error = null;
       if (params.code) {
-        await supabase.auth.exchangeCodeForSession(params.code);
+        ({ error } = await supabase.auth.exchangeCodeForSession(params.code));
       } else if (params.access_token && params.refresh_token) {
-        await supabase.auth.setSession({
+        ({ error } = await supabase.auth.setSession({
           access_token: params.access_token,
           refresh_token: params.refresh_token,
-        });
+        }));
       }
-
-      if (mounted) router.replace("/home");
+      if (error) return mounted && router.replace("/sign-in");
+      if (mounted) router.replace(params.type === "recovery" ? "/reset-password" : "/");
     }
 
     Linking.getInitialURL().then((url) => {
       if (url) finish(url);
     });
-
     const subscription = Linking.addEventListener("url", ({ url }) => finish(url));
-
     return () => {
       mounted = false;
       subscription.remove();
     };
   }, [router]);
 
-  return (
-    <View style={styles.container}>
-      <ActivityIndicator />
-    </View>
-  );
+  return <View style={styles.container}><ActivityIndicator /></View>;
 }
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#F7F7F7",
-  },
+  container: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F7F7F7" },
 });
