@@ -2,13 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
-import { supabase } from "../../lib/supabase";\nimport { Coin } from "../../components/Coin";
+import { supabase } from "../../lib/supabase";
+import { Coin } from "../../components/Coin";
 
 type Profile = {
   display_name: string | null;
   sobriety_date: string | null;
   substances: string[] | null;
-  coin_motto: string | null;\n  coin_color: string | null;\n  coin_shape: string | null;\n  coin_image_url: string | null;
+  coin_motto: string | null;
+  coin_color: string | null;
+  coin_shape: string | null;
+  coin_image_url: string | null;
 };
 
 function daysBetween(start: string) {
@@ -80,9 +84,7 @@ const styles = StyleSheet.create({
   counter: { borderWidth: 2, borderColor: "#0A0A0A", paddingVertical: 22, alignItems: "center", backgroundColor: "#FFFFFF" },
   counterNumber: { fontSize: 72, lineHeight: 76, fontWeight: "800", color: "#0A0A0A" },
   counterLabel: { fontSize: 12, fontWeight: "800", letterSpacing: 3, color: "#737373" },
-  coin: { width: 190, height: 190, borderRadius: 95, borderWidth: 5, borderColor: "#F5A41A", backgroundColor: "#F5D680", alignSelf: "center", marginVertical: 28, alignItems: "center", justifyContent: "center" },
-  coinNumber: { fontSize: 58, fontWeight: "800", color: "#0A0A0A" },
-  coinMotto: { fontSize: 9, fontWeight: "800", letterSpacing: 1.5, color: "#0A0A0A", marginTop: 5 },
+
   section: { marginBottom: 20 },
   sectionLabel: { fontSize: 10, fontWeight: "800", letterSpacing: 2, color: "#737373", marginBottom: 10 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
