@@ -5,6 +5,9 @@ on:
     branches:
       - v1ce-app-foundation
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   check:
@@ -17,4 +20,5 @@ jobs:
           cache: npm
       - run: npm install
       - run: npx tsc --noEmit
-      - run: npx expo export --platform ios --platform android
+      - run: npx expo export --platform ios
+      - run: npx expo export --platform android
