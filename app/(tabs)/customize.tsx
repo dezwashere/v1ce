@@ -1,6 +1,105 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabase";
+
+const COLORS = ["#F5D680", "#F5A41A", "#D9D9D9", "#111111", "#C9A7FF", "#9FD7FF", "#A8D5BA", "#F2A6B3"];
+const SHAPES = ["circle", "hexagon", "star", "diamond", "shield", "octagon"] as const;
 
 export default function Customize() {
-  return <View style={styles.container}><Text style={styles.kicker}>COIN</Text><Text style={styles.title}>Customize your coin.</Text><Text style={styles.body}>Coin colors, shapes, numbers and motto will live here.</Text></View>;
+  const { user } = useAuth();
+  const [color, setColor] = useState("#F5D680");
+  const [shape, setShape] = useState<(typeof SHAPES)[number]>("circle");
+  const [motto, setMotto] = useState("ONE DAY AT A TIME");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("coin_color, coin_shape, coin_motto").eq("id", user.id).single()
+      .then(({ data }) => {
+        if (!data) return;
+        if (data.coin_color) setColor(data.coin_color);
+        if (SHAPES.includes(data.coin_shape)) setShape(data.coin_shape);
+        if (data.coin_motto) setMotto(data.coin_motto);
+      });
+  }, [user]);
+
+  const radius = shape === "circle" ? 999 : 12;
+  const previewStyle = useMemo(() => ({
+    width: 200,
+    height: 200,
+    borderRadius: radius,
+    backgroundColor: color,
+    borderWidth: 5,
+    borderColor: "#0A0A0A",
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+  }), [color, radius]);
+
+  async function save() {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase.from("profiles").update({
+      coin_color: color,
+      coin_shape: shape,
+      coin_motto: motto.trim().slice(0, 30) || "ONE DAY AT A TIME",
+    }).eq("id", user.id);
+    setSaving(false);
+    if (error) Alert.alert("Couldn't save", error.message);
+    else Alert.alert("Saved", "Your coin was updated.");
+  }
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.kicker}>COIN</Text>
+      <Text style={styles.title}>Your coin.</Text>
+      <View style={styles.previewWrap}>
+        <View style={previewStyle}>
+          <Text style={styles.previewNumber}>1</Text>
+          <Text style={styles.previewMotto}>{motto || "ONE DAY AT A TIME"}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.label}>COLOR</Text>
+      <View style={styles.row}>
+        {COLORS.map((item) => <Pressable key={item} onPress={() => setColor(item)} style={[styles.swatch, { backgroundColor: item }, color === item && styles.swatchSelected]} />)}
+      </View>
+
+      <Text style={styles.label}>SHAPE</Text>
+      <View style={styles.row}>
+        {SHAPES.map((item) => (
+          <Pressable key={item} onPress={() => setShape(item)} style={[styles.option, shape === item && styles.optionSelected]}>
+            <Text style={[styles.optionText, shape === item && styles.optionTextSelected]}>{item.toUpperCase()}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Text style={styles.label}>MOTTO</Text>
+      <TextInput value={motto} onChangeText={setMotto} maxLength={30} style={styles.input} />
+
+      <Pressable style={styles.save} onPress={save} disabled={saving}>
+        <Text style={styles.saveText}>{saving ? "SAVING..." : "SAVE COIN"}</Text>
+      </Pressable>
+    </ScrollView>
+  );
 }
-const styles = StyleSheet.create({ container: { flex: 1, padding: 28, backgroundColor: "#F7F7F7" }, kicker: { color: "#F5A41A", fontWeight: "800", letterSpacing: 2 }, title: { marginTop: 12, fontSize: 34, fontWeight: "800" }, body: { marginTop: 12, color: "#737373", fontSize: 16, lineHeight: 24 } });
+
+const styles = StyleSheet.create({
+  container: { padding: 24, paddingBottom: 110, backgroundColor: "#F7F7F7" },
+  kicker: { color: "#F5A41A", fontWeight: "800", letterSpacing: 2, fontSize: 12 },
+  title: { marginTop: 8, fontSize: 34, fontWeight: "800", color: "#0A0A0A" },
+  previewWrap: { alignItems: "center", paddingVertical: 28 },
+  label: { marginTop: 18, marginBottom: 10, fontSize: 10, fontWeight: "800", letterSpacing: 2, color: "#737373" },
+  row: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  swatch: { width: 42, height: 42, borderWidth: 2, borderColor: "#E0E0E0" },
+  swatchSelected: { borderColor: "#0A0A0A", borderWidth: 4 },
+  option: { borderWidth: 2, borderColor: "#0A0A0A", paddingHorizontal: 12, paddingVertical: 9, backgroundColor: "#FFFFFF" },
+  optionSelected: { backgroundColor: "#0A0A0A" },
+  optionText: { fontSize: 11, fontWeight: "800" },
+  optionTextSelected: { color: "#FFFFFF" },
+  input: { height: 54, borderWidth: 2, borderColor: "#0A0A0A", backgroundColor: "#FFFFFF", paddingHorizontal: 14, fontSize: 14, fontWeight: "600" },
+  save: { height: 54, marginTop: 20, backgroundColor: "#0A0A0A", alignItems: "center", justifyContent: "center" },
+  saveText: { color: "#FFFFFF", fontWeight: "800", letterSpacing: 1.5 },
+  previewNumber: { fontSize: 64, fontWeight: "800", color: "#0A0A0A" },
+  previewMotto: { fontSize: 8, fontWeight: "800", letterSpacing: 1, color: "#0A0A0A" },
+});
