@@ -54,10 +54,7 @@ export default function HomeTab() {
         <Text style={styles.counterLabel}>DAYS SOBER</Text>
       </View>
 
-      <View style={styles.coin}>
-        <Text style={styles.coinNumber}>{days}</Text>
-        <Text style={styles.coinMotto}>{profile?.coin_motto || "ONE DAY AT A TIME"}</Text>
-      </View>
+      <Coin color={profile?.coin_color} shape={profile?.coin_shape || "circle"} motto={profile?.coin_motto} imageUrl={profile?.coin_image_url} number={days} />
 
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>RECOVERY FROM</Text>
