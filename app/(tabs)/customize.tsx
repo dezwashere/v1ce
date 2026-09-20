@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 
@@ -31,7 +32,6 @@ export default function Customize() {
   }, [user]);
 
   const radius = shape === "circle" ? 999 : 12;
-  const fontWeight = font === "Classic" ? "800" : font === "Bodoni" ? "700" : "800";
   const previewStyle = useMemo(() => ({
     width: 200,
     height: 200,
@@ -46,6 +46,32 @@ export default function Customize() {
   function requirePremium() {
     if (!isPremium) Alert.alert("V1CE Premium", "This customization is a Premium feature.");
     return isPremium;
+  }
+
+  async function pickImage() {
+    if (!requirePremium() || !user) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      quality: 0.9,
+    });
+    if (result.canceled || !result.assets[0]) return;
+    const asset = result.assets[0];
+    const response = await fetch(asset.uri);
+    const blob = await response.blob();
+    const path = `${user.id}/coin-${Date.now()}.jpg`;
+    const { error: uploadError } = await supabase.storage.from("coin-images").upload(path, blob, {
+      contentType: "image/jpeg",
+      upsert: true,
+    });
+    if (uploadError) {
+      Alert.alert("Couldn't upload image", uploadError.message);
+      return;
+    }
+    const { data } = supabase.storage.from("coin-images").getPublicUrl(path);
+    setImageUrl(data.publicUrl);
+    const { error } = await supabase.from("profiles").update({ coin_image_url: data.publicUrl }).eq("id", user.id);
+    if (error) Alert.alert("Couldn't save image", error.message);
   }
 
   async function save() {
@@ -97,7 +123,7 @@ export default function Customize() {
       </View>
 
       <Text style={styles.label}>CUSTOM IMAGE</Text>
-      <Pressable style={styles.upload} onPress={() => requirePremium() && Alert.alert("Premium", "Image picker will be connected in the next build step.")}>
+      <Pressable style={styles.upload} onPress={pickImage}>
         <Text style={styles.uploadText}>{imageUrl ? "CHANGE IMAGE" : "UPLOAD YOUR OWN IMAGE"} · PREMIUM</Text>
       </Pressable>
 
@@ -132,6 +158,6 @@ const styles = StyleSheet.create({
   premiumSwatch: { opacity: 0.7 },
   lock: { position: "absolute", bottom: 2, left: 0, right: 0, textAlign: "center", fontSize: 7, fontWeight: "900", color: "#FFFFFF" },
   premiumOption: { opacity: 0.65 },
-  previewNumber: { fontSize: 64, fontWeight: fontWeight as any, color: "#0A0A0A" },
+  previewNumber: { fontSize: 64, fontWeight: "800", color: "#0A0A0A" },
   previewMotto: { fontSize: 8, fontWeight: "800", letterSpacing: 1, color: "#0A0A0A" },
 });
