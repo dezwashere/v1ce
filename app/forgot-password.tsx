@@ -14,7 +14,7 @@ export default function ForgotPassword() {
     if (!cleanEmail) return Alert.alert("Enter your email", "We need your email to send the reset link.");
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-      redirectTo: Linking.createURL("reset-password"),
+      redirectTo: Linking.createURL("auth/callback"),
     });
     setBusy(false);
     if (error) return Alert.alert("Couldn't send reset link", error.message);
