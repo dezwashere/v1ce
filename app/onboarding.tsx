@@ -19,6 +19,8 @@ export default function Onboarding() {
     return null;
   }
 
+  const userId = user.id;
+
   async function finish() {
     if (!name.trim() || !sobrietyDate.trim()) {
       Alert.alert("Almost there", "Enter your name and sobriety date.");
@@ -41,7 +43,7 @@ export default function Onboarding() {
           .map((item) => item.trim())
           .filter(Boolean),
       })
-      .eq("id", user.id);
+      .eq("id", userId);
 
     if (error) {
       Alert.alert("Couldn't save your profile", error.message);
