@@ -54,6 +54,12 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 999,
   },
+  image: {
+    ...StyleSheet.absoluteFillObject,
+    width: 200,
+    height: 200,
+    borderRadius: 999,
+  },
   motto: {
     fontSize: 8,
     fontWeight: "800",
