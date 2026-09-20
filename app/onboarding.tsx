@@ -48,7 +48,7 @@ export default function Onboarding() {
       return;
     }
 
-    router.replace("/home");
+    router.replace("/(tabs)");
   }
 
   return (
