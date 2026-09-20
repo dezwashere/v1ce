@@ -3,7 +3,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 
-const COLORS = ["#F5D680", "#F5A41A", "#D9D9D9", "#111111", "#C9A7FF", "#9FD7FF", "#A8D5BA", "#F2A6B3"];
+const FREE_COLORS = ["#F5D680"];\nconst PREMIUM_COLORS = ["#F5A41A", "#D9D9D9", "#111111", "#C9A7FF", "#9FD7FF", "#A8D5BA", "#F2A6B3"];
 const SHAPES = ["circle", "hexagon", "star", "diamond", "shield", "octagon"] as const;
 
 export default function Customize() {
@@ -11,7 +11,7 @@ export default function Customize() {
   const [color, setColor] = useState("#F5D680");
   const [shape, setShape] = useState<(typeof SHAPES)[number]>("circle");
   const [motto, setMotto] = useState("ONE DAY AT A TIME");
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(false);\n  const isPremium = false; // Payments will replace this with the server-validated subscription state.
 
   useEffect(() => {
     if (!user) return;
@@ -36,7 +36,7 @@ export default function Customize() {
     justifyContent: "center" as const,
   }), [color, radius]);
 
-  async function save() {
+  function requirePremium() {\n    if (!isPremium) Alert.alert("V1CE Premium", "This customization is a Premium feature.");\n    return isPremium;\n  }\n\n  async function save() {
     if (!user) return;
     setSaving(true);
     const { error } = await supabase.from("profiles").update({
@@ -62,13 +62,13 @@ export default function Customize() {
 
       <Text style={styles.label}>COLOR</Text>
       <View style={styles.row}>
-        {COLORS.map((item) => <Pressable key={item} onPress={() => setColor(item)} style={[styles.swatch, { backgroundColor: item }, color === item && styles.swatchSelected]} />)}
+        {FREE_COLORS.map((item) => <Pressable key={item} onPress={() => setColor(item)} style={[styles.swatch, { backgroundColor: item }, color === item && styles.swatchSelected]} />)}\n        {PREMIUM_COLORS.map((item) => <Pressable key={item} onPress={() => requirePremium() && setColor(item)} style={[styles.swatch, { backgroundColor: item }, styles.premiumSwatch]}><Text style={styles.lock}>LOCK</Text></Pressable>)}
       </View>
 
       <Text style={styles.label}>SHAPE</Text>
       <View style={styles.row}>
         {SHAPES.map((item) => (
-          <Pressable key={item} onPress={() => setShape(item)} style={[styles.option, shape === item && styles.optionSelected]}>
+          <Pressable key={item} onPress={() => (item === "circle" ? setShape(item) : requirePremium() && setShape(item))} style={[styles.option, shape === item && styles.optionSelected, item !== "circle" && styles.premiumOption]}>
             <Text style={[styles.optionText, shape === item && styles.optionTextSelected]}>{item.toUpperCase()}</Text>
           </Pressable>
         ))}
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   optionTextSelected: { color: "#FFFFFF" },
   input: { height: 54, borderWidth: 2, borderColor: "#0A0A0A", backgroundColor: "#FFFFFF", paddingHorizontal: 14, fontSize: 14, fontWeight: "600" },
   save: { height: 54, marginTop: 20, backgroundColor: "#0A0A0A", alignItems: "center", justifyContent: "center" },
-  saveText: { color: "#FFFFFF", fontWeight: "800", letterSpacing: 1.5 },
+  saveText: { color: "#FFFFFF", fontWeight: "800", letterSpacing: 1.5 },\n  premiumSwatch: { opacity: 0.7 },\n  lock: { position: "absolute", bottom: 2, left: 0, right: 0, textAlign: "center", fontSize: 7, fontWeight: "900", color: "#FFFFFF" },\n  premiumOption: { opacity: 0.65 },
   previewNumber: { fontSize: 64, fontWeight: "800", color: "#0A0A0A" },
   previewMotto: { fontSize: 8, fontWeight: "800", letterSpacing: 1, color: "#0A0A0A" },
 });
