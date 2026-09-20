@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
@@ -57,10 +57,9 @@ export default function Customize() {
     });
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
-    const response = await fetch(asset.uri);
-    const blob = await response.blob();
+    const arrayBuffer = await fetch(asset.uri).then((res) => res.arrayBuffer());
     const path = `${user.id}/coin-${Date.now()}.jpg`;
-    const { error: uploadError } = await supabase.storage.from("coin-images").upload(path, blob, {
+    const { error: uploadError } = await supabase.storage.from("coin-images").upload(path, arrayBuffer, {
       contentType: "image/jpeg",
       upsert: true,
     });
@@ -93,6 +92,7 @@ export default function Customize() {
       <Text style={styles.title}>Your coin.</Text>
       <View style={styles.previewWrap}>
         <View style={previewStyle}>
+          {imageUrl ? <Image source={{ uri: imageUrl }} style={styles.previewImage} resizeMode="cover" /> : null}
           <Text style={styles.previewNumber}>1</Text>
           <Text style={styles.previewMotto}>{motto || "ONE DAY AT A TIME"}</Text>
         </View>
@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
   premiumSwatch: { opacity: 0.7 },
   lock: { position: "absolute", bottom: 2, left: 0, right: 0, textAlign: "center", fontSize: 7, fontWeight: "900", color: "#FFFFFF" },
   premiumOption: { opacity: 0.65 },
+  previewImage: { position: "absolute", width: 190, height: 190, borderRadius: 999 },
   previewNumber: { fontSize: 64, fontWeight: "800", color: "#0A0A0A" },
   previewMotto: { fontSize: 8, fontWeight: "800", letterSpacing: 1, color: "#0A0A0A" },
 });
