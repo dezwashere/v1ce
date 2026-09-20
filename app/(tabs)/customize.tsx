@@ -10,17 +10,17 @@ export default function Customize() {
   const { user } = useAuth();
   const [color, setColor] = useState("#F5D680");
   const [shape, setShape] = useState<(typeof SHAPES)[number]>("circle");
-  const [motto, setMotto] = useState("ONE DAY AT A TIME");\n  const [font, setFont] = useState<(typeof FONTS)[number]>("Classic");
+  const [motto, setMotto] = useState("ONE DAY AT A TIME");\n  const [font, setFont] = useState<(typeof FONTS)[number]>("Classic");\n  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);\n  const isPremium = false; // Payments will replace this with the server-validated subscription state.
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("coin_color, coin_shape, coin_motto").eq("id", user.id).single()
+    supabase.from("profiles").select("coin_color, coin_shape, coin_motto, coin_image_url").eq("id", user.id).single()
       .then(({ data }) => {
         if (!data) return;
         if (data.coin_color) setColor(data.coin_color);
         if (SHAPES.includes(data.coin_shape)) setShape(data.coin_shape);
-        if (data.coin_motto) setMotto(data.coin_motto);
+        if (data.coin_motto) setMotto(data.coin_motto);\n        if (data.coin_image_url) setImageUrl(data.coin_image_url);
       });
   }, [user]);
 
@@ -83,7 +83,7 @@ export default function Customize() {
         ))}
       </View>
 
-      <Text style={styles.label}>MOTTO</Text>
+      <Text style={styles.label}>CUSTOM IMAGE</Text>\n      <Pressable style={styles.upload} onPress={() => requirePremium() && Alert.alert("Premium", "Image picker will be connected in the next build step.")}>\n        <Text style={styles.uploadText}>{imageUrl ? "CHANGE IMAGE" : "UPLOAD YOUR OWN IMAGE"} · PREMIUM</Text>\n      </Pressable>\n\n      <Text style={styles.label}>MOTTO</Text>
       <TextInput value={motto} onChangeText={setMotto} maxLength={30} style={styles.input} />
 
       <Pressable style={styles.save} onPress={save} disabled={saving}>
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   optionTextSelected: { color: "#FFFFFF" },
   input: { height: 54, borderWidth: 2, borderColor: "#0A0A0A", backgroundColor: "#FFFFFF", paddingHorizontal: 14, fontSize: 14, fontWeight: "600" },
   save: { height: 54, marginTop: 20, backgroundColor: "#0A0A0A", alignItems: "center", justifyContent: "center" },
-  saveText: { color: "#FFFFFF", fontWeight: "800", letterSpacing: 1.5 },\n  premiumSwatch: { opacity: 0.7 },\n  lock: { position: "absolute", bottom: 2, left: 0, right: 0, textAlign: "center", fontSize: 7, fontWeight: "900", color: "#FFFFFF" },\n  premiumOption: { opacity: 0.65 },
+  saveText: { color: "#FFFFFF", fontWeight: "800", letterSpacing: 1.5 },\n  upload: { height: 54, borderWidth: 2, borderColor: "#0A0A0A", backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },\n  uploadText: { fontSize: 11, fontWeight: "800", letterSpacing: 1 },\n  premiumSwatch: { opacity: 0.7 },\n  lock: { position: "absolute", bottom: 2, left: 0, right: 0, textAlign: "center", fontSize: 7, fontWeight: "900", color: "#FFFFFF" },\n  premiumOption: { opacity: 0.65 },
   previewNumber: { fontSize: 64, fontWeight: fontWeight as any, color: "#0A0A0A" },
   previewMotto: { fontSize: 8, fontWeight: "800", letterSpacing: 1, color: "#0A0A0A" },
 });
