@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../lib/supabase";\nimport { Coin } from "../../components/Coin";
 
 type Profile = {
   display_name: string | null;
   sobriety_date: string | null;
   substances: string[] | null;
-  coin_motto: string | null;
+  coin_motto: string | null;\n  coin_color: string | null;\n  coin_shape: string | null;\n  coin_image_url: string | null;
 };
 
 function daysBetween(start: string) {
@@ -27,7 +27,7 @@ export default function HomeTab() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("display_name, sobriety_date, substances, coin_motto").eq("id", user.id).single()
+    supabase.from("profiles").select("display_name, sobriety_date, substances, coin_motto, coin_color, coin_shape, coin_image_url").eq("id", user.id).single()
       .then(({ data }) => { setProfile(data); setLoading(false); });
   }, [user]);
 
