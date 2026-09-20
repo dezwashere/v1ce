@@ -57,7 +57,12 @@ export default function Customize() {
     });
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
-    const arrayBuffer = await fetch(asset.uri).then((res) => res.arrayBuffer());
+    const response = await fetch(asset.uri);
+    if (!response.ok) {
+      Alert.alert("Couldn't read image", "Please choose another image.");
+      return;
+    }
+    const arrayBuffer = await response.arrayBuffer();
     const path = `${user.id}/coin-${Date.now()}.jpg`;
     const { error: uploadError } = await supabase.storage.from("coin-images").upload(path, arrayBuffer, {
       contentType: "image/jpeg",
