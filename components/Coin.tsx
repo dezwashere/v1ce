@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 export type CoinSettings = {
   color?: string | null;
@@ -13,6 +13,7 @@ export function Coin({
   shape = "circle",
   motto = "ONE DAY AT A TIME",
   number = 1,
+  imageUrl = null,
 }: CoinSettings) {
   const isCircle = shape === "circle";
 
@@ -26,6 +27,7 @@ export function Coin({
         },
       ]}
     >
+      {imageUrl ? <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" /> : null}
       <Text style={styles.number}>{number}</Text>
       <Text style={styles.motto}>{motto || "ONE DAY AT A TIME"}</Text>
     </View>
@@ -45,6 +47,12 @@ const styles = StyleSheet.create({
     fontSize: 64,
     fontWeight: "800",
     color: "#0A0A0A",
+  },
+  image: {
+    ...StyleSheet.absoluteFillObject,
+    width: 200,
+    height: 200,
+    borderRadius: 999,
   },
   motto: {
     fontSize: 8,
