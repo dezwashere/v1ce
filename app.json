@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "V1CE",
+    "slug": "v1ce",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "v1ce",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.v1ce"
+    },
+    "android": {
+      "package": "app.v1ce"
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
