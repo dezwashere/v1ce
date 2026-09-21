@@ -11,10 +11,10 @@ export default function Onboarding() {
   async function finish(){
     if(!name.trim()||!sobrietyDate.trim()){Alert.alert("Almost there","Enter your name and sobriety date.");return;}
     if(!/^\d{4}-\d{2}-\d{2}$/.test(sobrietyDate.trim())){Alert.alert("Check the date","Use YYYY-MM-DD, like 2020-11-15.");return;}
-    const {error}=await supabase.from("SobrietyProfile").update({
+    const {error}=await supabase.from("profiles").upsert({id:user.id,
       display_name:name.trim(),sobriety_date:sobrietyDate.trim(),
       substances:substances.split(",").map((item)=>item.trim()).filter(Boolean)
-    }).eq("email",user.email);
+    },{onConflict:"id"});
     if(error){Alert.alert("Couldn't save your profile",error.message);return;}
     router.replace("/(tabs)");
   }
