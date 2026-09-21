@@ -8,7 +8,10 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": "buildNumber"
+      "autoIncrement": "buildNumber",
+      "ios": {
+        "image": "latest"
+      }
     }
   }
 }
