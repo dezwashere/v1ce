@@ -1,0 +1,23 @@
+name: V1CE Check
+
+on:
+  push:
+    branches:
+      - v1ce-app-foundation
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: npm install
+      - run: npx tsc --noEmit
+      - run: npx expo export --platform ios
+      - run: npx expo export --platform android

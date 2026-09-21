@@ -1,0 +1,4 @@
+import { Pressable, StyleSheet, Text, View } from "react-native";
+const OPTIONS=["Alcohol","Benzodiazepines","Caffeine","Cannabis","Cocaine","Gambling","Methamphetamine","Nicotine","OCD Compulsions","Opioids","Prescription Drugs","Social Media","Sugar","Other"];
+export function SubstanceChecklist({selected,onToggle,dark=false}:{selected:string[];onToggle:(value:string)=>void;dark?:boolean}){const bg=dark?"#0A0A0A":"#F7F7F7",fg=dark?"#FAFAFA":"#0A0A0A";return <View style={styles.grid}>{OPTIONS.map(item=>{const active=selected.includes(item);return <Pressable key={item} onPress={()=>onToggle(item)} style={[styles.chip,{borderColor:fg,backgroundColor:active?fg:"transparent"}]}><Text style={[styles.text,{color:active?bg:fg}]}>{item}</Text></Pressable>})}</View>}
+const styles=StyleSheet.create({grid:{flexDirection:"row",flexWrap:"wrap",gap:8,marginTop:18},chip:{borderWidth:2,paddingHorizontal:11,paddingVertical:9},text:{fontSize:10,fontWeight:"700",letterSpacing:.6}});
