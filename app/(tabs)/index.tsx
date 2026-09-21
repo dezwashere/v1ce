@@ -48,9 +48,9 @@ export default function HomeTab() {
 
   useEffect(()=>{
     if(!user?.email){setLoading(false);return;}
-    supabase.from("SobrietyProfile")
+    supabase.from("profiles")
       .select("display_name, sobriety_date, substances, coin_motto, coin_color, coin_shape, coin_photo")
-      .eq("email",user.email).maybeSingle()
+      .eq("id",user.id).maybeSingle()
       .then(({data})=>{setProfile(data);setSelectedDocs(data?.substances||[]);setLoading(false);});
   },[user?.email]);
 
@@ -58,7 +58,7 @@ export default function HomeTab() {
     const next=selectedDocs.includes(doc)?selectedDocs.filter(x=>x!==doc):[...selectedDocs,doc];
     setSelectedDocs(next);
     if(user?.email){
-      await supabase.from("SobrietyProfile").update({substances:next}).eq("email",user.email);
+      await supabase.from("profiles").update({substances:next}).eq("id",user.id);
       setProfile(p=>p?{...p,substances:next}:p);
     }
   }
