@@ -12,14 +12,14 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user?.email) return;
-    supabase.from("SobrietyProfile").select("display_name").eq("email", user.email).maybeSingle()
+    supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle()
       .then(({ data }) => { if (data?.display_name) setName(data.display_name); });
   }, [user?.email]);
 
   async function save() {
     if (!user?.email || !name.trim()) return;
     setSaving(true);
-    const { error } = await supabase.from("SobrietyProfile").update({ display_name: name.trim() }).eq("email", user.email);
+    const { error } = await supabase.from("profiles").update({ display_name: name.trim() }).eq("id", user.id);
     setSaving(false);
     if (error) Alert.alert("Couldn't save", error.message);
     else Alert.alert("Saved", "Your profile was updated.");
