@@ -5,8 +5,9 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
-    },
+  "distribution": "internal",
+  "environment": "production"
+},
     "production": {
       "autoIncrement": true,
       "ios": {

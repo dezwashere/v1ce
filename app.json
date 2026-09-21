@@ -16,7 +16,8 @@
       "package": "app.v1ce"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-font"
     ],
     "extra": {
       "eas": {
