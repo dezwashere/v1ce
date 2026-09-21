@@ -77,9 +77,9 @@ export default function HomeTab() {
       <Starburst dark={dark}/><Text style={[styles.heroLine,{color:fg}]}>TIME</Text><Text style={[styles.heroLine,{color:fg}]}>ELAPSED</Text>
       <RotatingLabel dark={dark}/><Text style={[styles.since,{color:muted}]}>{profile?.sobriety_date?"SOBER SINCE "+displayDate(profile.sobriety_date):"SET YOUR SOBRIETY DATE"}</Text>
     </View>
-    <View style={[styles.timer,{borderBottomColor:fg}]}><SobrietyCounter sobrietyDate={profile?.sobriety_date} dark={dark}/></View>
+    <View style={[styles.timer,{borderBottomColor:fg}]}><SobrietyCounter sobrietyDate={profile?.sobriety_date ?? null} dark={dark}/></View>
     <View style={[styles.coinSection,{borderBottomColor:fg}]}>
-      <Coin color={profile?.coin_color} shape={profile?.coin_shape||"circle"} motto={profile?.coin_motto} imageUrl={profile?.coin_photo} number={daysSince(profile?.sobriety_date)}/>
+      <Coin color={profile?.coin_color} shape={profile?.coin_shape||"circle"} motto={profile?.coin_motto} imageUrl={profile?.coin_photo} number={daysSince(profile?.sobriety_date ?? null)}/>
       <Pressable onPress={()=>router.push("/(tabs)/customize")} style={[styles.customizeButton,{borderColor:fg}]}><Text style={[styles.customizeText,{color:fg}]}>CUSTOMIZE →</Text></Pressable>
     </View>
     <View style={[styles.section,{borderBottomColor:fg}]}>
@@ -88,8 +88,8 @@ export default function HomeTab() {
       <SubstanceChecklist selected={selectedDocs} onToggle={toggleDoc} dark={dark}/>
     </View>
     <View style={[styles.section,{borderBottomColor:fg}]}>
-      <View style={styles.sectionHeader}><Text style={[styles.sectionTitle,{color:fg}]}>YOUR{"\n"}MILESTONES.</Text><Text style={[styles.milestoneCount,{color:muted}]}>{daysSince(profile?.sobriety_date)} DAYS</Text></View>
-      <View style={styles.milestoneList}><MilestoneTimeline days={daysSince(profile?.sobriety_date)} dark={dark}/></View>
+      <View style={styles.sectionHeader}><Text style={[styles.sectionTitle,{color:fg}]}>YOUR{"\n"}MILESTONES.</Text><Text style={[styles.milestoneCount,{color:muted}]}>{daysSince(profile?.sobriety_date ?? null)} DAYS</Text></View>
+      <View style={styles.milestoneList}><MilestoneTimeline days={daysSince(profile?.sobriety_date ?? null)} dark={dark}/></View>
     </View>
   </ScrollView>;
 }
