@@ -31,9 +31,9 @@ export default function Customize() {
 
   useEffect(() => {
     if (!user?.email) return;
-    supabase.from("SobrietyProfile")
+    supabase.from("profiles")
       .select("id, coin_color, coin_shape, coin_motto, coin_photo, number_style")
-      .eq("email", user.email)
+      .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
         if (!data) return;
@@ -70,7 +70,7 @@ export default function Customize() {
     if (uploadError) return Alert.alert("Couldn't upload image", uploadError.message);
     const { data } = supabase.storage.from("coin-images").getPublicUrl(path);
     setImageUrl(data.publicUrl);
-    const { error } = await supabase.from("SobrietyProfile").update({ coin_photo: data.publicUrl }).eq("email", user.email);
+    const { error } = await supabase.from("profiles").update({ coin_photo: data.publicUrl }).eq("id", user.id);
     if (error) Alert.alert("Couldn't save image", error.message);
   }
 
@@ -78,7 +78,7 @@ export default function Customize() {
     if (!user?.email) return;
     setSaving(true);
     const patch = { coin_color: color, coin_shape: shape, coin_motto: motto.trim().slice(0, 30) || "ONE DAY AT A TIME", number_style: font };
-    const { error } = await supabase.from("SobrietyProfile").update(patch).eq("email", user.email);
+    const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
     setSaving(false);
     if (error) Alert.alert("Couldn't save", error.message);
     else {
