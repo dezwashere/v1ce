@@ -7,11 +7,11 @@ import { supabase } from "../lib/supabase";
 const steps = ["name","sobriety","substances"] as const;
 export default function Onboarding() {
   const router=useRouter(); const {user}=useAuth(); const [step,setStep]=useState(0); const [name,setName]=useState(""); const [sobrietyDate,setSobrietyDate]=useState(""); const [substances,setSubstances]=useState("");
-  if(!user){router.replace("/sign-in");return null;}
+  if(!user){router.replace("/sign-in");return null;}\n  const userId = user.id;
   async function finish(){
     if(!name.trim()||!sobrietyDate.trim()){Alert.alert("Almost there","Enter your name and sobriety date.");return;}
     if(!/^\d{4}-\d{2}-\d{2}$/.test(sobrietyDate.trim())){Alert.alert("Check the date","Use YYYY-MM-DD, like 2020-11-15.");return;}
-    const {error}=await supabase.from("profiles").upsert({id:user.id,
+    const {error}=await supabase.from("profiles").upsert({id:userId,
       display_name:name.trim(),sobriety_date:sobrietyDate.trim(),
       substances:substances.split(",").map((item)=>item.trim()).filter(Boolean)
     },{onConflict:"id"});
