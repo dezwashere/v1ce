@@ -3,9 +3,14 @@
 > @workspace/v1ce-native@1.0.0 typecheck
 > tsc -p tsconfig.json --noEmit
 
-lib/widgetSync.ts(64,31): error TS2345: Argument of type '{ widgetName: string; }' is not assignable to parameter of type 'RequestWidgetUpdateProps'.
-  Property 'renderWidget' is missing in type '{ widgetName: string; }' but required in type 'RequestWidgetUpdateProps'.
-widgets/V1CEAndroidWidget.tsx(41,11): error TS2322: Type 'string' is not assignable to type 'ColorProp | undefined'.
-widgets/V1CEAndroidWidget.tsx(50,11): error TS2322: Type 'string' is not assignable to type 'ColorProp | undefined'.
-widgets/V1CEAndroidWidget.tsx(58,11): error TS2322: Type 'string' is not assignable to type 'ColorProp | undefined'.
+lib/widgetSync.ts(71,66): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type 'WidgetPayload' is not assignable to parameter of type 'Attributes & V1CEWidgetProps'.
+      Type 'WidgetPayload' is not assignable to type 'V1CEWidgetProps'.
+        Types of property 'coinColor' are incompatible.
+          Type 'string' is not assignable to type '`#${string}`'.
+widgets/V1CEAndroidWidget.tsx(42,11): error TS2353: Object literal may only specify known properties, and 'position' does not exist in type 'TextWidgetStyle'.
+widgets/widget-task-handler.tsx(28,27): error TS2322: Type '{ days: number; sobrietyDate: string; coinColor: string; coinTextColor: string; coinBorderColor: string; coinShowBorder: boolean; coinShape: string; numberStyle: string; motto: string; }' is not assignable to type 'V1CEWidgetProps'.
+  Types of property 'coinColor' are incompatible.
+    Type 'string' is not assignable to type '`#${string}`'.
 === EXPO DOCTOR ===
