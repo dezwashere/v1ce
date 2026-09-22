@@ -1,4 +1,5 @@
-﻿import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+﻿import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -25,6 +26,8 @@ export default function Customize() {
   const [numberColor, setNumberColor] = useState(profile?.coin_number_color || "");
   const [customHex, setCustomHex] = useState(/^#[0-9A-Fa-f]{6}$/.test(profile?.coin_color || "") ? profile?.coin_color : "");
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [coinPhoto, setCoinPhoto] = useState(profile?.coin_photo || "");
 
   const days = profile
     ? Math.max(0, Math.floor((Date.now() - new Date(profile.sobriety_date + "T00:00:00").getTime()) / 86400000))
@@ -45,6 +48,7 @@ export default function Customize() {
       coin_show_border: border,
       coin_border_color: borderColor || null,
       coin_number_color: numberColor || null,
+      coin_photo: coinPhoto || null,
     };
     const { data, error } = await supabase.from("profiles").update(values).eq("email", profile.email).select().single();
     if (!error) {
@@ -53,6 +57,33 @@ export default function Customize() {
       await syncV1CEWidget(nextProfile);
     }
     setSaving(false);
+  };
+
+  const pickCoinPhoto = async () => {
+    if (!profile?.id || !profile.is_premium) {
+      router.push("/premium");
+      return;
+    }
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) return;
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: true, aspect: [1, 1], quality: 0.85 });
+    if (result.canceled || !result.assets[0]) return;
+    setUploadingPhoto(true);
+    try {
+      const asset = result.assets[0];
+      const body = await (await fetch(asset.uri)).arrayBuffer();
+      const extension = (asset.fileName?.split(".").pop() || asset.mimeType?.split("/").pop() || "jpg").toLowerCase();
+      const contentType = asset.mimeType || "image/jpeg";
+      const path = profile.id + "/" + Date.now() + "." + extension;
+      const { error: uploadError } = await supabase.storage.from("coin-images").upload(path, body, { contentType, upsert: false });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from("coin-images").getPublicUrl(path);
+      setCoinPhoto(data.publicUrl);
+    } catch (error: any) {
+      Alert.alert("V1CE", error?.message || "Couldn't upload that photo.");
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const setHex = (value: string) => {
@@ -65,6 +96,11 @@ export default function Customize() {
     <ScrollView style={{ backgroundColor: c.background }} contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
       <Text style={[s.title, { color: c.foreground }]}>CUSTOMIZE</Text>
 
+            <Text style={[s.hint, { color: c.mutedForeground }]}>COIN PHOTO</Text>
+      <TouchableOpacity disabled={uploadingPhoto} onPress={pickCoinPhoto} style={[s.photoButton, { borderColor: c.border }]}>
+        {coinPhoto ? <Image source={{ uri: coinPhoto }} style={s.photoThumb} /> : null}
+        <Text style={{ color: c.foreground, fontWeight: "700" }}>{uploadingPhoto ? "UPLOADING..." : coinPhoto ? "CHANGE COIN PHOTO" : "ADD COIN PHOTO"}{!profile?.is_premium ? " • PREMIUM" : ""}</Text>
+      </TouchableOpacity>
       <View style={s.preview}>
         <CoinFront
           days={days}
@@ -179,6 +215,8 @@ const s = StyleSheet.create({
   hint: { fontSize: 10, letterSpacing: 2, marginTop: 16, marginBottom: 8 },
   colorRow: { flexDirection: "row", gap: 10 },
   colorDot: { width: 38, height: 38, borderWidth: 2 },
+  photoButton: { minHeight: 64, borderWidth: 2, padding: 8, flexDirection: "row", alignItems: "center", gap: 12 },
+  photoThumb: { width: 48, height: 48 },
   toggle: { borderWidth: 2, padding: 14, marginTop: 16 },
   save: { height: 56, alignItems: "center", justifyContent: "center", marginTop: 24 },
 });
