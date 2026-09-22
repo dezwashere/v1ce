@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React from 'react';
 import { Platform } from 'react-native';
 import type { SobrietyProfile } from './supabase';
+import { resolveCoinColor } from '@/constants/coin';
 
 const STORAGE_KEY = 'v1ce_widget_payload';
 
@@ -24,15 +26,17 @@ function daysSober(sobrietyDate?: string | null) {
 }
 
 function buildPayload(profile: SobrietyProfile): WidgetPayload {
-  const coinColor = profile.coin_color || '#F5D680';
-  const textColor = profile.coin_number_color || '#0a0a0a';
+  const base = resolveCoinColor(profile.coin_color || 'gold');
+  const coinColor = base.bg;
+  const textColor = /^#[0-9A-Fa-f]{6}$/.test(profile.coin_number_color || '') ? profile.coin_number_color as `#${string}` : base.text;
+  const borderColor = /^#[0-9A-Fa-f]{6}$/.test(profile.coin_border_color || '') ? profile.coin_border_color as `#${string}` : base.border;
 
   return {
     days: daysSober(profile.sobriety_date),
     sobrietyDate: profile.sobriety_date,
     coinColor,
     coinTextColor: textColor,
-    coinBorderColor: profile.coin_border_color || '#0a0a0a',
+    coinBorderColor: borderColor,
     coinShowBorder: profile.coin_show_border !== false,
     coinShape: profile.coin_shape || 'circle',
     numberStyle: profile.number_style || 'classic',
@@ -61,6 +65,10 @@ export async function syncV1CEWidget(profile: SobrietyProfile | null) {
     V1CEWidget.updateTimeline(entries);
   } else if (Platform.OS === 'android') {
     const { requestWidgetUpdate } = await import('react-native-android-widget');
-    await requestWidgetUpdate({ widgetName: 'V1CEWidget' });
+    const { V1CEAndroidWidget } = await import('../widgets/V1CEAndroidWidget');
+    await requestWidgetUpdate({
+      widgetName: 'V1CEWidget',
+      renderWidget: () => React.createElement(V1CEAndroidWidget, payload),
+    });
   }
 }
