@@ -1,4 +1,4 @@
-name: Upgrade Expo SDK 56
+name: Upgrade Expo SDK 57
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.19.4
+          node-version: 22.13.0
           cache: npm
 
       - name: Upgrade Expo SDK
@@ -26,40 +26,18 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          rm -f package-lock.json upgrade-sdk56-error.txt
-          node -v
-          npm -v
-          rm -rf node_modules
-          npm install expo@^56.0.0 --save --legacy-peer-deps 2>&1 | tee /tmp/upgrade.log
-          npm install \
-            expo-blur@~56.0.4 \
-            expo-font@~56.0.7 \
-            expo-image-picker@~56.0.25 \
-            expo-router@~56.2.21 \
-            expo-splash-screen@~56.0.15 \
-            expo-status-bar@~56.0.4 \
-            expo-symbols@~56.0.7 \
-            expo-system-ui@~56.0.5 \
-            expo-web-browser@~56.0.6 \
-            react@19.2.3 \
-            react-native@0.85.3 \
-            react-native-gesture-handler@~2.31.1 \
-            react-native-reanimated@4.3.1 \
-            react-native-safe-area-context@~5.7.0 \
-            react-native-screens@~4.26.0 \
-            react-native-svg@15.15.4 \
-            react-native-worklets@0.8.3 \
-            typescript@~6.0.3 \
-            @types/react@~19.2.14 --save --legacy-peer-deps 2>&1 | tee -a /tmp/upgrade.log
+          rm -f package-lock.json upgrade-sdk56-error.txt sdk56-verify-error.txt
+          npm install expo@^57.0.9 --save --legacy-peer-deps 2>&1 | tee /tmp/upgrade.log
+          npx expo install --fix --npm 2>&1 | tee -a /tmp/upgrade.log
 
       - name: Capture upgrade failure
         if: steps.upgrade.outcome == 'failure'
         run: |
-          cp /tmp/upgrade.log upgrade-sdk56-error.txt
+          cp /tmp/upgrade.log upgrade-sdk57-error.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add upgrade-sdk56-error.txt
-          git commit -m "capture SDK 56 upgrade error" || true
+          git add upgrade-sdk57-error.txt
+          git commit -m "capture SDK 57 upgrade error" || true
           git push origin sdk56-widgets || true
           exit 1
 
@@ -82,11 +60,11 @@ jobs:
             cat /tmp/typecheck.log || true
             echo "=== EXPO DOCTOR ==="
             cat /tmp/doctor.log || true
-          } > sdk56-verify-error.txt
+          } > sdk57-verify-error.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add sdk56-verify-error.txt
-          git commit -m "capture SDK 56 verification error" || true
+          git add sdk57-verify-error.txt
+          git commit -m "capture SDK 57 verification error" || true
           git push origin sdk56-widgets || true
           exit 1
 
@@ -95,5 +73,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "upgrade V1CE to Expo SDK 56" || exit 0
+          git commit -m "upgrade V1CE to Expo SDK 57" || exit 0
           git push origin sdk56-widgets
