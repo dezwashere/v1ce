@@ -34,7 +34,8 @@
                   "accessoryCircular",
                   "accessoryRectangular",
                   "accessoryInline"
-                ]
+                ],
+                "src": "./widgets"
               }
             }
           ]
