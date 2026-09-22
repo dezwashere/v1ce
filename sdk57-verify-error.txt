@@ -1,0 +1,8 @@
+=== TYPECHECK ===
+
+> @workspace/v1ce-native@1.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+widgets/widget-task-handler.tsx(28,27): error TS2322: Type '{ days: number; sobrietyDate: string; coinColor: `#${string}`; coinTextColor: `#${string}`; coinBorderColor: `#${string}`; coinShowBorder: boolean; coinShape: string; numberStyle: string; motto: string; displayName: string; coinPhoto: string | null; coinImageOnly: boolean; } | { ...; }' is not assignable to type 'IntrinsicAttributes & V1CEWidgetProps'.
+  Type '{ days: number; sobrietyDate: string; coinColor: `#${string}`; coinTextColor: `#${string}`; coinBorderColor: `#${string}`; coinShowBorder: boolean; coinShape: string; numberStyle: string; motto: string; }' is missing the following properties from type 'V1CEWidgetProps': displayName, coinPhoto, coinImageOnly
+=== EXPO DOCTOR ===
