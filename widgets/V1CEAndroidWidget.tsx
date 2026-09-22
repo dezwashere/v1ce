@@ -1,7 +1,7 @@
 'use no memo';
 
 import React from 'react';
-import { FlexWidget, TextWidget } from 'react-native-android-widget';
+import { FlexWidget, OverlapWidget, TextWidget } from 'react-native-android-widget';
 import type { V1CEWidgetProps } from './V1CEWidgetProps';
 
 function shapeGlyph(shape: string) {
@@ -33,23 +33,22 @@ export function V1CEAndroidWidget(props: V1CEWidgetProps) {
       }}
       accessibilityLabel={`${props.days} days sober`}
     >
-      <TextWidget
-        text={glyph}
-        style={{
-          fontSize: 100,
-          fontFamily: 'sans-serif',
-          color: props.coinColor,
-          position: 'absolute',
-        }}
-      />
-      <TextWidget
-        text={String(props.days)}
+      <OverlapWidget
+        style={{ height: 120, width: 120, justifyContent: 'center', alignItems: 'center' }}
+      >
+        <TextWidget
+          text={glyph}
+          style={{ fontSize: 100, fontFamily: 'sans-serif', color: props.coinColor }}
+        />
+        <TextWidget
+          text={String(props.days)}
         style={{
           fontSize: 30,
           fontFamily: props.numberStyle === 'monospace' ? 'monospace' : 'sans-serif',
           color: props.coinTextColor,
         }}
-      />
+        />
+      </OverlapWidget>
       <TextWidget
         text="DAYS SOBER"
         style={{
