@@ -5,6 +5,7 @@ import {useRouter} from "expo-router";
 import {useAuth} from "@/context/AuthContext";
 import {supabase} from "@/lib/supabase";
 import {useColors} from "@/hooks/useColors";
+import {syncV1CEWidget} from "@/lib/widgetSync";
 
 export default function Profile(){
  const{profile,user,setProfile,signOut}=useAuth();const c=useColors();const router=useRouter();
@@ -40,7 +41,7 @@ export default function Profile(){
  const save=async()=>{
   if(!user?.id)return;setSaving(true);
   const{data,error}=await supabase.from("profiles").update({display_name:name.trim()}).eq("id",user.id).select().single();
-  if(error)Alert.alert("V1CE",error.message);else{setProfile(data);Alert.alert("V1CE","Profile saved.")}
+  if(error)Alert.alert("V1CE",error.message);else{setProfile(data);await syncV1CEWidget(data);Alert.alert("V1CE","Profile saved.")}
   setSaving(false);
  };
 
