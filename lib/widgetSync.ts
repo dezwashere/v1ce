@@ -6,6 +6,7 @@ const STORAGE_KEY = 'v1ce_widget_payload';
 
 export type WidgetPayload = {
   days: number;
+  sobrietyDate: string;
   coinColor: string;
   coinTextColor: string;
   coinBorderColor: string;
@@ -28,6 +29,7 @@ function buildPayload(profile: SobrietyProfile): WidgetPayload {
 
   return {
     days: daysSober(profile.sobriety_date),
+    sobrietyDate: profile.sobriety_date,
     coinColor,
     coinTextColor: textColor,
     coinBorderColor: profile.coin_border_color || '#0a0a0a',
