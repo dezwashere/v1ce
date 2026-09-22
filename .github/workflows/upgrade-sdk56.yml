@@ -23,7 +23,7 @@ jobs:
 
       - name: Upgrade Expo SDK
         run: |
-          npx expo install expo@~56.0.12
+          npm install expo@~56.0.21 --save --legacy-peer-deps
           npx expo install --fix
 
       - name: Regenerate native projects
