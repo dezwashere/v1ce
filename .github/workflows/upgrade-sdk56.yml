@@ -26,7 +26,9 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          npm install expo@~56.0.21 --save --legacy-peer-deps 2>&1 | tee /tmp/upgrade.log
+          rm -f package-lock.json
+          rm -rf node_modules
+          npm install expo@^56.0.0 --save --legacy-peer-deps 2>&1 | tee /tmp/upgrade.log
           npx expo install --fix 2>&1 | tee -a /tmp/upgrade.log
 
       - name: Capture upgrade failure
