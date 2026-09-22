@@ -97,3 +97,43 @@ jobs:
           git add -A
           git commit -m "upgrade V1CE to Expo SDK 57" || exit 0
           git push origin sdk56-widgets
+
+
+  android-build:
+    needs: upgrade
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sdk56-widgets
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: npm ci
+      - run: npx expo prebuild --clean --no-install --platform android
+      - run: |
+          cd android
+          ./gradlew assembleRelease --no-build-cache --no-configuration-cache
+
+  ios-build:
+    needs: upgrade
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sdk56-widgets
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - run: npm ci
+      - run: npx expo prebuild --clean --no-install --platform ios
+      - run: npx pod-install
+      - run: |
+          xcodebuild -list -workspace ios/V1CE.xcworkspace
+          xcodebuild -workspace ios/V1CE.xcworkspace -scheme V1CE -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
