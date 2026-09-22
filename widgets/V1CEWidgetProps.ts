@@ -1,5 +1,6 @@
 export type V1CEWidgetProps = {
   days: number;
+  sobrietyDate: string;
   coinColor: string;
   coinTextColor: string;
   coinBorderColor: string;
