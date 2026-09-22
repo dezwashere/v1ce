@@ -14,6 +14,7 @@
       "package": "app.v1ce"
     },
     "plugins": [
+      "./plugins/withAndroidWorkManagerResolution",
       "expo-router",
       "expo-font",
       "expo-web-browser",
