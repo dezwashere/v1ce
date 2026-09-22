@@ -3,13 +3,9 @@
 > @workspace/v1ce-native@1.0.0 typecheck
 > tsc -p tsconfig.json --noEmit
 
-lib/widgetSync.ts(71,66): error TS2769: No overload matches this call.
-  The last overload gave the following error.
-    Argument of type 'WidgetPayload' is not assignable to parameter of type 'Attributes & V1CEWidgetProps'.
-      Type 'WidgetPayload' is not assignable to type 'V1CEWidgetProps'.
-        Types of property 'coinColor' are incompatible.
-          Type 'string' is not assignable to type '`#${string}`'.
-widgets/V1CEAndroidWidget.tsx(42,11): error TS2353: Object literal may only specify known properties, and 'position' does not exist in type 'TextWidgetStyle'.
+app/(tabs)/customize.tsx(9,10): error TS2305: Module '"@/lib/widgetSync"' has no exported member 'syncV1CEWidget'.
+context/AuthContext.tsx(4,10): error TS2305: Module '"@/lib/widgetSync"' has no exported member 'syncV1CEWidget'.
+widgets/V1CEAndroidWidget.tsx(37,43): error TS2353: Object literal may only specify known properties, and 'justifyContent' does not exist in type 'OverlapWidgetStyle'.
 widgets/widget-task-handler.tsx(28,27): error TS2322: Type '{ days: number; sobrietyDate: string; coinColor: string; coinTextColor: string; coinBorderColor: string; coinShowBorder: boolean; coinShape: string; numberStyle: string; motto: string; }' is not assignable to type 'V1CEWidgetProps'.
   Types of property 'coinColor' are incompatible.
     Type 'string' is not assignable to type '`#${string}`'.
