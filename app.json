@@ -16,7 +16,47 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.app.v1ce",
+          "widgets": [
+            {
+              "name": "V1CEWidget",
+              "displayName": "V1CE",
+              "description": "Shows your V1CE coin and days sober.",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium",
+                  "systemLarge",
+                  "accessoryCircular",
+                  "accessoryRectangular",
+                  "accessoryInline"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "V1CEWidget",
+              "label": "V1CE",
+              "minWidth": "180dp",
+              "minHeight": "180dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "description": "Shows your V1CE coin and days sober.",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
