@@ -1,1 +1,25 @@
-{"expo":{"name":"V1CE","slug":"v1ce-native","version":"1.0.0","orientation":"portrait","scheme":"v1ce","userInterfaceStyle":"automatic","newArchEnabled":true,"ios":{"supportsTablet":false},"android":{"package":"app.v1ce"},"plugins":["expo-router","expo-font","expo-web-browser"],"experiments":{"typedRoutes":true,"reactCompiler":true}}}
+{
+  "expo": {
+    "name": "V1CE",
+    "slug": "v1ce-native",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "v1ce",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "app.v1ce"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
