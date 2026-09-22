@@ -7,7 +7,7 @@ import type { V1CEWidgetProps } from './V1CEWidgetProps';
 function shapeGlyph(shape: string) {
   switch (shape) {
     case 'hexagon': return '⬢';
-    case 'octagon': return '🛑';
+    case 'octagon': return '⬣';
     case 'shield': return '⬟';
     case 'diamond': return '◆';
     case 'star': return '★';
