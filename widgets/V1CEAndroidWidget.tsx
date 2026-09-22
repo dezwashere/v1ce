@@ -34,7 +34,7 @@ export function V1CEAndroidWidget(props: V1CEWidgetProps) {
       accessibilityLabel={`${props.days} days sober`}
     >
       <OverlapWidget
-        style={{ height: 120, width: 120, justifyContent: 'center', alignItems: 'center' }}
+        style={{ height: 120, width: 120 }}
       >
         <TextWidget
           text={glyph}
