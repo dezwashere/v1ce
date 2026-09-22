@@ -47,7 +47,9 @@ jobs:
             react-native-svg@15.15.4 \
             react-native-worklets@0.10.1 \
             typescript@~6.0.3 \
-            @types/react@~19.2.4 --save --legacy-peer-deps 2>&1 | tee -a /tmp/upgrade.log
+            @types/react@~19.2.4 \
+            expo-constants@~57.0.7 \
+            expo-linking@~57.0.7 --save --legacy-peer-deps 2>&1 | tee -a /tmp/upgrade.log
 
       - name: Capture upgrade failure
         if: steps.upgrade.outcome == 'failure'
@@ -59,9 +61,6 @@ jobs:
           git commit -m "capture SDK 57 upgrade error" || true
           git push origin sdk56-widgets || true
           exit 1
-
-      - name: Regenerate native projects
-        run: npx expo prebuild --clean --no-install
 
       - name: Verify
         id: verify
@@ -86,6 +85,9 @@ jobs:
           git commit -m "capture SDK 57 verification error" || true
           git push origin sdk56-widgets || true
           exit 1
+
+      - name: Regenerate native projects
+        run: npx expo prebuild --clean --no-install
 
       - name: Commit upgrade
         run: |
