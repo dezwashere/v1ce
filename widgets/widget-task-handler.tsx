@@ -9,8 +9,9 @@ const STORAGE_KEY = 'v1ce_widget_payload';
 export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
   const data = raw ? (JSON.parse(raw) as V1CEWidgetProps) : null;
-  const payload = data ?? {
+  const payload = data ? { ...data, days: data.sobrietyDate ? Math.max(0, Math.floor((Date.now() - new Date(data.sobrietyDate + 'T00:00:00').getTime()) / 86400000)) : data.days } : {
     days: 0,
+    sobrietyDate: new Date().toISOString().slice(0, 10),
     coinColor: '#F5D680',
     coinTextColor: '#0a0a0a',
     coinBorderColor: '#0a0a0a',
