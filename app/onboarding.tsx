@@ -5,6 +5,7 @@ import {useAuth} from "@/context/AuthContext";
 import {supabase} from "@/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useColors} from "@/hooks/useColors";
+import {syncV1CEWidget} from "@/lib/widgetSync";
 const SUBSTANCES=["Alcohol","Cannabis","Cocaine","Opioids","Meth","Benzodiazepines","Nicotine","Sugar","Gambling","Other"];
 function formatUSDate(value:string){const digits=value.replace(/\D/g,"").slice(0,8);if(digits.length<=2)return digits;if(digits.length<=4)return `${digits.slice(0,2)}/${digits.slice(2)}`;return `${digits.slice(0,2)}/${digits.slice(2,4)}/${digits.slice(4)}`}
 function toDatabaseDate(value:string){const match=value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);return match?`${match[3]}-${match[1]}-${match[2]}`:""}
