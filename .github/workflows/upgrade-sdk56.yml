@@ -15,21 +15,25 @@ jobs:
         with:
           ref: sdk56-widgets
           fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20.19.3
           cache: npm
-      - name: Upgrade Expo
+
+      - name: Upgrade Expo SDK
         run: |
-          node -e "const fs=require('fs'); const p=require('./package.json'); p.dependencies.expo='^56.0.0'; p.dependencies.react='19.2.3'; p.dependencies['react-native']='0.85.3'; fs.writeFileSync('package.json', JSON.stringify(p,null,2)+'\\n')"
-          npm install
+          npx expo install expo@~56.0.12
           npx expo install --fix
+
       - name: Regenerate native projects
         run: npx expo prebuild --clean --no-install
+
       - name: Verify
         run: |
           npm run typecheck
           npx expo-doctor
+
       - name: Commit upgrade
         run: |
           git config user.name "github-actions[bot]"
