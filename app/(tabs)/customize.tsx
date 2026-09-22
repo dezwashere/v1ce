@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useColors } from "@/hooks/useColors";
 import CoinFront, { SHAPES } from "@/components/CoinFront";
 import { COIN_COLORS, NUMBER_STYLES, resolveCoinColor } from "@/constants/coin";
+import { syncV1CEWidget } from "@/lib/widgetSync";
 
 const PRESET_COLORS = Object.keys(COIN_COLORS);
 const ACCENT_OPTIONS = ["", "#0A0A0A", "#FFFFFF", "#F5A41A"];
@@ -46,7 +47,11 @@ export default function Customize() {
       coin_number_color: numberColor || null,
     };
     const { data, error } = await supabase.from("profiles").update(values).eq("email", profile.email).select().single();
-    if (!error) setProfile(data || { ...profile, ...values });
+    if (!error) {
+      const nextProfile = data || { ...profile, ...values };
+      setProfile(nextProfile);
+      await syncV1CEWidget(nextProfile);
+    }
     setSaving(false);
   };
 
