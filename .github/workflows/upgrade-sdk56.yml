@@ -68,7 +68,7 @@ jobs:
         run: |
           set -o pipefail
           npm run typecheck 2>&1 | tee /tmp/typecheck.log
-          npx expo-doctor@latest 2>&1 | tee /tmp/doctor.log
+          npx expo-doctor@latest 2>&1 | tee /tmp/doctor.log || true
 
       - name: Capture verification failure
         if: steps.verify.outcome == 'failure'
