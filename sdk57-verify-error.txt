@@ -1,0 +1,7 @@
+=== TYPECHECK ===
+
+> @workspace/v1ce-native@1.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+app/(tabs)/customize.tsx(83,7): error TS2552: Cannot find name 'Alert'. Did you mean 'alert'?
+=== EXPO DOCTOR ===
