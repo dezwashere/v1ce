@@ -2,7 +2,7 @@
   "name": "@workspace/v1ce-native",
   "version": "1.0.0",
   "private": true,
-  "main": "expo-router/entry",
+  "main": "index.ts",
   "scripts": {
     "dev": "expo start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -45,7 +45,10 @@
     "react-native-screens": "~4.26.0",
     "react-native-svg": "^15.15.4",
     "react-native-worklets": "^0.10.1",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "expo-widgets": "~57.0.20",
+    "@expo/ui": "~57.0.19",
+    "react-native-android-widget": "0.22.1"
   },
   "devDependencies": {
     "@types/react": "~19.2.4"
