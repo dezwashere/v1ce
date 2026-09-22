@@ -67,9 +67,28 @@ jobs:
         run: npx expo prebuild --clean --no-install
 
       - name: Verify
+        id: verify
+        continue-on-error: true
         run: |
-          npm run typecheck
-          npx expo-doctor
+          set -o pipefail
+          npm run typecheck 2>&1 | tee /tmp/typecheck.log
+          npx expo-doctor@latest 2>&1 | tee /tmp/doctor.log
+
+      - name: Capture verification failure
+        if: steps.verify.outcome == 'failure'
+        run: |
+          {
+            echo "=== TYPECHECK ==="
+            cat /tmp/typecheck.log || true
+            echo "=== EXPO DOCTOR ==="
+            cat /tmp/doctor.log || true
+          } > sdk56-verify-error.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sdk56-verify-error.txt
+          git commit -m "capture SDK 56 verification error" || true
+          git push origin sdk56-widgets || true
+          exit 1
 
       - name: Commit upgrade
         run: |
