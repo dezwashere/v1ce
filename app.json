@@ -7,7 +7,8 @@
     "scheme": "v1ce",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "app.v1ce"
     },
     "android": {
       "package": "app.v1ce"
