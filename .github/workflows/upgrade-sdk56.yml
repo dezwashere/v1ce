@@ -1,4 +1,4 @@
-name: Upgrade Expo SDK 57
+name: Upgrade Expo SDK 57 + widgets
 
 on:
   push:
