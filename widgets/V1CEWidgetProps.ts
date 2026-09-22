@@ -8,4 +8,7 @@ export type V1CEWidgetProps = {
   coinShape: string;
   numberStyle: string;
   motto: string;
+  displayName: string;
+  coinPhoto: string | null;
+  coinImageOnly: boolean;
 };
