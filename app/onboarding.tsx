@@ -44,7 +44,7 @@ export default function Onboarding() {
     await AsyncStorage.setItem("v1ce_email", email.trim().toLowerCase());
     const values = {
       id: user.id,
-      email: user.email || "",
+      email: email.trim().toLowerCase(),
       display_name: name.trim(),
       sobriety_date: sobrietyDate,
       substances,
