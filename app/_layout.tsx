@@ -13,24 +13,30 @@ import { Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { SpaceMono_700Bold } from "@expo-google-fonts/space-mono";
 import { Syne_700Bold } from "@expo-google-fonts/syne";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Redirect, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
 SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 function RootNavigation() {
-  const { isLoading, profile } = useAuth();
-  if (isLoading) return null;
-  if (!profile?.sobriety_date) return <Redirect href="/onboarding" />;
-  return <Stack screenOptions={{ headerShown: false }}><Stack.Screen name="(tabs)" /><Stack.Screen name="game" /><Stack.Screen name="widget" /><Stack.Screen name="coin-widget" /></Stack>;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="onboarding" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="game" />
+      <Stack.Screen name="widget" />
+      <Stack.Screen name="coin-widget" />
+    </Stack>
+  );
 }
 
 export default function RootLayout() {

@@ -1,10 +1,11 @@
 import { BlurView } from "expo-blur";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
+import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 
 function NativeTabLayout() {
@@ -41,5 +42,10 @@ function ClassicTabLayout() {
   );
 }
 
-export default function TabLayout(){return Platform.OS==="ios"?<NativeTabLayout/>:<ClassicTabLayout/>}
+export default function TabLayout(){
+  const {isLoading,profile}=useAuth();
+  if(isLoading)return null;
+  if(!profile?.sobriety_date)return <Redirect href="/onboarding"/>;
+  return Platform.OS==="ios"?<NativeTabLayout/>:<ClassicTabLayout/>
+}
 const styles=StyleSheet.create({tabBar:{height:72,paddingTop:6,paddingBottom:8}});
