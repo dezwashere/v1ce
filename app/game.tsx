@@ -1,12 +1,12 @@
 import React,{useState} from "react";
 import {ScrollView,StyleSheet,Text,TouchableOpacity,View} from "react-native";
-import {useRouter} from "expo-router";
+import {useLocalSearchParams,useRouter} from "expo-router";
 import {useColors} from "@/hooks/useColors";
 import SnakeGame from "@/components/games/SnakeGame";
 import SobrietyRunGame from "@/components/games/SobrietyRunGame";
 
 export default function Game(){
- const c=useColors(); const router=useRouter(); const [game,setGame]=useState<"run"|"snake">("run");
+ const c=useColors(); const router=useRouter(); const params=useLocalSearchParams<{game?:string}>(); const [game,setGame]=useState<"run"|"snake">(params.game==="snake"?"snake":"run");
  return <ScrollView style={{backgroundColor:c.background}} contentContainerStyle={s.page}>
   <TouchableOpacity onPress={()=>router.back()}><Text style={[s.back,{color:c.foreground}]}>← BACK</Text></TouchableOpacity>
   <Text style={[s.kicker,{color:c.mutedForeground}]}>V1CE</Text>

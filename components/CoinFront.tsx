@@ -80,6 +80,7 @@ export default function CoinFront({
   numberStyle="classic",
   size=260,
   displayName,
+  motto,
   customShapePath,
   showBorder=true,
   coinPhoto,
@@ -142,6 +143,9 @@ export default function CoinFront({
           {displayName && (
             <Text numberOfLines={1} style={[styles.name,{color:resolvedNumberColor,fontSize:size*.04,maxWidth}]}>{displayName}</Text>
           )}
+          {motto && (
+            <Text numberOfLines={1} style={[styles.motto,{color:resolvedNumberColor,fontSize:size*.032,maxWidth}]}>{motto}</Text>
+          )}
         </View>
       )}
     </View>
@@ -156,4 +160,5 @@ const styles=StyleSheet.create({
   number:{includeFontPadding:false,textAlign:"center"},
   label:{fontWeight:"400",letterSpacing:3,opacity:.7,textAlign:"center",marginTop:2},
   name:{fontWeight:"500",letterSpacing:2,opacity:.4,marginTop:8,textAlign:"center",textTransform:"uppercase"},
+  motto:{fontWeight:"500",letterSpacing:1,opacity:.55,marginTop:3,textAlign:"center",textTransform:"uppercase"},
 });
