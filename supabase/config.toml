@@ -1,0 +1,7 @@
+project_id = "v1ce"
+
+[functions.create-checkout]
+verify_jwt = true
+
+[functions.giveaway-entry]
+verify_jwt = true
