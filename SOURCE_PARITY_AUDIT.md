@@ -16,7 +16,7 @@ For that reason, literal line-by-line equality is neither possible nor a safe co
 
 ## File-by-file source checklist
 
-- [x] `package.json` — standalone npm equivalents replace the source workspace aliases and `catalog:` entries. All active runtime imports are declared. The lockfile is synchronized.
+- [x] `package.json` — standalone npm equivalents replace the source workspace aliases and `catalog:` entries. All active runtime imports and Expo Router native peer dependencies are declared. The lockfile is synchronized.
 - [x] `app.json` — valid native bundle identifiers and scheme are present. Source icon/splash paths were omitted because the referenced `assets/images/icon.png` was never supplied.
 - [x] `lib/supabase.ts` — client plus profile, friend, and blocked-user entities are represented. Active schema uses `profiles`, UUID relationships, and nullable media/color fields instead of the source's legacy PascalCase/email relationships.
 - [x] `constants/colors.ts` — all light/dark design tokens listed by the source are present.
@@ -77,4 +77,6 @@ For that reason, literal line-by-line equality is neither possible nor a safe co
 - No missing local import targets remain.
 - The Share tab now has a matching `(tabs)/widget` route.
 - The package lock now contains `expo-glass-effect`, which was declared but absent before this audit.
+- Expo Router's required `expo-constants` and `expo-linking` native peers are installed directly.
 - Supabase Edge Functions are intentionally excluded from the app TypeScript project because they run in the Deno runtime.
+- `npm audit --omit=dev` reports 21 transitive findings in the Expo 54 / Metro toolchain. npm only offers breaking remediation (Expo 57 or a Router downgrade), so those upgrades require a separate SDK migration.
