@@ -3,5 +3,67 @@
 > @workspace/v1ce-native@1.0.0 typecheck
 > tsc -p tsconfig.json --noEmit
 
-app/(tabs)/customize.tsx(83,7): error TS2552: Cannot find name 'Alert'. Did you mean 'alert'?
+context/AuthContext.tsx(9,35): error TS1005: ',' expected.
+context/AuthContext.tsx(9,55): error TS1005: ',' expected.
+context/AuthContext.tsx(9,63): error TS1005: ',' expected.
+context/AuthContext.tsx(9,64): error TS17008: JSX element 'T' has no corresponding closing tag.
+context/AuthContext.tsx(9,67): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(9,108): error TS17008: JSX element 'T' has no corresponding closing tag.
+context/AuthContext.tsx(9,122): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(9,137): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(10,50): error TS1005: '}' expected.
+context/AuthContext.tsx(10,60): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(11,2): error TS1109: Expression expected.
+context/AuthContext.tsx(11,36): error TS1003: Identifier expected.
+context/AuthContext.tsx(11,41): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(11,94): error TS1003: Identifier expected.
+context/AuthContext.tsx(11,99): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(12,41): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(13,3): error TS1109: Expression expected.
+context/AuthContext.tsx(14,4): error TS1109: Expression expected.
+context/AuthContext.tsx(16,67): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(17,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(18,2): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(19,31): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(19,33): error TS1109: Expression expected.
+context/AuthContext.tsx(19,71): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(20,15): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(21,7): error TS1005: '}' expected.
+context/AuthContext.tsx(22,28): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(23,4): error TS1109: Expression expected.
+context/AuthContext.tsx(24,8): error TS1005: '}' expected.
+context/AuthContext.tsx(24,13): error TS1005: '}' expected.
+context/AuthContext.tsx(24,23): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(27,6): error TS1109: Expression expected.
+context/AuthContext.tsx(29,5): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(33,41): error TS1005: '}' expected.
+context/AuthContext.tsx(35,5): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(35,43): error TS1005: '}' expected.
+context/AuthContext.tsx(35,55): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(36,4): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(36,20): error TS1109: Expression expected.
+context/AuthContext.tsx(36,50): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(37,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(39,13): error TS1005: '}' expected.
+context/AuthContext.tsx(39,28): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(39,74): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(40,4): error TS1109: Expression expected.
+context/AuthContext.tsx(41,18): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(42,5): error TS1109: Expression expected.
+context/AuthContext.tsx(43,6): error TS1109: Expression expected.
+context/AuthContext.tsx(45,20): error TS1005: '}' expected.
+context/AuthContext.tsx(45,55): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(47,5): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(48,4): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(49,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(50,12): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(50,27): error TS1005: '}' expected.
+context/AuthContext.tsx(50,54): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(51,2): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(52,24): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(52,55): error TS1005: '}' expected.
+context/AuthContext.tsx(52,130): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(53,25): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+context/AuthContext.tsx(55,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+context/AuthContext.tsx(55,2): error TS1005: '</' expected.
 === EXPO DOCTOR ===
