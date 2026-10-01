@@ -167,17 +167,29 @@ private func registerWidgetFonts() {
 struct Entry: TimelineEntry {
   let date: Date
   let data: Snapshot?
+  let showBack: Bool
 }
 
 struct Provider: TimelineProvider {
-  func placeholder(in c: Context) -> Entry { Entry(date: .now, data: nil) }
+  func placeholder(in c: Context) -> Entry { Entry(date: .now, data: nil, showBack: false) }
   func getSnapshot(in c: Context, completion: @escaping (Entry) -> Void) {
-    completion(Entry(date: .now, data: snap()))
+    completion(Entry(date: .now, data: snap(), showBack: false))
   }
   func getTimeline(in c: Context, completion: @escaping (Timeline<Entry>) -> Void) {
     let n = Date()
-    let next = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: n))!
-    completion(Timeline(entries: [Entry(date: n, data: snap()), Entry(date: next, data: snap())], policy: .after(next)))
+    let data = snap()
+    let interval: TimeInterval = 30 * 60
+    let slot = Int(n.timeIntervalSince1970 / interval)
+    let firstBoundary = Date(timeIntervalSince1970: Double(slot + 1) * interval)
+
+    var entries = [Entry(date: n, data: data, showBack: slot % 2 != 0)]
+    for offset in 0..<48 {
+      let date = firstBoundary.addingTimeInterval(Double(offset) * interval)
+      entries.append(Entry(date: date, data: data, showBack: (slot + offset + 1) % 2 != 0))
+    }
+
+    let refresh = firstBoundary.addingTimeInterval(48 * interval)
+    completion(Timeline(entries: entries, policy: .after(refresh)))
   }
 }
 
@@ -206,26 +218,46 @@ struct V1CEWidgetView: View {
           .stroke(border, lineWidth: family == .systemLarge ? 3 : 2)
           .padding(family == .systemLarge ? 7 : 4)
       }
-      VStack(spacing: family == .systemLarge ? 5 : 2) {
-        Text("\(value.0)")
-          .font(font)
-          .minimumScaleFactor(0.45)
-          .lineLimit(1)
-        Text(value.1)
-          .font(.system(size: family == .systemLarge ? 11 : 8, weight: .semibold, design: .default))
-          .tracking(1.8)
-        if let name = data?.displayName, !name.isEmpty {
-          Text(name.uppercased())
-            .font(.system(size: family == .systemLarge ? 8 : 6, weight: .medium))
-            .tracking(1.2)
+      if entry.showBack {
+        VStack(spacing: family == .systemLarge ? 8 : 4) {
+          Text("V1CE")
+            .font(.system(size: family == .systemLarge ? 14 : 10, weight: .bold))
+            .tracking(family == .systemLarge ? 4 : 2.5)
+            .opacity(0.7)
+          Text("\(value.0)")
+            .font(font)
+            .minimumScaleFactor(0.45)
             .lineLimit(1)
-        }
-        if family == .systemLarge, let motto = data?.coinMotto, !motto.isEmpty {
-          Text(motto)
-            .font(.system(size: 10))
+          Text((data?.coinMotto.isEmpty == false ? data?.coinMotto : nil) ?? "FREE FROM")
+            .font(.system(size: family == .systemLarge ? 11 : 8, weight: .semibold))
+            .tracking(1.8)
             .multilineTextAlignment(.center)
             .lineLimit(3)
-            .padding(.horizontal, 18)
+            .opacity(0.7)
+            .padding(.horizontal, family == .systemLarge ? 18 : 8)
+        }
+      } else {
+        VStack(spacing: family == .systemLarge ? 5 : 2) {
+          Text("\(value.0)")
+            .font(font)
+            .minimumScaleFactor(0.45)
+            .lineLimit(1)
+          Text(value.1)
+            .font(.system(size: family == .systemLarge ? 11 : 8, weight: .semibold, design: .default))
+            .tracking(1.8)
+          if let name = data?.displayName, !name.isEmpty {
+            Text(name.uppercased())
+              .font(.system(size: family == .systemLarge ? 8 : 6, weight: .medium))
+              .tracking(1.2)
+              .lineLimit(1)
+          }
+          if family == .systemLarge, let motto = data?.coinMotto, !motto.isEmpty {
+            Text(motto)
+              .font(.system(size: 10))
+              .multilineTextAlignment(.center)
+              .lineLimit(3)
+              .padding(.horizontal, 18)
+          }
         }
       }
       .foregroundStyle(text)
