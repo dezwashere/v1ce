@@ -263,6 +263,12 @@ struct V1CEWidgetView: View {
       .foregroundStyle(text)
       .padding(10)
     }
+    .id(entry.showBack)
+    .transition(.asymmetric(
+      insertion: .push(from: entry.showBack ? .trailing : .leading),
+      removal: .push(from: entry.showBack ? .leading : .trailing)
+    ))
+    .animation(.easeInOut(duration: 0.8), value: entry.showBack)
     .v1ceWidgetBackground(bg)
     .widgetURL(URL(string: "v1ce://home"))
   }
