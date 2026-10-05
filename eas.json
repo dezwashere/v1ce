@@ -7,7 +7,10 @@
       "developmentClient": true,
       "distribution": "internal",
       "autoIncrement": true,
-      "channel": "development"
+      "channel": "development",
+      "env": {
+        "EAS_NO_FROZEN_LOCKFILE": "1"
+      }
     },
     "preview": {
       "distribution": "internal",
