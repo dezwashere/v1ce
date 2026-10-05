@@ -1,0 +1,6 @@
+=== eas whoami ===
+Not logged in
+auth_exit_code=1
+=== eas update ===
+Update skipped because Expo authentication failed.
+update_exit_code=99
