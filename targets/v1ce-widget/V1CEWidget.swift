@@ -260,7 +260,7 @@ struct V1CEWidgetView: View {
           }
         }
       }
-      .foregroundStyle(text)
+      .foregroundColor(text)
       .padding(10)
     }
     .id(entry.showBack)
