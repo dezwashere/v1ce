@@ -236,6 +236,8 @@ struct V1CEWidgetView: View {
             .opacity(0.7)
             .padding(.horizontal, family == .systemLarge ? 18 : 8)
         }
+        .foregroundColor(text)
+        .padding(10)
       } else {
         VStack(spacing: family == .systemLarge ? 5 : 2) {
           Text("\(value.0)")
@@ -259,9 +261,9 @@ struct V1CEWidgetView: View {
               .padding(.horizontal, 18)
           }
         }
+        .foregroundColor(text)
+        .padding(10)
       }
-      .foregroundColor(text)
-      .padding(10)
     }
     .id(entry.showBack)
     .transition(.asymmetric(
