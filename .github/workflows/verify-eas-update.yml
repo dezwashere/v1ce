@@ -1,0 +1,36 @@
+name: Verify V1CE EAS Update
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  publish:
+    if: contains(github.event.head_commit.message, 'Verify V1CE EAS Update pipeline')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Publish and record result
+        shell: bash
+        run: |
+          mkdir -p .eas-verification
+          set +e
+          eas update --channel development --message "V1CE baseline OTA verification" --non-interactive > .eas-verification/update-result.txt 2>&1
+          status=$?
+          echo "exit_code=$status" >> .eas-verification/update-result.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .eas-verification/update-result.txt
+          git commit -m "Record EAS Update verification result" || true
+          git push
+          exit $status
