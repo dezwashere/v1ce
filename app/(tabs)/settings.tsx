@@ -193,6 +193,8 @@ export default function Settings() {
   const [shapeOpen, setShapeOpen] = useState(false);
   const [colorsOpen, setColorsOpen] = useState(false);
   const [fontOpen, setFontOpen] = useState(false);
+  const [homeWordsOpen, setHomeWordsOpen] = useState(false);
+  const [coinWordsOpen, setCoinWordsOpen] = useState(false);
 
   const [homeWordPrefs, setHomeWordPrefs] = useState<RotatingTextPrefs>(DEFAULT_ROTATING_PREFS);
   const [chipWordPrefs, setChipWordPrefs] = useState<RotatingTextPrefs>(DEFAULT_ROTATING_PREFS);
@@ -452,8 +454,22 @@ export default function Settings() {
 
       <View style={[styles.section, { borderBottomColor: colors.border }]}>
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>WORDS</Text>
-        <RotatingTextSettings title="HOME ROTATING WORDS" prefs={homeWordPrefs} onChange={updateHomeWords} />
-        <RotatingTextSettings title="YOUR CHIP WORDS" prefs={chipWordPrefs} onChange={updateChipWords} />
+        <DropdownSection
+          label="HOME ROTATING WORDS"
+          summary={homeWordPrefs.rotating ? "ROTATING" : `PAUSED · ${homeWordPrefs.pausedWord || "SOBER"}`}
+          open={homeWordsOpen}
+          onToggle={() => setHomeWordsOpen((value) => !value)}
+        >
+          <RotatingTextSettings title="HOME ROTATING WORDS" prefs={homeWordPrefs} onChange={updateHomeWords} />
+        </DropdownSection>
+        <DropdownSection
+          label="COIN ROTATING WORDS"
+          summary={chipWordPrefs.rotating ? "ROTATING" : `PAUSED · ${chipWordPrefs.pausedWord || "SOBER"}`}
+          open={coinWordsOpen}
+          onToggle={() => setCoinWordsOpen((value) => !value)}
+        >
+          <RotatingTextSettings title="COIN ROTATING WORDS" prefs={chipWordPrefs} onChange={updateChipWords} />
+        </DropdownSection>
       </View>
 
       <View style={[styles.section, { borderBottomColor: colors.border }]}>
