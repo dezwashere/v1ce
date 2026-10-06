@@ -10,14 +10,18 @@ import CoinPreview from "@/components/lounge/CoinPreview";
 import BirthdayCard from "@/components/birthday/BirthdayCard";
 import BirthdayTag from "@/components/birthday/BirthdayTag";
 
-const DEMO=[["Mia",327],["Jordan",118],["Sam",42],["Alex",276],["Taylor",19],["Casey",203]] as const;
+const DEMO=[
+ {id:"mia",name:"Mia",days:327,birthday:true,status:"Still here. And so proud of that.",avatarSeed:"MIA",shape:"circle",color:"#F5D680",motto:"KEEP GOING",showCoin:true},
+ {id:"jordan",name:"Jordan",days:118,birthday:true,status:"Quiet progress is still progress.",avatarSeed:"JORDAN",shape:"hexagon",color:"#E8B4B8",motto:"JUST FOR TODAY",showCoin:true},
+ {id:"sam",name:"Sam",days:42,birthday:false,status:"One day at a time.",avatarSeed:"SAM",shape:"shield",color:"#2E8B57",motto:"NOT TODAY",showCoin:true},
+] as const;
 const EGG_RESPONSES=["YES.","NO.","NOT TODAY.","GIVE IT TIME.","DO IT.","DON'T DO IT.","WAIT.","TRUST YOURSELF.","YOU ALREADY KNOW.","ASK AGAIN LATER.","SLEEP ON IT.","KEEP GOING.","LET IT GO.","LEAVE IT ALONE.","TAKE THE RISK.","NOT WORTH IT.","ONE THING AT A TIME.","TRY AGAIN TOMORROW.","CALL SOMEONE.","GO OUTSIDE.","STAY HOME.","BE PATIENT.","START SMALL.","STOP OVERTHINKING IT.","MAYBE.","ABSOLUTELY.","PROBABLY NOT.","WRONG QUESTION.","THE TIMING IS OFF.","THE TIMING IS RIGHT.","EAT TACO BELL.","EAT TACO TIME.","PLAY A VIDEO GAME.","SCREAM."];
 const SERIOUS=/suicid|kill myself|hurt myself|overdose|emergency|chest pain|can't breathe|cant breathe|poison|bleeding heavily/i;
 
 export default function Lounge(){
  const router=useRouter(); const colors=useColors(); const {user,profile}=useAuth();
  const [message,setMessage]=useState(""); const [messages,setMessages]=useState<LoungeChatMessage[]>([]); const [friends,setFriends]=useState<FriendConnection[]>([]); const [sending,setSending]=useState(false);
- const [preview,setPreview]=useState<{name:string;days:number}|null>(null); const [birthdayOpen,setBirthdayOpen]=useState(false); const [birthdayName,setBirthdayName]=useState("");
+ const [preview,setPreview]=useState<{name:string;days:number;status?:string;avatarSeed?:string;shape?:string;color?:string;motto?:string;birthday?:boolean;showCoin?:boolean}|null>(null); const [birthdayOpen,setBirthdayOpen]=useState(false); const [birthdayName,setBirthdayName]=useState("");
  const [eggQuestion,setEggQuestion]=useState(""); const [eggAnswer,setEggAnswer]=useState("");
 
  const load=useCallback(async()=>{if(!user?.id)return;const [{data:friendData,error:friendError},{data:messageData,error:messageError}]=await Promise.all([supabase.rpc("get_my_friend_connections"),supabase.rpc("get_lounge_messages")]);if(friendError)Alert.alert("V1CE",friendError.message);else setFriends(((friendData||[]) as FriendConnection[]).filter(f=>f.status==="accepted"));if(messageError)Alert.alert("V1CE",messageError.message);else setMessages((messageData||[]) as LoungeChatMessage[]);},[user?.id]);
@@ -26,7 +30,7 @@ export default function Lounge(){
  const askEgg=()=>{const q=eggQuestion.trim();if(!q)return;setEggAnswer(SERIOUS.test(q)?"I DON'T KNOW.":EGG_RESPONSES[Math.floor(Math.random()*EGG_RESPONSES.length)]);};
  const isBirthday=profile?.birthday&&new Date(profile.birthday).getMonth()===new Date().getMonth()&&new Date(profile.birthday).getDate()===new Date().getDate();
  const friendName=(f:FriendConnection)=>f.requester_id===user?.id?f.recipient_name||f.recipient_email||"Friend":f.requester_name||f.requester_email||"Friend";
- const visibleFriends=useMemo(()=>__DEV__?DEMO.map(([name,days])=>({id:name,name,days})):friends.slice(0,6).map((f)=>({id:f.id,name:friendName(f),days:1})),[friends,user?.id]);
+ const visibleFriends=useMemo(()=>__DEV__?DEMO:friends.slice(0,6).map((f)=>({id:f.id,name:friendName(f),days:1,birthday:false,status:"",avatarSeed:friendName(f),shape:"circle",color:"#F5D680",motto:"FREE FROM",showCoin:true})),[friends,user?.id]);
 
  return <KeyboardAvoidingView style={{flex:1,backgroundColor:colors.background}} behavior={Platform.OS==="ios"?"padding":"height"} keyboardVerticalOffset={96}>
   <ScrollView style={{backgroundColor:colors.background}} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -35,8 +39,8 @@ export default function Lounge(){
    {isBirthday?<TouchableOpacity onPress={()=>setBirthdayOpen(true)} style={[styles.bday,{borderColor:colors.foreground}]}><BirthdayTag/><Text style={[styles.bold,{color:colors.foreground}]}>It's your birthday in the lounge.</Text></TouchableOpacity>:null}
 
    <View style={styles.sectionHead}><Text style={[styles.section,{color:colors.foreground}]}>FRIENDS ({visibleFriends.length})</Text><TouchableOpacity onPress={()=>router.push("/friends")} style={[styles.addBtn,{backgroundColor:colors.foreground}]}><Text style={[styles.addText,{color:colors.background}]}>ADD FRIEND +</Text></TouchableOpacity></View>
-   <View style={styles.grid}>{visibleFriends.map((f,index)=><TouchableOpacity key={f.id} onPress={()=>index===0&&__DEV__?(setBirthdayName(f.name),setBirthdayOpen(true)):setPreview({name:f.name,days:f.days})} style={[styles.friendCard,{borderColor:colors.border}]}>
-    <LofiAvatar seed={f.name} size={66}/><Text style={[styles.friendName,{color:colors.foreground}]}>{f.name}</Text><Text style={[styles.friendDays,{color:colors.mutedForeground}]}>{f.days} days</Text>{index===0&&__DEV__?<BirthdayTag/>:null}
+   <View style={styles.grid}>{visibleFriends.map((f)=><TouchableOpacity key={f.id} onPress={()=>setPreview({name:f.name,days:f.days,status:f.status,avatarSeed:f.avatarSeed,shape:f.shape,color:f.color,motto:f.motto,birthday:f.birthday,showCoin:f.showCoin})} style={[styles.friendCard,{borderColor:colors.border}]}>
+    <LofiAvatar seed={f.avatarSeed||f.name} size={66}/><Text style={[styles.friendName,{color:colors.foreground}]}>{f.name}</Text><Text style={[styles.friendDays,{color:colors.mutedForeground}]}>{f.days} days</Text>{f.birthday?<BirthdayTag/>:null}
    </TouchableOpacity>)}</View>
 
    <Text style={[styles.section,{color:colors.foreground}]}>LOUNGE CHAT</Text>
@@ -57,7 +61,20 @@ export default function Lounge(){
     <TouchableOpacity onPress={askEgg} style={[styles.eggBtn,{backgroundColor:colors.foreground}]}><Text style={[styles.eggBtnText,{color:colors.background}]}>{eggAnswer?"TAP AGAIN":"ASK THE EGG"}</Text></TouchableOpacity>
    </View>
 
-   <CoinPreview visible={!!preview} onClose={()=>setPreview(null)} name={preview?.name||""} days={preview?.days||0}/>
+   <CoinPreview
+     visible={!!preview}
+     onClose={()=>setPreview(null)}
+     name={preview?.name||""}
+     days={preview?.days||0}
+     status={preview?.status}
+     avatarSeed={preview?.avatarSeed}
+     shape={preview?.shape}
+     color={preview?.color}
+     motto={preview?.motto}
+     birthday={preview?.birthday}
+     showCoin={preview?.showCoin}
+     onBirthday={()=>{if(preview){setBirthdayName(preview.name);setPreview(null);setBirthdayOpen(true);}}}
+   />
    <BirthdayCard name={birthdayName||profile?.display_name||"friend"} visible={birthdayOpen} onClose={()=>setBirthdayOpen(false)} onShare={(text)=>{setMessage(text);}}/>
   </ScrollView>
  </KeyboardAvoidingView>;

@@ -16,19 +16,21 @@ const PATHS: Record<string,string> = {
   diamond:"M50 2 L95 50 L50 100 L5 50 Z",
   star:"M50 2 L61 35 L98 35 L68 57 L79 91 L50 70 L21 91 L32 57 L2 35 L39 35 Z",
   badge:"M50 0 L65 10 L82 5 L90 20 L100 30 L95 50 L100 70 L90 80 L82 95 L65 90 L50 100 L35 90 L18 95 L10 80 L0 70 L5 50 L0 30 L10 20 L18 5 L35 10 Z",
+  cross:"M33 0 L67 0 L67 33 L100 33 L100 67 L67 67 L67 100 L33 100 L33 67 L0 67 L0 33 L33 33 Z",
   arrow:"M0 35 L55 35 L55 10 L100 50 L55 90 L55 65 L0 65 Z",
 };
 
-const BOUNDS: Record<string,{width:number;height:number}> = {
-  circle:{width:.92,height:.92},
-  hexagon:{width:.94,height:.96},
-  octagon:{width:.96,height:.96},
-  shield:{width:.94,height:.96},
-  diamond:{width:.92,height:.94},
-  star:{width:.96,height:.96},
-  badge:{width:.96,height:.96},
-  arrow:{width:1,height:.30},
-  drawn:{width:.94,height:.94},
+const BOUNDS: Record<string,{width:number;height:number;y:number}> = {
+  circle:{width:.72,height:.62,y:0},
+  hexagon:{width:.68,height:.62,y:0},
+  octagon:{width:.70,height:.64,y:0},
+  shield:{width:.62,height:.56,y:-.03},
+  diamond:{width:.54,height:.46,y:0},
+  star:{width:.42,height:.38,y:0},
+  badge:{width:.54,height:.48,y:0},
+  cross:{width:.48,height:.44,y:0},
+  arrow:{width:.46,height:.20,y:0},
+  drawn:{width:.62,height:.54,y:0},
 };
 
 const FONT_FAMILIES: Record<string,string> = {
@@ -111,11 +113,12 @@ export default function CoinFront({
 
   const customPoints=shape==="drawn"?parseCustomPolygon(customShapePath):null;
   const bounds=BOUNDS[shape]||BOUNDS.circle;
-  const narrow=["star","arrow"].includes(shape);
-  const maxWidth=size*bounds.width*(narrow?.6:.8);
-  const numberFontSize=size*(narrow?.25:.32);
-  const numberLineHeight=numberFontSize*1.12;
-  const verticalOffset=["arrow","badge"].includes(shape)?size*.05:0;
+  const maxWidth=size*bounds.width;
+  const safeHeight=size*bounds.height;
+  const narrow=["star","cross","arrow","diamond","badge"].includes(shape);
+  const numberFontSize=size*(narrow?.24:.30);
+  const numberLineHeight=numberFontSize*1.06;
+  const verticalOffset=size*bounds.y;
   const path=PATHS[shape]||PATHS.hexagon;
 
   const content=(
@@ -142,8 +145,8 @@ export default function CoinFront({
         <CoinBackground kind={background} size={size} color={colors.bg} />
       </View>
       {imageOnlyMode ? null : (
-        <View style={[styles.content,{pointerEvents:"none",width:maxWidth,top:size*.5-numberLineHeight*.58+verticalOffset}]}>
-          <Text numberOfLines={1} style={[styles.number,{
+        <View style={[styles.content,{pointerEvents:"none",width:maxWidth,height:safeHeight,top:(size-safeHeight)/2+verticalOffset}]}>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.48} style={[styles.number,{
             color:resolvedNumberColor,
             fontSize:numberFontSize,
             lineHeight:numberLineHeight,
@@ -152,9 +155,9 @@ export default function CoinFront({
             fontFamily:FONT_FAMILIES[numStyle.fontFamily]||undefined,
             maxWidth,
           }]}>{mainNumber}</Text>
-          <Text style={[styles.label,{color:resolvedNumberColor,fontSize:size*.09,fontFamily:"BebasNeue_400Regular"}]}>{label}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65} style={[styles.label,{color:resolvedNumberColor,fontSize:size*.075,fontFamily:"BebasNeue_400Regular",maxWidth}]}>{label}</Text>
           {displayName ? (
-            <Text numberOfLines={1} style={[styles.name,{color:resolvedNumberColor,fontSize:size*.04,maxWidth}]}>{displayName}</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={[styles.name,{color:resolvedNumberColor,fontSize:size*.036,maxWidth}]}>{displayName}</Text>
           ) : null}
         </View>
       )}
@@ -166,7 +169,7 @@ export default function CoinFront({
 
 const styles=StyleSheet.create({
   wrap:{alignItems:"center",justifyContent:"center",aspectRatio:1},
-  content:{position:"absolute",alignItems:"center",justifyContent:"center",alignSelf:"center"},
+  content:{position:"absolute",alignItems:"center",justifyContent:"center",alignSelf:"center",overflow:"hidden",paddingHorizontal:2},
   number:{includeFontPadding:false,textAlign:"center"},
   label:{letterSpacing:3,opacity:.7,textAlign:"center",marginTop:2},
   name:{fontFamily:fonts.bodyMedium,letterSpacing:2,opacity:.4,marginTop:8,textAlign:"center",textTransform:"uppercase"},
