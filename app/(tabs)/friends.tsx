@@ -15,6 +15,7 @@ export default function Friends() {
   const [email, setEmail] = useState("");
   const [friends, setFriends] = useState<FriendConnection[]>([]);
   const [pending, setPending] = useState<FriendConnection[]>([]);
+  const [outgoing, setOutgoing] = useState<FriendConnection[]>([]);
   const [blocked, setBlocked] = useState<BlockedUser[]>([]);
   const signedIn = !!user?.id;
 
@@ -29,6 +30,7 @@ export default function Friends() {
     const rows = (data || []) as FriendConnection[];
     setFriends(rows.filter((f) => f.status === "accepted"));
     setPending(rows.filter((f) => f.status === "pending" && (f.recipient_id === user.id || f.recipient_email === user.email)));
+    setOutgoing(rows.filter((f) => f.status === "pending" && f.requester_id === user.id));
     setBlocked((blocks || []) as BlockedUser[]);
   };
 
@@ -129,6 +131,7 @@ export default function Friends() {
       </View>
       <View style={[styles.rule, { backgroundColor: colors.foreground }]} />
 
+      <Text style={[styles.heading, { color: colors.foreground }]}>INCOMING REQUESTS</Text>
       {pending.length === 0 ? (
         <Text style={[styles.empty, { color: colors.mutedForeground }]}>{t("friends.noPendingRequests")}</Text>
       ) : (
@@ -147,17 +150,23 @@ export default function Friends() {
         ))
       )}
 
-      {__DEV__ ? (
-        <View style={styles.friendGrid}>
-          {["MIA", "JORDAN", "SAM"].map((name, index) => (
-            <View key={name} style={[styles.friendTile, { borderColor: colors.border }]}>
-              <LofiAvatar seed={name} size={58} color={colors.foreground} />
-              <Text numberOfLines={1} style={[styles.friendTileName, { color: colors.foreground }]}>{name}</Text>
-              <Text style={[styles.friendTileStatus, { color: colors.mutedForeground }]}>{index === 0 ? "ACTIVE · BDAY" : "ACTIVE"}</Text>
-            </View>
-          ))}
+      <Text style={[styles.heading, { color: colors.foreground, marginTop: 24 }]}>SENT REQUESTS</Text>
+      {outgoing.length === 0 ? (
+        <Text style={[styles.empty, { color: colors.mutedForeground }]}>No sent requests.</Text>
+      ) : outgoing.map((f) => (
+        <View key={f.id} style={[styles.card, { borderColor: colors.border }]}>
+          <View>
+            <Text style={{ color: colors.foreground, fontFamily: fonts.bodySemi }}>{f.recipient_name || f.recipient_email || "Friend"}</Text>
+            <Text style={{ color: colors.mutedForeground, fontFamily: fonts.body, fontSize: 11, marginTop: 3 }}>REQUEST PENDING</Text>
+          </View>
+          <TouchableOpacity onPress={() => remove(f.id)}>
+            <Text style={{ color: colors.mutedForeground, fontFamily: fonts.extraBold }}>CANCEL</Text>
+          </TouchableOpacity>
         </View>
-      ) : friends.length === 0 ? (
+      ))}
+
+      <Text style={[styles.heading, { color: colors.foreground, marginTop: 24 }]}>FRIENDS</Text>
+      {friends.length === 0 ? (
         <Text style={[styles.foot, { color: colors.mutedForeground }]}>{t("friends.noFriendsYet")}</Text>
       ) : (
         <View style={styles.friendGrid}>
