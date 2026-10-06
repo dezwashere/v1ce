@@ -117,7 +117,7 @@ export default function CoinFront({
   const safeHeight=size*bounds.height;
   const narrow=["star","cross","arrow","diamond","badge"].includes(shape);
   const numberFontSize=size*(narrow?.24:.30);
-  const numberLineHeight=numberFontSize*1.06;
+  const numberLineHeight=numberFontSize*1.32;
   const verticalOffset=size*bounds.y;
   const path=PATHS[shape]||PATHS.hexagon;
 
@@ -169,8 +169,8 @@ export default function CoinFront({
 
 const styles=StyleSheet.create({
   wrap:{alignItems:"center",justifyContent:"center",aspectRatio:1},
-  content:{position:"absolute",alignItems:"center",justifyContent:"center",alignSelf:"center",overflow:"hidden",paddingHorizontal:2},
-  number:{includeFontPadding:false,textAlign:"center"},
-  label:{letterSpacing:3,opacity:.7,textAlign:"center",marginTop:2},
+  content:{position:"absolute",alignItems:"center",justifyContent:"center",alignSelf:"center",overflow:"visible",paddingHorizontal:2,paddingVertical:8},
+  number:{includeFontPadding:true,textAlign:"center",overflow:"visible"},
+  label:{letterSpacing:3,opacity:.7,textAlign:"center",marginTop:0,lineHeight:24,overflow:"visible"},
   name:{fontFamily:fonts.bodyMedium,letterSpacing:2,opacity:.4,marginTop:8,textAlign:"center",textTransform:"uppercase"},
 });
