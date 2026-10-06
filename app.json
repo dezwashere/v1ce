@@ -18,7 +18,8 @@
         "com.apple.security.application-groups": [
           "group.app.v1ce"
         ]
-      }
+      },
+      "appleTeamId": "4UPD3DH3FP"
     },
     "android": {
       "package": "app.v1ce",
