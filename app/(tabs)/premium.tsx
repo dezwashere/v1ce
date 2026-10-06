@@ -8,7 +8,12 @@ import { supabase } from "@/lib/supabase";
 import { useTranslation } from "@/lib/i18n";
 import { fonts } from "@/constants/typography";
 
-const PERK_ICONS = ["award", "circle", "users", "message-circle", "image"] as const;
+const PERKS = [
+  { translation: 2, icon: "circle" },
+  { translation: 3, icon: "users" },
+  { translation: 4, icon: "message-circle" },
+  { translation: 5, icon: "image" },
+] as const;
 
 export default function Premium() {
   const { profile, refreshProfile } = useAuth();
@@ -56,7 +61,7 @@ export default function Premium() {
               <Text style={[styles.planSub, { color: colors.mutedForeground }]}>Monthly access</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setPlan("yearly")} style={[styles.plan, { borderColor: plan === "yearly" ? colors.foreground : colors.border }]}>
-              <Text style={[styles.planTitle, { color: colors.foreground }]}>YEARLY</Text>
+              <Text style={[styles.planTitle, { color: colors.foreground }]}>$30/YR</Text>
               <Text style={[styles.planSub, { color: colors.mutedForeground }]}>Best value</Text>
             </TouchableOpacity>
           </View>
@@ -65,14 +70,14 @@ export default function Premium() {
           </TouchableOpacity>
         </>
       )}
-      {PERK_ICONS.map((icon, i) => {
+      {PERKS.map((perk, i) => {
         const n = i + 1;
-        const title = t(`premium.perk${n}Title`);
-        const desc = t(`premium.perk${n}Desc`);
+        const title = t(`premium.perk${perk.translation}Title`);
+        const desc = t(`premium.perk${perk.translation}Desc`);
         return (
           <View key={title} style={[styles.perk, { borderBottomColor: colors.border }]}>
             <View style={[styles.icon, { borderColor: colors.foreground }]}>
-              <Feather name={icon} size={16} color={colors.foreground} />
+              <Feather name={perk.icon} size={16} color={colors.foreground} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.perkTitle, { color: colors.foreground }]}>{n}. {title}</Text>
@@ -87,7 +92,7 @@ export default function Premium() {
 
 const styles = StyleSheet.create({
   container: { padding: 20, paddingBottom: 48 },
-  title: { fontSize: 64, fontFamily: fonts.display, lineHeight: 60, letterSpacing: 1 },
+  title: { fontSize: 64, fontFamily: fonts.display, lineHeight: 76, paddingTop: 6, letterSpacing: 1 },
   subtitle: { fontSize: 15, lineHeight: 22, marginTop: 16, fontFamily: fonts.body },
   badge: { borderWidth: 2, padding: 12, alignSelf: "flex-start", marginTop: 24 },
   plans: { flexDirection: "row", gap: 8, marginTop: 24 },
