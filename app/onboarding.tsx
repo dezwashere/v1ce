@@ -74,7 +74,7 @@ export default function Onboarding() {
   };
 
   const continueAsGuest = async () => {
-    if (!eula || authBusy) return;
+    if (authBusy) return;
     setAuthBusy("email");
     try {
       await ensureSession();
@@ -88,7 +88,11 @@ export default function Onboarding() {
   };
 
   const continueWithEmail = async () => {
-    if (!eula || authBusy) return;
+    if (authBusy) return;
+    if (!eula) {
+      Alert.alert("Accept terms to sign in", "Please accept the EULA before signing in.");
+      return;
+    }
     setAuthBusy("email");
     try {
       await ensureSession();
@@ -101,7 +105,11 @@ export default function Onboarding() {
   };
 
   const continueWithOAuth = async (provider: "apple" | "google") => {
-    if (!eula || authBusy) return;
+    if (authBusy) return;
+    if (!eula) {
+      Alert.alert("Accept terms to sign in", "Please accept the EULA before signing in.");
+      return;
+    }
     setAuthBusy(provider);
     try {
       const redirectTo = Linking.createURL("/onboarding");
@@ -189,7 +197,7 @@ export default function Onboarding() {
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const nameValid = name.trim().length > 0;
-  const authDisabled = !eula || !!authBusy;
+  const authDisabled = !!authBusy;
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
@@ -258,8 +266,8 @@ export default function Onboarding() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.skipButton, authDisabled && styles.providerDisabled]}
-              disabled={authDisabled}
+              style={[styles.skipButton, !!authBusy && styles.providerDisabled]}
+              disabled={!!authBusy}
               onPress={continueAsGuest}
             >
               <Text style={styles.skipButtonText}>{authBusy === "email" ? "..." : "SKIP FOR NOW →"}</Text>
