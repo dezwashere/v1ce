@@ -272,7 +272,7 @@ struct V1CEWidgetView: View {
     ))
     .animation(.easeInOut(duration: 0.8), value: entry.showBack)
     .v1ceWidgetBackground(bg)
-    .widgetURL(URL(string: "v1ce://home"))
+    .widgetURL(URL(string: "v1ce://customize"))
   }
 }
 
