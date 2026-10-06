@@ -6,6 +6,7 @@ import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 import { daysSince } from "@/constants/app";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
+import RotatingLabel from "@/components/home/RotatingLabel";
 
 export default function CoinScreen() {
   const { profile } = useAuth();
@@ -16,6 +17,7 @@ export default function CoinScreen() {
     <ScrollView style={{backgroundColor:colors.background}} contentContainerStyle={styles.page}>
       <Text style={[styles.title,{color:colors.foreground}]}>COIN</Text>
       <Text style={[styles.sub,{color:colors.mutedForeground}]}>Your progress, in one place.</Text>
+      <View style={styles.rotating}><RotatingLabel /></View>
       <View style={styles.coin}>
         <SobrietyCoin
           days={daysSince(profile.sobriety_date)}
@@ -41,6 +43,7 @@ const styles=StyleSheet.create({
   page:{padding:20,paddingBottom:56},
   title:{fontFamily:fonts.display,fontSize:64,lineHeight:78,paddingTop:8},
   sub:{fontFamily:fonts.body,fontSize:14,marginTop:-6},
+  rotating:{alignItems:"center",marginTop:18},
   coin:{alignItems:"center",paddingVertical:36},
   btn:{borderWidth:2,minHeight:52,alignItems:"center",justifyContent:"center"},
   btnText:{fontFamily:fonts.black,fontSize:12,letterSpacing:1.7},
