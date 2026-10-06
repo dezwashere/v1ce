@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   skipButton: { alignItems: "center", paddingVertical: 14, marginTop: 10 },
   skipButtonText: { fontSize: 12, letterSpacing: 1.5, color: "#737373", fontFamily: fonts.black },
   logoWrap: { alignItems: "center", marginBottom: 30 },
-  title: { fontSize: 56, lineHeight: 54, fontFamily: fonts.display, color: "#0A0A0A", marginBottom: 12 },
+  title: { fontSize: 56, lineHeight: 68, paddingTop: 6, fontFamily: fonts.display, color: "#0A0A0A", marginBottom: 12 },
   subtitle: { fontSize: 16, lineHeight: 24, color: "#737373", fontFamily: fonts.body, marginBottom: 28 },
   label: { fontSize: 10, letterSpacing: 2, color: "#737373", fontFamily: fonts.bodyBold, marginBottom: 8 },
   input: {
