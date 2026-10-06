@@ -39,6 +39,8 @@ export type SobrietyProfile = {
   gifted_count: number;
   is_premium: boolean;
   show_coin?: boolean;
+  status_note?: string;
+  default_avatar_seed?: string;
   coin_balance: number;
   created_at?: string;
 };
@@ -106,6 +108,8 @@ export const defaultProfileFields = {
   gifted_count: 0,
   is_premium: false,
   show_coin: true,
+  status_note: "",
+  default_avatar_seed: "MIA",
   coin_balance: 0,
   substances: [] as string[],
 };

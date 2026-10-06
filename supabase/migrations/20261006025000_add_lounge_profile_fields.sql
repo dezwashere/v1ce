@@ -1,0 +1,1 @@
+alter table public.profiles add column if not exists status_note text not null default '';\nalter table public.profiles add column if not exists default_avatar_seed text not null default 'MIA';\n
