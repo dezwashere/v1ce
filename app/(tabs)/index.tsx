@@ -91,9 +91,9 @@ export default function Home() {
               substances={substances}
             />
           </View>
-          <Pressable onPress={() => router.push("/(tabs)/customize")} style={styles.customizeWrap}>
+          <Pressable onPress={() => router.push("/(tabs)/profile")} style={styles.customizeWrap}>
             <Text style={[styles.link, { color: colors.mutedForeground, borderBottomColor: colors.mutedForeground }]}>
-              {t("home.customize")}
+              SETTINGS
             </Text>
           </Pressable>
         </Animated.View>
