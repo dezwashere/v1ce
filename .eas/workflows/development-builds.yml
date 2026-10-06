@@ -1,20 +1,14 @@
-name: V1CE Development Builds
+name: V1CE Development Updates
 
 on:
   push:
     branches: ['main']
 
 jobs:
-  build_ios:
-    name: Build iOS Development
-    type: build
+  publish_development_update:
+    name: Publish Development Update
+    type: update
+    environment: development
     params:
-      platform: ios
-      profile: development
-
-  build_android:
-    name: Build Android Development
-    type: build
-    params:
-      platform: android
-      profile: development
+      channel: development
+      platform: all
