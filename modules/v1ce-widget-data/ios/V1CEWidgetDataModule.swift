@@ -1,16 +1,31 @@
 import ExpoModulesCore
 import WidgetKit
+
+private let appGroup = "group.app.v1ce"
+private let snapshotKey = "v1ce_widget_profile_v1"
+private let widgetKind = "V1CEWidget"
+
 public class V1CEWidgetDataModule: Module {
   public func definition() -> ModuleDefinition {
     Name("V1CEWidgetData")
+
     Function("setSnapshot") { (json: String) in
-      guard let data = json.data(using: .utf8) else { return }
-      UserDefaults(suiteName: "group.app.v1ce")?.set(data, forKey: "v1ce_widget_profile_v1")
-      WidgetCenter.shared.reloadAllTimelines()
+      guard
+        let data = json.data(using: .utf8),
+        let defaults = UserDefaults(suiteName: appGroup)
+      else { return }
+
+      defaults.set(data, forKey: snapshotKey)
+      defaults.synchronize()
+      WidgetCenter.shared.reloadTimelines(ofKind: widgetKind)
     }
+
     Function("clearSnapshot") {
-      UserDefaults(suiteName: "group.app.v1ce")?.removeObject(forKey: "v1ce_widget_profile_v1")
-      WidgetCenter.shared.reloadAllTimelines()
+      guard let defaults = UserDefaults(suiteName: appGroup) else { return }
+
+      defaults.removeObject(forKey: snapshotKey)
+      defaults.synchronize()
+      WidgetCenter.shared.reloadTimelines(ofKind: widgetKind)
     }
   }
 }
