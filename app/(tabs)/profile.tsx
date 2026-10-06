@@ -58,7 +58,7 @@ export default function ProfileScreen(){
 
   const days=daysSince(profile.sobriety_date);
   return <ScrollView style={{backgroundColor:colors.background}} contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-    <Text style={[styles.title,{color:colors.foreground}]}>EDIT LOUNGE PROFILE</Text>
+    <Text style={[styles.title,{color:colors.foreground}]}>EDIT PROFILE</Text>
 
     <View style={styles.avatarHero}>
       {avatarUrl?<Image source={{uri:avatarUrl}} style={styles.avatarImage}/>:<LofiAvatar seed={avatarSeed} size={150}/>}
@@ -70,12 +70,6 @@ export default function ProfileScreen(){
     <TouchableOpacity onPress={pickAvatar} disabled={uploading} style={[styles.actionRow,{borderColor:colors.border}]}>
       <Feather name="image" size={20} color={colors.foreground}/>
       <Text style={[styles.actionText,{color:colors.foreground}]}>{uploading?"UPLOADING...":"Upload Photo"}</Text>
-      <Feather name="chevron-right" size={20} color={colors.foreground}/>
-    </TouchableOpacity>
-
-    <TouchableOpacity onPress={()=>setAvatarUrl("")} style={[styles.actionRow,{borderColor:colors.border}]}>
-      <Feather name="image" size={20} color={colors.foreground}/>
-      <Text style={[styles.actionText,{color:colors.foreground}]}>Use Default Avatar</Text>
       <Feather name="chevron-right" size={20} color={colors.foreground}/>
     </TouchableOpacity>
 
