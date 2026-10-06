@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Alert, Animated, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import Svg, { Path } from "react-native-svg";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { supabase, TABLES, type FriendConnection, type LoungeChatMessage } from "@/lib/supabase";
@@ -23,11 +24,12 @@ export default function Lounge(){
  const [message,setMessage]=useState(""); const [messages,setMessages]=useState<LoungeChatMessage[]>([]); const [friends,setFriends]=useState<FriendConnection[]>([]); const [sending,setSending]=useState(false);
  const [preview,setPreview]=useState<{name:string;days:number;status?:string;avatarSeed?:string;shape?:string;color?:string;motto?:string;birthday?:boolean;showCoin?:boolean}|null>(null); const [birthdayOpen,setBirthdayOpen]=useState(false); const [birthdayName,setBirthdayName]=useState("");
  const [eggQuestion,setEggQuestion]=useState(""); const [eggAnswer,setEggAnswer]=useState("");
+ const eggShake=useRef(new Animated.Value(0)).current;
 
  const load=useCallback(async()=>{if(!user?.id)return;const [{data:friendData,error:friendError},{data:messageData,error:messageError}]=await Promise.all([supabase.rpc("get_my_friend_connections"),supabase.rpc("get_lounge_messages")]);if(friendError)Alert.alert("V1CE",friendError.message);else setFriends(((friendData||[]) as FriendConnection[]).filter(f=>f.status==="accepted"));if(messageError)Alert.alert("V1CE",messageError.message);else setMessages((messageData||[]) as LoungeChatMessage[]);},[user?.id]);
  useEffect(()=>{load();const channel=user?.id?supabase.channel("v1ce-lounge").on("postgres_changes",{event:"INSERT",schema:"public",table:TABLES.LoungeChatMessage},()=>load()).subscribe():null;return()=>{if(channel)supabase.removeChannel(channel);};},[load,user?.id]);
  const send=async()=>{const body=message.trim();if(!body||!user?.id||sending)return;setSending(true);const {error}=await supabase.from(TABLES.LoungeChatMessage).insert({sender_id:user.id,body});if(error)Alert.alert("V1CE",error.message);else setMessage("");setSending(false);if(!error)load();};
- const askEgg=()=>{const q=eggQuestion.trim();if(!q)return;setEggAnswer(SERIOUS.test(q)?"I DON'T KNOW.":EGG_RESPONSES[Math.floor(Math.random()*EGG_RESPONSES.length)]);};
+ const askEgg=()=>{const q=eggQuestion.trim();if(!q)return;const answer=SERIOUS.test(q)?"I DON'T KNOW.":EGG_RESPONSES[Math.floor(Math.random()*EGG_RESPONSES.length)];setEggAnswer("");Animated.sequence([Animated.timing(eggShake,{toValue:-1,duration:70,useNativeDriver:true}),Animated.timing(eggShake,{toValue:1,duration:90,useNativeDriver:true}),Animated.timing(eggShake,{toValue:-1,duration:90,useNativeDriver:true}),Animated.timing(eggShake,{toValue:1,duration:90,useNativeDriver:true}),Animated.timing(eggShake,{toValue:0,duration:70,useNativeDriver:true})]).start(()=>setEggAnswer(answer));};
  const isBirthday=profile?.birthday&&new Date(profile.birthday).getMonth()===new Date().getMonth()&&new Date(profile.birthday).getDate()===new Date().getDate();
  const friendName=(f:FriendConnection)=>f.requester_id===user?.id?f.recipient_name||f.recipient_email||"Friend":f.requester_name||f.requester_email||"Friend";
  const visibleFriends=useMemo(()=>__DEV__?DEMO:friends.slice(0,6).map((f)=>({id:f.id,name:friendName(f),days:1,birthday:false,status:"",avatarSeed:friendName(f),shape:"circle",color:"#F5D680",motto:"FREE FROM",showCoin:true})),[friends,user?.id]);
@@ -53,12 +55,16 @@ export default function Lounge(){
     <Text style={[styles.eggTitle,{color:colors.foreground}]}>ASK THE MAGIC EGG</Text>
     <Text style={[styles.eggSub,{color:colors.mutedForeground}]}>A little perspective when you need it.</Text>
     <TextInput value={eggQuestion} onChangeText={setEggQuestion} placeholder="Ask a question..." placeholderTextColor={colors.mutedForeground} style={[styles.eggInput,{borderColor:colors.border,color:colors.foreground}]}/>
-    <View style={[styles.egg,{borderColor:colors.foreground}]}>
-      <View style={[styles.eggSlash,{backgroundColor:colors.foreground,transform:[{rotate:"-24deg"}]}]}/>
-      <View style={[styles.eggSlash2,{backgroundColor:colors.foreground,transform:[{rotate:"27deg"}]}]}/>
-      {eggAnswer?<Text style={[styles.eggAnswer,{color:colors.foreground}]}>{eggAnswer}</Text>:null}
-    </View>
-    <TouchableOpacity onPress={askEgg} style={[styles.eggBtn,{backgroundColor:colors.foreground}]}><Text style={[styles.eggBtnText,{color:colors.background}]}>{eggAnswer?"TAP AGAIN":"ASK THE EGG"}</Text></TouchableOpacity>
+    <TouchableOpacity activeOpacity={.85} onPress={askEgg} accessibilityRole="button" accessibilityLabel="Ask the magic egg">
+      <Animated.View style={[styles.eggWrap,{transform:[{translateX:eggShake.interpolate({inputRange:[-1,1],outputRange:[-12,12]})},{rotate:eggShake.interpolate({inputRange:[-1,1],outputRange:["-4deg","4deg"]})}]}]}>
+        <Svg width={210} height={270} viewBox="0 0 210 270">
+          <Path d="M105 8 C67 8 31 65 22 128 C10 211 48 260 105 260 C162 260 200 211 188 128 C179 65 143 8 105 8 Z" fill={colors.background} stroke={colors.foreground} strokeWidth={4}/>
+        </Svg>
+        <View style={[styles.eggWindow,{backgroundColor:colors.foreground}]}>
+          <Text numberOfLines={3} adjustsFontSizeToFit minimumFontScale={.55} style={[styles.eggAnswer,{color:colors.background}]}>{eggAnswer||"TAP THE EGG"}</Text>
+        </View>
+      </Animated.View>
+    </TouchableOpacity>
    </View>
 
    <CoinPreview
@@ -103,10 +109,7 @@ const styles=StyleSheet.create({
  eggTitle:{fontFamily:fonts.display,fontSize:27,letterSpacing:1},
  eggSub:{fontFamily:fonts.body,fontSize:13,marginTop:4,marginBottom:12},
  eggInput:{borderWidth:1,minHeight:48,paddingHorizontal:12,fontFamily:fonts.body},
- egg:{width:190,height:240,borderWidth:3,borderRadius:95,alignSelf:"center",marginVertical:22,overflow:"hidden",alignItems:"center",justifyContent:"center"},
- eggSlash:{position:"absolute",width:250,height:28},
- eggSlash2:{position:"absolute",width:250,height:18},
- eggAnswer:{fontFamily:fonts.black,fontSize:20,letterSpacing:2,textAlign:"center",paddingHorizontal:24,backgroundColor:"rgba(255,255,255,.86)"},
- eggBtn:{minHeight:50,alignItems:"center",justifyContent:"center"},
- eggBtnText:{fontFamily:fonts.black,fontSize:12,letterSpacing:1.8},
+ eggWrap:{width:210,height:270,alignSelf:"center",marginVertical:22,alignItems:"center",justifyContent:"center"},
+ eggWindow:{position:"absolute",left:34,right:34,minHeight:72,paddingHorizontal:10,paddingVertical:12,alignItems:"center",justifyContent:"center"},
+ eggAnswer:{fontFamily:fonts.black,fontSize:18,lineHeight:22,letterSpacing:1.2,textAlign:"center"},
 });
