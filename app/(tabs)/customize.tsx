@@ -17,13 +17,12 @@ import { COLOR_SWATCHES, daysSince } from "@/constants/app";
 import { fonts } from "@/constants/typography";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
 import ShapePicker from "@/components/customize/ShapePicker";
-import DrawShapePicker from "@/components/customize/DrawShapePicker";
 import ColorPicker from "@/components/customize/ColorPicker";
 import NumberStylePicker from "@/components/customize/NumberStylePicker";
 import { AsteriskStar, Crosshair, DiamondGrid, Starburst } from "@/components/ui/RetroAccents";
 import OutlineText from "@/components/ui/OutlineText";
 import { supabase, TABLES } from "@/lib/supabase";
-import { CUSTOMIZE_WORD_PREFS_KEY, DEFAULT_ROTATING_PREFS, loadRotatingTextPrefs, type RotatingTextPrefs } from "@/lib/rotatingTextPrefs";
+import { CUSTOMIZE_WORD_PREFS_KEY, HOME_WORD_PREFS_KEY, DEFAULT_ROTATING_PREFS, loadRotatingTextPrefs, saveRotatingTextPrefs, type RotatingTextPrefs } from "@/lib/rotatingTextPrefs";
 
 const ROTATING_WORDS = [
   "COIN",
@@ -118,6 +117,59 @@ function MiniColorInput({
   );
 }
 
+function WordPrefsEditor({
+  title,
+  prefs,
+  onChange,
+}: {
+  title: string;
+  prefs: RotatingTextPrefs;
+  onChange: (next: RotatingTextPrefs) => void;
+}) {
+  const colors = useColors();
+  const words = [...prefs.customWords, "", "", "", "", ""].slice(0, 5);
+
+  const setWord = (index: number, value: string) => {
+    const next = [...words];
+    next[index] = value.slice(0, 24);
+    onChange({ ...prefs, customWords: next });
+  };
+
+  return (
+    <View style={[styles.wordEditor, { borderColor: colors.border }]}>
+      <Text style={[styles.subhead, { color: colors.foreground }]}>{title}</Text>
+      <Switch
+        on={prefs.rotating}
+        onToggle={() => onChange({ ...prefs, rotating: !prefs.rotating })}
+        label={prefs.rotating ? "Rotating" : "Still"}
+      />
+
+      <Text style={[styles.micro, { color: colors.mutedForeground, marginTop: 18 }]}>STILL WORD</Text>
+      <TextInput
+        value={prefs.pausedWord}
+        onChangeText={(value) => onChange({ ...prefs, pausedWord: value.slice(0, 24) })}
+        placeholder="Leave blank to use the first word"
+        placeholderTextColor="#999999"
+        maxLength={24}
+        style={[styles.input, { color: "#000000", borderColor: colors.foreground }]}
+      />
+
+      <Text style={[styles.micro, { color: colors.mutedForeground, marginTop: 18 }]}>YOUR WORDS · UP TO 5</Text>
+      {words.map((word, index) => (
+        <TextInput
+          key={index}
+          value={word}
+          onChangeText={(value) => setWord(index, value)}
+          placeholder={`WORD ${index + 1}`}
+          placeholderTextColor="#999999"
+          maxLength={24}
+          style={[styles.input, styles.wordInput, { color: "#000000", borderColor: colors.foreground }]}
+        />
+      ))}
+    </View>
+  );
+}
+
 export default function Customize() {
   const { profile, setProfile } = useAuth();
   const colors = useColors();
@@ -127,6 +179,7 @@ export default function Customize() {
 
   const [wordIndex, setWordIndex] = useState(0);
   const [wordPrefs, setWordPrefs] = useState<RotatingTextPrefs>(DEFAULT_ROTATING_PREFS);
+  const [homeWordPrefs, setHomeWordPrefs] = useState<RotatingTextPrefs>(DEFAULT_ROTATING_PREFS);
   const [saving, setSaving] = useState(false);
   const [color, setColor] = useState(profile?.coin_color || "#F5D680");
   const [shape, setShape] = useState(profile?.coin_shape || "circle");
@@ -141,8 +194,26 @@ export default function Customize() {
   const [coinPhoto, setCoinPhoto] = useState(profile?.coin_photo || "");
 
   useFocusEffect(useCallback(() => {
-    loadRotatingTextPrefs(CUSTOMIZE_WORD_PREFS_KEY).then((next) => { setWordPrefs(next); setWordIndex(0); });
+    Promise.all([
+      loadRotatingTextPrefs(CUSTOMIZE_WORD_PREFS_KEY),
+      loadRotatingTextPrefs(HOME_WORD_PREFS_KEY),
+    ]).then(([customizePrefs, homePrefs]) => {
+      setWordPrefs(customizePrefs);
+      setHomeWordPrefs(homePrefs);
+      setWordIndex(0);
+    });
   }, []));
+
+  const updateCustomizeWordPrefs = (next: RotatingTextPrefs) => {
+    setWordPrefs(next);
+    setWordIndex(0);
+    void saveRotatingTextPrefs(CUSTOMIZE_WORD_PREFS_KEY, next);
+  };
+
+  const updateHomeWordPrefs = (next: RotatingTextPrefs) => {
+    setHomeWordPrefs(next);
+    void saveRotatingTextPrefs(HOME_WORD_PREFS_KEY, next);
+  };
 
   const customHeaderWords = wordPrefs.customWords.map((word) => word.trim()).filter(Boolean);
   const headerWords = customHeaderWords.length ? customHeaderWords : ROTATING_WORDS;
@@ -252,36 +323,20 @@ export default function Customize() {
       </View>
 
       <View style={[styles.section, { borderBottomColor: colors.foreground }]}>
+        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>WORDS</Text>
+        <Text style={[styles.sub, { color: colors.mutedForeground }]}>
+          Rotate the built-in words, keep one word still, or replace them with up to five of your own.
+        </Text>
+        <WordPrefsEditor title="HOME — DAYS WORD" prefs={homeWordPrefs} onChange={updateHomeWordPrefs} />
+        <WordPrefsEditor title="YOUR CHIP" prefs={wordPrefs} onChange={updateCustomizeWordPrefs} />
+      </View>
+
+      <View style={[styles.section, { borderBottomColor: colors.foreground }]}>
         <View style={styles.shapeAccent}>
           <AsteriskStar size={36} color={colors.foreground} opacity={0.12} />
         </View>
         <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 16 }]}>{t("customize.shape")}</Text>
         <ShapePicker value={shape} onChange={setShape} />
-        {shape === "drawn" ? (
-          <View style={[styles.inner, { borderTopColor: colors.border }]}>
-            <Text style={[styles.subhead, { color: colors.foreground }]}>DRAW YOUR SHAPE</Text>
-            <DrawShapePicker value={customShapePath} onChange={setCustomShapePath} />
-          </View>
-        ) : null}
-      </View>
-
-      <View style={[styles.section, { borderBottomColor: colors.foreground, opacity: 0.6 }]}>
-        <View style={styles.inlineTitle}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
-            {t("customize.coinPhoto")}
-          </Text>
-          <View style={[styles.badge, { borderColor: colors.foreground }]}>
-            <Text style={[styles.badgeText, { color: colors.foreground }]}>COMING SOON</Text>
-          </View>
-        </View>
-        <Text style={[styles.sub, { color: colors.mutedForeground }]}>
-          {t("customize.coinPhotoSub")}
-        </Text>
-        <View style={[styles.comingSoonButton, { borderColor: colors.foreground }]}>
-          <Text style={[styles.comingSoonText, { color: colors.foreground }]}>
-            + {t("customize.coinPhotoUpload")}
-          </Text>
-        </View>
       </View>
 
       <View style={[styles.section, { borderBottomColor: colors.foreground }]}>
@@ -410,19 +465,17 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 20, paddingTop: 32, paddingBottom: 24, borderBottomWidth: 2, position: "relative", overflow: "hidden" },
   headerBurst: { position: "absolute", right: 2, top: -8 },
   headerDiamond: { position: "absolute", right: 64, bottom: 2 },
-  headerTitle: { fontSize: 64, lineHeight: 72, fontFamily: fonts.display },
-  headerWord: { fontSize: 64, lineHeight: 72, fontFamily: fonts.display, letterSpacing: 1 },
+  headerTitle: { fontSize: 64, lineHeight: 78, paddingTop: 6, fontFamily: fonts.display },
+  headerWord: { fontSize: 64, lineHeight: 78, paddingTop: 4, fontFamily: fonts.display, letterSpacing: 1 },
   preview: { alignItems: "center", paddingVertical: 32, borderBottomWidth: 2 },
   section: { paddingHorizontal: 20, paddingVertical: 32, borderBottomWidth: 2, position: "relative", overflow: "hidden" },
   shapeAccent: { position: "absolute", right: 16, top: 16 },
   decorTopRight: { position: "absolute", right: 16, top: 16 },
-  sectionTitle: { fontSize: 26, lineHeight: 30, fontFamily: fonts.display, letterSpacing: 1, marginBottom: 16 },
+  sectionTitle: { fontSize: 26, lineHeight: 34, paddingTop: 2, fontFamily: fonts.display, letterSpacing: 1, marginBottom: 16 },
   inlineTitle: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
   badge: { borderWidth: 1, paddingHorizontal: 6, paddingVertical: 3 },
   badgeText: { fontSize: 8, fontFamily: fonts.bodyBold, letterSpacing: 1.4 },
   sub: { fontSize: 12, lineHeight: 18, fontFamily: fonts.body, marginBottom: 16 },
-  comingSoonButton: { height: 48, borderWidth: 2, borderStyle: "dashed", alignItems: "center", justifyContent: "center" },
-  comingSoonText: { fontSize: 18, fontFamily: fonts.display, letterSpacing: 2 },
   switchRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   switchTrack: { width: 64, height: 40, borderRadius: 20, justifyContent: "center" },
   switchKnob: { width: 32, height: 32, borderRadius: 16 },
@@ -430,6 +483,8 @@ const styles = StyleSheet.create({
   micro: { fontSize: 10, letterSpacing: 2, fontFamily: fonts.bodyBold, marginBottom: 8 },
   input: { width: "100%", borderWidth: 2, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, fontFamily: fonts.body, backgroundColor: "#FFFFFF" },
   inner: { marginTop: 24, paddingTop: 24, borderTopWidth: 2 },
+  wordEditor: { borderWidth: 1, padding: 14, marginTop: 14 },
+  wordInput: { marginTop: 8 },
   subhead: { fontSize: 19, fontFamily: fonts.display, letterSpacing: 1, marginBottom: 12 },
   colorInputRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   colorDot: { width: 32, height: 32, borderRadius: 16, borderWidth: 2 },
