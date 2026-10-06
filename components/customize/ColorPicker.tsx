@@ -1,82 +1,118 @@
-import React, { useState } from "react";
-import { PanResponder, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { PanResponder, StyleSheet, View } from "react-native";
 import { useColors } from "@/hooks/useColors";
-import { fonts } from "@/constants/typography";
 
-const RAINBOW = [
-  { name: "RED", color: "#FF3B30", shades: ["#7A1712", "#C92A22", "#FF3B30", "#FF756D", "#FFB3AF"] },
-  { name: "ORANGE", color: "#FF9500", shades: ["#7A4700", "#C97300", "#FF9500", "#FFB44D", "#FFD399"] },
-  { name: "YELLOW", color: "#FFCC00", shades: ["#7A6200", "#C9A100", "#FFCC00", "#FFDB4D", "#FFEB99"] },
-  { name: "GREEN", color: "#34C759", shades: ["#185E2A", "#289B45", "#34C759", "#70D889", "#ADE9BA"] },
-  { name: "BLUE", color: "#007AFF", shades: ["#003A7A", "#0060C9", "#007AFF", "#4DA2FF", "#99CAFF"] },
-  { name: "INDIGO", color: "#5856D6", shades: ["#292865", "#4543A7", "#5856D6", "#8987E2", "#BAB9EF"] },
-  { name: "VIOLET", color: "#AF52DE", shades: ["#522668", "#8840AD", "#AF52DE", "#C985E8", "#E2B9F2"] },
+const HUE_STOPS = [
+  "#FF3B30",
+  "#FF9500",
+  "#FFCC00",
+  "#34C759",
+  "#00C7BE",
+  "#007AFF",
+  "#5856D6",
+  "#AF52DE",
+  "#FF2D55",
+  "#FF3B30",
 ];
+
+function hsvToHex(h: number, s = 0.82, v = 0.98) {
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = v - c;
+  let r = 0, g = 0, b = 0;
+  if (h < 60) [r, g, b] = [c, x, 0];
+  else if (h < 120) [r, g, b] = [x, c, 0];
+  else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c];
+  else if (h < 300) [r, g, b] = [x, 0, c];
+  else [r, g, b] = [c, 0, x];
+  const toHex = (n: number) => Math.round((n + m) * 255).toString(16).padStart(2, "0").toUpperCase();
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function hexToHue(hex: string) {
+  if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return 48;
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  if (d === 0) return 0;
+  let h = 0;
+  if (max === r) h = 60 * (((g - b) / d) % 6);
+  else if (max === g) h = 60 * ((b - r) / d + 2);
+  else h = 60 * ((r - g) / d + 4);
+  return (h + 360) % 360;
+}
 
 export default function ColorPicker({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const colors = useColors();
-  const [familyIndex, setFamilyIndex] = useState(2);
-  const [shadeIndex, setShadeIndex] = useState(2);
-  const selected = RAINBOW[familyIndex];
+  const [width, setWidth] = useState(1);
+  const [hue, setHue] = useState(() => hexToHue(value));
 
-  const chooseShade = (x: number, width: number) => {
-    const next = Math.max(0, Math.min(4, Math.round((x / Math.max(width, 1)) * 4)));
-    setShadeIndex(next);
-    onChange(selected.shades[next]);
+  useEffect(() => {
+    setHue(hexToHue(value));
+  }, [value]);
+
+  const updateFromX = (x: number) => {
+    const nextHue = Math.max(0, Math.min(359.9, (x / Math.max(width, 1)) * 360));
+    setHue(nextHue);
+    onChange(hsvToHex(nextHue));
   };
 
-  const [sliderWidth, setSliderWidth] = useState(1);
-  const responder = React.useMemo(() => PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => true,
-    onPanResponderGrant: (event) => chooseShade(event.nativeEvent.locationX, sliderWidth),
-    onPanResponderMove: (event) => chooseShade(event.nativeEvent.locationX, sliderWidth),
-  }), [familyIndex, sliderWidth]);
+  const responder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderGrant: (event) => updateFromX(event.nativeEvent.locationX),
+        onPanResponderMove: (event) => updateFromX(event.nativeEvent.locationX),
+      }),
+    [width]
+  );
 
   return (
-    <View>
-      <View style={styles.wrap}>
-        {RAINBOW.map((family, index) => (
-          <TouchableOpacity
-            key={family.name}
-            accessibilityLabel={`Select ${family.name.toLowerCase()}`}
-            accessibilityState={{ selected: index === familyIndex }}
-            onPress={() => {
-              setFamilyIndex(index);
-              setShadeIndex(2);
-              onChange(family.color);
-            }}
-            style={styles.choice}
-          >
-            <View style={[styles.swatch, { backgroundColor: family.color, borderColor: index === familyIndex ? colors.foreground : "transparent" }]} />
-            <Text style={[styles.name, { color: index === familyIndex ? colors.foreground : colors.mutedForeground }]}>{family.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <View style={styles.custom}>
-        <Text style={[styles.label, { color: colors.mutedForeground }]}>{selected.name}</Text>
-        <View
-          style={[styles.slider, { borderColor: colors.foreground }]}
-          onLayout={(event) => setSliderWidth(event.nativeEvent.layout.width)}
-          {...responder.panHandlers}
-        >
-          {selected.shades.map((shade) => <View key={shade} style={[styles.segment, { backgroundColor: shade }]} />)}
-          <View pointerEvents="none" style={[styles.thumb, { left: `${shadeIndex * 25}%`, borderColor: colors.foreground, backgroundColor: value }]} />
-        </View>
-      </View>
+    <View
+      style={[styles.track, { borderColor: colors.foreground }]}
+      onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
+      {...responder.panHandlers}
+    >
+      {HUE_STOPS.map((color, index) => (
+        <View key={index} style={[styles.stop, { backgroundColor: color }]} />
+      ))}
+      <View
+        pointerEvents="none"
+        style={[
+          styles.thumb,
+          {
+            left: `${(hue / 360) * 100}%`,
+            borderColor: colors.foreground,
+            backgroundColor: value,
+          },
+        ]}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flexDirection: "row", justifyContent: "space-between", gap: 4 },
-  choice: { flex: 1, alignItems: "center" },
-  swatch: { width: 34, height: 34, borderRadius: 17, borderWidth: 3 },
-  name: { marginTop: 6, fontSize: 7, fontFamily: fonts.bodyBold, letterSpacing: 0.4 },
-  custom: { marginTop: 22 },
-  label: { fontSize: 10, fontFamily: fonts.bodyBold, letterSpacing: 2, marginBottom: 8 },
-  slider: { height: 36, borderWidth: 2, flexDirection: "row", position: "relative", overflow: "hidden" },
-  segment: { flex: 1 },
-  thumb: { position: "absolute", top: 4, width: 24, height: 24, marginLeft: -12, borderRadius: 12, borderWidth: 3 },
+  track: {
+    height: 24,
+    borderWidth: 2,
+    borderRadius: 12,
+    flexDirection: "row",
+    overflow: "visible",
+    position: "relative",
+  },
+  stop: { flex: 1 },
+  thumb: {
+    position: "absolute",
+    top: -5,
+    width: 30,
+    height: 30,
+    marginLeft: -15,
+    borderRadius: 15,
+    borderWidth: 3,
+  },
 });
