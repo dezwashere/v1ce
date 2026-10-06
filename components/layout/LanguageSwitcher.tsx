@@ -13,9 +13,9 @@ export default function LanguageSwitcher() {
         <TouchableOpacity
           key={item.code}
           onPress={() => setLang(item.code)}
-          style={[styles.chip, { borderColor: lang === item.code ? colors.foreground : colors.border }]}
+          style={[styles.chip, { borderColor: lang === item.code ? colors.foreground : colors.border, backgroundColor: lang === item.code ? colors.foreground : "transparent" }]}
         >
-          <Text style={{ color: colors.foreground, fontSize: 10, fontFamily: fonts.bodyBold }}>{item.label}</Text>
+          <Text style={{ color: lang === item.code ? colors.background : colors.foreground, fontSize: 10, fontFamily: fonts.bodyBold }}>{item.label}</Text>
         </TouchableOpacity>
       ))}
     </View>

@@ -67,15 +67,17 @@ export default function AppChrome({ showNav = true }: { showNav?: boolean }) {
         <View style={[styles.logoWrap, { pointerEvents: "none" }]}>
           <Image source={require("../../assets/images/v1ce-logo.png")} style={styles.logo} tintColor={colors.foreground} resizeMode="contain" />
         </View>
-        <View style={styles.right}>
-          <TouchableOpacity onPress={() => go("/settings")} hitSlop={8} style={styles.iconBtn}>
-            <Feather name="settings" size={20} color={colors.foreground} />
-          </TouchableOpacity>
+        <View style={styles.left}>
           <TouchableOpacity onPress={toggleTheme} hitSlop={8} style={styles.iconBtn}>
             <ThemeGlyph color={colors.foreground} fill={colors.foreground} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setLangOpen(true)} hitSlop={8} style={styles.iconBtn}>
             <Feather name="globe" size={20} color={colors.foreground} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.right}>
+          <TouchableOpacity onPress={() => go("/settings")} hitSlop={8} style={styles.iconBtn}>
+            <Feather name="settings" size={20} color={colors.foreground} />
           </TouchableOpacity>
         </View>
       </View>
@@ -137,7 +139,8 @@ const styles = StyleSheet.create({
   header:{height:52,flexDirection:"row",alignItems:"center",paddingHorizontal:10,borderBottomWidth:2,zIndex:2},
   logoWrap:{position:"absolute",left:0,right:0,top:0,bottom:0,alignItems:"center",justifyContent:"center"},
   logo:{height:28,width:112},
-  right:{marginLeft:"auto",flexDirection:"row",alignItems:"center",gap:6,zIndex:3},
+  left:{flexDirection:"row",alignItems:"center",gap:6,zIndex:3},
+  right:{marginLeft:"auto",flexDirection:"row",alignItems:"center",zIndex:3},
   iconBtn:{padding:6,zIndex:3},
   nav:{flexDirection:"row",borderBottomWidth:2,paddingHorizontal:2},
   tab:{flex:1,alignItems:"center",justifyContent:"center",paddingVertical:11,marginHorizontal:1},

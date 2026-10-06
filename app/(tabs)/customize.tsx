@@ -43,7 +43,7 @@ const styles=StyleSheet.create({
   page:{padding:20,paddingBottom:56},
   title:{fontFamily:fonts.display,fontSize:64,lineHeight:78,paddingTop:8},
   sub:{fontFamily:fonts.body,fontSize:14,marginTop:-6},
-  rotating:{alignItems:"center",marginTop:18},
+  rotating:{alignItems:"flex-start",marginTop:18},
   coin:{alignItems:"center",paddingVertical:36},
   btn:{borderWidth:2,minHeight:52,alignItems:"center",justifyContent:"center"},
   btnText:{fontFamily:fonts.black,fontSize:12,letterSpacing:1.7},

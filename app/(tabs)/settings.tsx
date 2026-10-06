@@ -257,8 +257,8 @@ export default function Settings() {
       coin_shape: shape,
       coin_color: coinColor,
       coin_show_border: showBorder,
-      coin_border_color: borderColor || null,
-      coin_number_color: numberColor || null,
+      coin_border_color: borderColor || coinColor || "#0A0A0A",
+      coin_number_color: numberColor || coinColor || "#0A0A0A",
       number_style: numberStyle,
       coin_motto: message.trim().slice(0, COIN_MESSAGE_MAX),
       coin_shape_path: null,
@@ -347,7 +347,6 @@ export default function Settings() {
       <Text style={[styles.title, { color: colors.foreground }]}>SETTINGS</Text>
 
       <View style={[styles.section, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>COIN</Text>
         <View style={styles.preview}>
           <SobrietyCoin
             days={days}
