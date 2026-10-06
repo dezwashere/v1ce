@@ -138,6 +138,35 @@ function ColorControl({
   );
 }
 
+
+function DropdownSection({
+  label,
+  summary,
+  open,
+  onToggle,
+  children,
+}: {
+  label: string;
+  summary: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  const colors = useColors();
+  return (
+    <View style={[styles.dropdown, { borderColor: colors.foreground }]}>
+      <TouchableOpacity onPress={onToggle} style={styles.dropdownHeader}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.dropdownLabel, { color: colors.foreground }]}>{label}</Text>
+          <Text style={[styles.dropdownSummary, { color: colors.mutedForeground }]} numberOfLines={1}>{summary}</Text>
+        </View>
+        <Text style={[styles.dropdownChevron, { color: colors.foreground }]}>{open ? "−" : "+"}</Text>
+      </TouchableOpacity>
+      {open ? <View style={[styles.dropdownBody, { borderTopColor: colors.border }]}>{children}</View> : null}
+    </View>
+  );
+}
+
 export default function Settings() {
   const { profile, user, setProfile, signOut } = useAuth();
   const colors = useColors();
@@ -159,6 +188,9 @@ export default function Settings() {
   const [numberColor, setNumberColor] = useState(profile?.coin_number_color || "");
   const [numberStyle, setNumberStyle] = useState(profile?.number_style || "classic");
   const [message, setMessage] = useState(profile?.coin_motto || "FREE FROM");
+  const [shapeOpen, setShapeOpen] = useState(false);
+  const [colorsOpen, setColorsOpen] = useState(false);
+  const [fontOpen, setFontOpen] = useState(false);
 
   const [homeWordPrefs, setHomeWordPrefs] = useState<RotatingTextPrefs>(DEFAULT_ROTATING_PREFS);
   const [chipWordPrefs, setChipWordPrefs] = useState<RotatingTextPrefs>(DEFAULT_ROTATING_PREFS);
@@ -334,43 +366,61 @@ export default function Settings() {
           Don’t like it? Tap randomize again. Save only when you want to keep it.
         </Text>
 
-        <Text style={[styles.controlTitle, { color: colors.foreground }]}>SHAPE</Text>
-        <ShapePicker value={shape} onChange={setShape} />
+        <DropdownSection
+          label="SHAPE"
+          summary={shape.toUpperCase()}
+          open={shapeOpen}
+          onToggle={() => setShapeOpen((value) => !value)}
+        >
+          <ShapePicker value={shape} onChange={setShape} />
+        </DropdownSection>
 
-        <Text style={[styles.controlTitle, { color: colors.foreground }]}>COLORS</Text>
-        <ColorControl label="COIN COLOR" value={coinColor} onChange={setCoinColor} />
+        <DropdownSection
+          label="COLORS"
+          summary={`COIN ${coinColor.toUpperCase()} · BORDER ${borderColor ? borderColor.toUpperCase() : "AUTO"} · NUMBER ${numberColor ? numberColor.toUpperCase() : "AUTO"}`}
+          open={colorsOpen}
+          onToggle={() => setColorsOpen((value) => !value)}
+        >
+          <ColorControl label="COIN COLOR" value={coinColor} onChange={setCoinColor} />
 
-        <View style={[styles.subSection, { borderTopColor: colors.border }]}>
-          <Toggle
-            value={showBorder}
-            onPress={() => setShowBorder((previous) => !previous)}
-            label={showBorder ? "Border on" : "Border off"}
-          />
-          {showBorder ? (
-            <ColorControl
-              label="BORDER COLOR"
-              value={borderColor || coinColor}
-              onChange={setBorderColor}
-              allowAuto
-              auto={!borderColor}
-              onAuto={() => setBorderColor("")}
+          <View style={[styles.subSection, { borderTopColor: colors.border }]}>
+            <Toggle
+              value={showBorder}
+              onPress={() => setShowBorder((previous) => !previous)}
+              label={showBorder ? "Border on" : "Border off"}
             />
-          ) : null}
-        </View>
+            {showBorder ? (
+              <ColorControl
+                label="BORDER COLOR"
+                value={borderColor || coinColor}
+                onChange={setBorderColor}
+                allowAuto
+                auto={!borderColor}
+                onAuto={() => setBorderColor("")}
+              />
+            ) : null}
+          </View>
 
-        <View style={[styles.subSection, { borderTopColor: colors.border }]}>
-          <ColorControl
-            label="NUMBER COLOR"
-            value={numberColor || coinColor}
-            onChange={setNumberColor}
-            allowAuto
-            auto={!numberColor}
-            onAuto={() => setNumberColor("")}
-          />
-        </View>
+          <View style={[styles.subSection, { borderTopColor: colors.border }]}>
+            <ColorControl
+              label="NUMBER COLOR"
+              value={numberColor || coinColor}
+              onChange={setNumberColor}
+              allowAuto
+              auto={!numberColor}
+              onAuto={() => setNumberColor("")}
+            />
+          </View>
+        </DropdownSection>
 
-        <Text style={[styles.controlTitle, { color: colors.foreground }]}>NUMBER FONT</Text>
-        <NumberStylePicker value={numberStyle} onChange={setNumberStyle} />
+        <DropdownSection
+          label="NUMBER FONT"
+          summary={numberStyle.replace(/_/g, " ").toUpperCase()}
+          open={fontOpen}
+          onToggle={() => setFontOpen((value) => !value)}
+        >
+          <NumberStylePicker value={numberStyle} onChange={setNumberStyle} />
+        </DropdownSection>
 
         <Text style={[styles.controlTitle, { color: colors.foreground }]}>COIN MESSAGE</Text>
         <TextInput
@@ -498,6 +548,12 @@ const styles = StyleSheet.create({
   randomizeText: { fontFamily: fonts.black, fontSize: 13, letterSpacing: 1.7 },
   helper: { fontFamily: fonts.body, fontSize: 11, lineHeight: 17, marginTop: 8 },
   controlTitle: { fontFamily: fonts.display, fontSize: 22, lineHeight: 28, letterSpacing: 1.2, marginTop: 30, marginBottom: 14 },
+  dropdown: { borderWidth: 2, marginTop: 18 },
+  dropdownHeader: { minHeight: 62, paddingHorizontal: 14, paddingVertical: 10, flexDirection: "row", alignItems: "center", gap: 12 },
+  dropdownLabel: { fontFamily: fonts.black, fontSize: 13, letterSpacing: 1.8 },
+  dropdownSummary: { fontFamily: fonts.body, fontSize: 10, marginTop: 3, letterSpacing: 0.7 },
+  dropdownChevron: { fontFamily: fonts.black, fontSize: 24, lineHeight: 26 },
+  dropdownBody: { borderTopWidth: 1, padding: 12 },
   colorControl: { marginTop: 14 },
   colorHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 8 },
   colorDot: { width: 18, height: 18, borderRadius: 9, borderWidth: 1 },
