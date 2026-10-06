@@ -134,7 +134,7 @@ export default function ShareScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, paddingBottom: 48, gap: 0 },
-  pageTitle: { fontFamily: fonts.display, fontSize: 52, lineHeight: 50, marginBottom: 8 },
+  pageTitle: { fontFamily: fonts.display, fontSize: 52, lineHeight: 64, paddingTop: 4, marginBottom: 8 },
   pageSub: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, marginBottom: 16 },
   pwa: { borderWidth: 1, borderRadius: 8, padding: 16, marginBottom: 22 },
   pwaTitle: { fontFamily: fonts.bodyBold, fontSize: 15, color: "#1E3A5F", marginBottom: 10 },
