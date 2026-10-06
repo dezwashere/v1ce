@@ -129,9 +129,9 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 6, zIndex: 3 },
   v1: { borderWidth: 1.5, paddingHorizontal: 6, paddingVertical: 2, minWidth: 28, alignItems: "center" },
   v1Text: { fontSize: 11, fontFamily: fonts.bodyBold, letterSpacing: 0.5 },
-  nav: { flexDirection: "row", borderBottomWidth: 2 },
-  tab: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 11 },
-  tabLabel: { fontSize: 11, fontFamily: fonts.extraBold, letterSpacing: 0.4 },
+  nav: { flexDirection: "row", borderBottomWidth: 2, paddingHorizontal: 2 },
+  tab: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 11, marginHorizontal: 1 },
+  tabLabel: { fontSize: 10, fontFamily: fonts.extraBold, letterSpacing: 0.25 },
   langMenu: {
     position: "absolute",
     right: 44,
