@@ -102,11 +102,11 @@ export function daysSince(start?: string | null) {
   return Math.max(0, Math.floor((Date.now() - date.getTime()) / 86400000));
 }
 
-export function getElapsed(start?: string) {
+export function getElapsed(start?: string, now = Date.now()) {
   if (!start) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   const date = new Date(start.includes("T") ? start : `${start}T00:00:00`);
   if (!Number.isFinite(date.getTime())) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-  const ms = Math.max(0, Date.now() - date.getTime());
+  const ms = Math.max(0, now - date.getTime());
   return {
     days: Math.floor(ms / 86400000),
     hours: Math.floor(ms / 3600000) % 24,
