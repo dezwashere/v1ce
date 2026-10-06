@@ -91,7 +91,7 @@ export default function Home() {
               substances={substances}
             />
           </View>
-          <Pressable onPress={() => router.push("/(tabs)/profile")} style={styles.customizeWrap}>
+          <Pressable onPress={() => router.push("/(tabs)/settings")} style={styles.customizeWrap}>
             <Text style={[styles.link, { color: colors.mutedForeground, borderBottomColor: colors.mutedForeground }]}>
               SETTINGS
             </Text>
@@ -103,15 +103,7 @@ export default function Home() {
       </View>
 
       <View style={[styles.section, { borderBottomColor: colors.foreground }]}>
-        <View style={styles.diamond}>
-          <DiamondGrid size={72} color={colors.foreground} opacity={0.08} />
-        </View>
-        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t("home.timeElapsed")}</Text>
-        <SobrietyCounter sobrietyDate={sobrietyDate} />
-      </View>
-
-      <View style={[styles.section, { borderBottomColor: colors.foreground }]}>
-        <Text style={[styles.eyebrow, { color: colors.mutedForeground }]}>{t("home.soberSince")}</Text>
+        <Text style={[styles.eyebrow, { color: colors.mutedForeground }]}>STARTED ON</Text>
         <View style={styles.dateRow}>
           <Text style={[styles.date, { color: colors.foreground }]}>
             {sobrietyDate
@@ -131,6 +123,14 @@ export default function Home() {
             />
           </View>
         </View>
+      </View>
+
+      <View style={[styles.section, { borderBottomColor: colors.foreground }]}>
+        <View style={styles.diamond}>
+          <DiamondGrid size={72} color={colors.foreground} opacity={0.08} />
+        </View>
+        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t("home.timeElapsed")}</Text>
+        <SobrietyCounter sobrietyDate={sobrietyDate} />
       </View>
 
       <View style={[styles.section, { borderBottomColor: colors.foreground }]}>
