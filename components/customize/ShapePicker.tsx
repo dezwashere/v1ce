@@ -14,18 +14,9 @@ const PATHS: Record<string, string> = {
   star: "M12 1 L14.4 8.2 L22 8.2 L16 12.8 L18.2 20 L12 15.6 L5.8 20 L8 12.8 L2 8.2 L9.6 8.2 Z",
   cross: "M9 2 H15 V9 H22 V15 H15 V22 H9 V15 H2 V9 H9 Z",
   badge: "M12 1 L16 4 L21 3 L22 8 L24 12 L22 16 L21 21 L16 20 L12 23 L8 20 L3 21 L2 16 L0 12 L2 8 L3 3 L8 4 Z",
-  arrow: "M4 9 H13 V5 L22 12 L13 19 V15 H4 Z",
-  drawn: "M3 16 C5 4 10 3 12 10 C14 17 18 20 21 7",
 };
 
-const VISIBLE_ORDER = ["star", "cross", "badge", "arrow", "circle", "hexagon", "octagon", "shield", "diamond", "drawn"] as const;
-
-const COMING_SOON: { key: string; path?: string; circle?: boolean }[] = [
-  { key: "circle", circle: true },
-  { key: "hex", path: PATHS.hexagon },
-  { key: "oct", path: PATHS.octagon },
-  { key: "soon-star", path: PATHS.star },
-];
+const VISIBLE_ORDER = ["star", "cross", "badge", "circle", "hexagon", "octagon", "shield", "diamond"] as const;
 
 function ShapeIcon({ shape, color }: { shape: string; color: string }) {
   if (shape === "circle") {
@@ -69,19 +60,7 @@ export default function ShapePicker({ value, onChange }: { value: string; onChan
             </TouchableOpacity>
           );
         })}
-        {COMING_SOON.map((item) => (
-          <View key={item.key} style={[styles.cell, { borderColor: colors.border, opacity: 0.38 }]}>
-            {item.circle ? (
-              <ShapeIcon shape="circle" color={colors.mutedForeground} />
-            ) : (
-              <Svg width={28} height={28} viewBox="0 0 24 24">
-                <Path d={item.path} fill="none" stroke={colors.mutedForeground} strokeWidth="1.8" />
-              </Svg>
-            )}
-            <Text style={[styles.soon, { color: colors.mutedForeground }]}>COMING{"\n"}SOON</Text>
-          </View>
-        ))}
-      </View>
+     </View>
     </View>
   );
 }
@@ -98,5 +77,4 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   label: { fontSize: 8, fontFamily: fonts.bodyBold, letterSpacing: 0.6, textAlign: "center" },
-  soon: { fontSize: 7, fontFamily: fonts.bodyBold, letterSpacing: 0.4, textAlign: "center", lineHeight: 9 },
 });
