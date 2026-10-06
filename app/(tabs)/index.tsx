@@ -159,7 +159,7 @@ export default function Home() {
             <WarpedTorus size={100} color={colors.foreground} opacity={0.07} />
           </View>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t("home.yourMilestones")}</Text>
-          <MilestoneTimeline days={days} />
+          <MilestoneTimeline days={days} userId={profile?.id} />
           <MilestoneCalendarExport sobrietyDate={sobrietyDate} displayName={profile?.display_name} />
         </View>
       ) : null}
