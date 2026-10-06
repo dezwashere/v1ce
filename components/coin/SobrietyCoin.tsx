@@ -63,5 +63,5 @@ export default function SobrietyCoin(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  stage: { alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "transparent" },
+  stage: { alignItems: "center", justifyContent: "center", overflow: "visible", backgroundColor: "transparent" },
 });
