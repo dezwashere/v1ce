@@ -2,9 +2,15 @@ name: EAS iOS Development Build
 
 on:
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type BUILD to start a paid EAS iOS build'
+        required: true
+        type: string
 
 jobs:
   build:
+    if: ${{ inputs.confirm == 'BUILD' }}
     name: Start EAS iOS development build
     runs-on: ubuntu-latest
     env:
