@@ -139,7 +139,7 @@ export default function Profile() {
 
 const styles = StyleSheet.create({
   container: { padding: 20, paddingBottom: 48 },
-  title: { fontSize: 64, fontFamily: fonts.display, lineHeight: 60, marginBottom: 40, letterSpacing: 1 },
+  title: { fontSize: 64, fontFamily: fonts.display, lineHeight: 76, paddingTop: 6, marginBottom: 40, letterSpacing: 1 },
   avatarWrap: { alignItems: "center", marginBottom: 34 },
   avatar: { width: 112, height: 112 },
   placeholder: { alignItems: "center", justifyContent: "center" },
