@@ -199,7 +199,7 @@ export default function Friends() {
 
 const styles = StyleSheet.create({
   page: { paddingHorizontal: 20, paddingTop: 28, paddingBottom: 48 },
-  title: { fontSize: 56, lineHeight: 64, fontFamily: fonts.display },
+  title: { fontSize: 56, lineHeight: 68, paddingTop: 4, fontFamily: fonts.display },
   sub: { fontSize: 15, lineHeight: 22, fontFamily: fonts.body, marginTop: 12 },
   rule: { height: 2, marginVertical: 22 },
   heading: { fontSize: 13, fontFamily: fonts.extraBold, letterSpacing: 1.4, marginBottom: 12 },
