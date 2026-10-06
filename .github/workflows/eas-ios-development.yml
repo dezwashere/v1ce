@@ -2,21 +2,6 @@ name: EAS iOS Development Build
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "app/**"
-      - "components/**"
-      - "context/**"
-      - "lib/**"
-      - "modules/**"
-      - "targets/**"
-      - "assets/**"
-      - "app.json"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/eas-ios-development.yml"
 
 jobs:
   build:
