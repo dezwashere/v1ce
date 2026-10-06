@@ -206,7 +206,7 @@ export default function Lounge() {
 
 const styles = StyleSheet.create({
   container: { paddingHorizontal: 20, paddingTop: 28, paddingBottom: 48 },
-  title: { fontSize: 64, lineHeight: 72, fontFamily: fonts.display, letterSpacing: 0.5 },
+  title: { fontSize: 64, lineHeight: 78, paddingTop: 5, fontFamily: fonts.display, letterSpacing: 0.5 },
   section: { fontSize: 18, fontFamily: fonts.black, letterSpacing: 2, marginTop: 28, marginBottom: 12 },
   empty: { fontSize: 14, lineHeight: 20, fontFamily: fonts.body },
   friend: { height: 52, borderWidth: 1, flexDirection: "row", alignItems: "center", padding: 8, marginBottom: 6, gap: 10 },
