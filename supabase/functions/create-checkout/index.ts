@@ -8,6 +8,18 @@ Deno.serve(async (req: Request) => {
     const stripe = new Stripe(stripeKey);
     const { successUrl, cancelUrl, plan, giftEmail, gifterEmail } = await req.json();
     const priceId = plan === "yearly" ? "price_1TVphmEMFirrQavfWlRig1Fe" : "price_1TVphmEMFirrQavfVAlmaSUc";
+    const lineItem =
+      plan === "yearly" && !giftEmail
+        ? {
+            price_data: {
+              currency: "usd",
+              product_data: { name: "V1CE Premium - Yearly" },
+              unit_amount: 3000,
+              recurring: { interval: "year" as const },
+            },
+            quantity: 1,
+          }
+        : { price: priceId, quantity: 1 };
     let discounts;
     if (giftEmail && plan === "yearly") {
       const coupon = await stripe.coupons.create({ percent_off: 33, duration: "once", name: "Pay It Forward Gift - Yearly" });
@@ -17,7 +29,7 @@ Deno.serve(async (req: Request) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [lineItem],
       ...(discounts ? { discounts } : {}),
       ...(subscriptionData ? { subscription_data: subscriptionData } : {}),
       success_url: successUrl || "v1ce://premium?success=1",
