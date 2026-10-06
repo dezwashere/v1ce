@@ -1,5 +1,9 @@
 name: V1CE Development Builds
 
+on:
+  push:
+    branches: ['main']
+
 jobs:
   build_ios:
     name: Build iOS Development
