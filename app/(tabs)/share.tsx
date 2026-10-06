@@ -12,7 +12,6 @@ export default function ShareScreen() {
   const c = useColors();
   const { t } = useTranslation();
   const [giftEmail, setGiftEmail] = useState("");
-  const [giveawayEmail, setGiveawayEmail] = useState(user?.email || "");
   const [plan, setPlan] = useState<"monthly" | "yearly">("monthly");
   const [busy, setBusy] = useState(false);
   const widgetUrl = profile?.id ? `https://v1ce.app/w/${profile.id}` : "";
@@ -36,16 +35,6 @@ export default function ShareScreen() {
       return;
     }
     Linking.openURL(data.url);
-  };
-
-  const enterGiveaway = async () => {
-    const email = giveawayEmail.trim();
-    if (!email) return;
-    setBusy(true);
-    const { data, error } = await supabase.functions.invoke("giveaway-entry", { body: { email } });
-    setBusy(false);
-    if (error) Alert.alert("V1CE", error.message);
-    else Alert.alert("V1CE", data?.message === "already_entered" ? "Already entered this month." : "Entry received.");
   };
 
   const copyLink = async () => {
@@ -139,25 +128,6 @@ export default function ShareScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={[styles.card, { borderColor: c.foreground }]}>
-        <View style={styles.cardTitleRow}>
-          <Feather name="gift" size={16} color={c.foreground} />
-          <Text style={[styles.cardTitle, { color: c.foreground }]}>MONTHLY GIVEAWAY</Text>
-        </View>
-        <Text style={[styles.cardSub, { color: c.mutedForeground }]}>Win a free yearly subscription for yourself.</Text>
-        <TextInput
-          value={giveawayEmail}
-          onChangeText={setGiveawayEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          placeholder="Email"
-          placeholderTextColor={c.mutedForeground}
-          style={[styles.input, { borderColor: c.foreground, color: c.foreground }]}
-        />
-        <TouchableOpacity disabled={busy} onPress={enterGiveaway} style={[styles.cta, { backgroundColor: c.foreground }]}>
-          <Text style={[styles.ctaText, { color: c.background }]}>ENTER GIVEAWAY →</Text>
-        </TouchableOpacity>
-      </View>
     </ScrollView>
   );
 }
