@@ -1,0 +1,38 @@
+name: EAS iOS Development Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/eas-ios-development.yml"
+
+jobs:
+  build:
+    name: Start EAS iOS development build
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Expo token is available
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "EXPO_TOKEN secret is missing"
+            exit 1
+          fi
+
+      - name: Start iOS development build
+        run: npx eas-cli@latest build --platform ios --profile development --non-interactive --no-wait
