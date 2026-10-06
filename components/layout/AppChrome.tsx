@@ -11,7 +11,7 @@ import Svg, { Circle, Path } from "react-native-svg";
 
 const TABS = [
   { key: "nav.home", path: "/" },
-  { key: "nav.customize", path: "/customize" },
+  { key: "settings", path: "/profile" },
   { key: "nav.lounge", path: "/lounge" },
   { key: "nav.friends", path: "/friends" },
   { key: "nav.share", path: "/share" },
@@ -74,7 +74,7 @@ export default function AppChrome({ showNav = true }: { showNav?: boolean }) {
                 onPress={() => go(tab.path)}
                 style={[styles.tab, active && { backgroundColor: colors.foreground }]}
               >
-                <Text style={[styles.tabLabel, { color: active ? colors.background : colors.foreground }]}>{t(tab.key)}</Text>
+                <Text style={[styles.tabLabel, { color: active ? colors.background : colors.foreground }]}>{tab.key === "settings" ? "SETTINGS" : t(tab.key)}</Text>
               </TouchableOpacity>
             );
           })}
