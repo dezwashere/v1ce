@@ -1,0 +1,14 @@
+name: V1CE iOS Development Build
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build_ios:
+    name: Build iOS Development
+    type: build
+    params:
+      platform: ios
+      profile: development
+      message: "V1CE widget refresh and 30-minute rotation build"
