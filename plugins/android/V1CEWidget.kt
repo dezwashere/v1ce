@@ -66,6 +66,7 @@ class V1CEWidget:GlanceAppWidget(){
    val y=days/365;val m=(days%365)/30
    val value=if(y>0)y else if(m>0)m else days
    val label=if(y>0)if(y==1)"YEAR" else "YEARS" else if(m>0)if(m==1)"MONTH" else "MONTHS" else "DAYS"
+   val showBack=((System.currentTimeMillis()/1_800_000L)%2L)==1L
    val shapeRes=context.resources.getIdentifier("v1ce_shape_$shape","drawable",context.packageName)
    val borderRes=context.resources.getIdentifier("v1ce_shape_${shape}_border","drawable",context.packageName)
 
@@ -73,11 +74,16 @@ class V1CEWidget:GlanceAppWidget(){
     if(shapeRes!=0) Image(ImageProvider(shapeRes),"V1CE coin",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(bg)))
     if(showBorder && borderRes!=0) Image(ImageProvider(borderRes),"",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(borderColor)))
     Column(horizontalAlignment=Alignment.CenterHorizontally,verticalAlignment=Alignment.CenterVertically){
-     Text(value.toString(),style=TextStyle(color=ColorProvider(numberColor),fontSize=if(isLarge)48.sp else 34.sp,fontWeight=FontWeight.Bold,fontFamily=fontFamily(style),textAlign=TextAlign.Center))
-     Text(label,style=TextStyle(color=ColorProvider(numberColor),fontSize=9.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center))
-     if(name.isNotBlank()) Text(name.uppercase(),style=TextStyle(color=ColorProvider(numberColor),fontSize=7.sp,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center),maxLines=1)
      val motto=d?.optString("coinMotto","")?:""
-     if(motto.isNotBlank()) Text(motto,style=TextStyle(color=ColorProvider(numberColor),fontSize=8.sp,textAlign=TextAlign.Center),maxLines=2)
+     if(showBack){
+      Text("V1CE",style=TextStyle(color=ColorProvider(numberColor),fontSize=10.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center))
+      Text(value.toString(),style=TextStyle(color=ColorProvider(numberColor),fontSize=if(isLarge)48.sp else 34.sp,fontWeight=FontWeight.Bold,fontFamily=fontFamily(style),textAlign=TextAlign.Center))
+      Text(if(motto.isNotBlank())motto else "FREE FROM",style=TextStyle(color=ColorProvider(numberColor),fontSize=8.sp,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center),maxLines=2)
+     }else{
+      Text(value.toString(),style=TextStyle(color=ColorProvider(numberColor),fontSize=if(isLarge)48.sp else 34.sp,fontWeight=FontWeight.Bold,fontFamily=fontFamily(style),textAlign=TextAlign.Center))
+      Text(label,style=TextStyle(color=ColorProvider(numberColor),fontSize=9.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center))
+      if(name.isNotBlank()) Text(name.uppercase(),style=TextStyle(color=ColorProvider(numberColor),fontSize=7.sp,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center),maxLines=1)
+     }
     }
    }
   }
