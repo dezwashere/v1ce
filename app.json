@@ -35,6 +35,12 @@
     },
     "plugins": [
       [
+        "expo-dev-client",
+        {
+          "launchMode": "launcher"
+        }
+      ],
+      [
         "expo-router",
         {
           "origin": "https://v1ce.app"
