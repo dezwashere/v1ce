@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "V1CE",
-    "slug": "v1ce-native",
-    "owner": "dezwashere",
+    "slug": "v1ce",
+    "owner": "stickycat",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
