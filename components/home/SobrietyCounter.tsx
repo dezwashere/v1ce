@@ -11,7 +11,7 @@ export default function SobrietyCounter({ sobrietyDate }: { sobrietyDate?: strin
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
-  const time = useMemo(() => getElapsed(sobrietyDate), [sobrietyDate, now]);
+  const time = useMemo(() => getElapsed(sobrietyDate, now), [sobrietyDate, now]);
   return (
     <View style={styles.grid}>
       {([
