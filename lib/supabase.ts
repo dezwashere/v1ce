@@ -38,6 +38,7 @@ export type SobrietyProfile = {
   avatar_url: string;
   gifted_count: number;
   is_premium: boolean;
+  show_coin?: boolean;
   coin_balance: number;
   created_at?: string;
 };
@@ -104,6 +105,7 @@ export const defaultProfileFields = {
   avatar_url: "",
   gifted_count: 0,
   is_premium: false,
+  show_coin: true,
   coin_balance: 0,
   substances: [] as string[],
 };

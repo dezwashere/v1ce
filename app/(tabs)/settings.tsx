@@ -20,6 +20,7 @@ import GifterBadge from "@/components/GifterBadge";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { fonts } from "@/constants/typography";
 import { daysSince } from "@/constants/app";
+import { writeWidgetProfileSnapshot } from "@/lib/widgetCache";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
 import ShapePicker from "@/components/customize/ShapePicker";
 import ColorPicker from "@/components/customize/ColorPicker";
@@ -42,6 +43,7 @@ const ALL_FONTS = [
   "roboto_mono", "oswald", "raleway", "fraunces", "caveat", "dyna_puff",
 ] as const;
 const FREE_FONTS = ["classic", "bebas", "bodoni", "big_shoulders_stencil"] as const;
+const COIN_MESSAGE_MAX = 18;
 const RANDOM_MESSAGES = [
   "FREE FROM",
   "KEEP GOING",
@@ -243,7 +245,7 @@ export default function Settings() {
     setBorderColor(randomColor());
     setNumberColor("");
     setNumberStyle(randomItem(isPremium ? ALL_FONTS : FREE_FONTS));
-    setMessage(randomItem(RANDOM_MESSAGES));
+    setMessage(randomItem(RANDOM_MESSAGES).slice(0, COIN_MESSAGE_MAX));
   };
 
   const saveCoin = async () => {
@@ -256,7 +258,7 @@ export default function Settings() {
       coin_border_color: borderColor || null,
       coin_number_color: numberColor || null,
       number_style: numberStyle,
-      coin_motto: message.trim(),
+      coin_motto: message.trim().slice(0, COIN_MESSAGE_MAX),
       coin_shape_path: null,
     };
     const { data, error } = await supabase
@@ -266,7 +268,11 @@ export default function Settings() {
       .select()
       .single();
     if (error) Alert.alert("V1CE", error.message);
-    else setProfile(data || { ...profile, ...values });
+    else {
+      const updated = (data || { ...profile, ...values }) as typeof profile;
+      await writeWidgetProfileSnapshot(updated);
+      setProfile(updated);
+    }
     setSavingCoin(false);
   };
 
@@ -425,12 +431,13 @@ export default function Settings() {
         <Text style={[styles.controlTitle, { color: colors.foreground }]}>COIN MESSAGE</Text>
         <TextInput
           value={message}
-          onChangeText={(value) => setMessage(value.slice(0, 50))}
-          maxLength={50}
+          onChangeText={(value) => setMessage(value.slice(0, COIN_MESSAGE_MAX))}
+          maxLength={COIN_MESSAGE_MAX}
           placeholder="FREE FROM"
           placeholderTextColor={colors.mutedForeground}
           style={[styles.input, { borderColor: colors.foreground, color: colors.foreground }]}
         />
+        <Text style={[styles.helper, { color: colors.mutedForeground, textAlign: "right" }]}>{message.length}/{COIN_MESSAGE_MAX}</Text>
 
         <TouchableOpacity
           onPress={saveCoin}

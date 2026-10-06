@@ -1,0 +1,1 @@
+alter table public.profiles add column if not exists show_coin boolean not null default true;\n

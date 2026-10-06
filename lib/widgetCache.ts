@@ -35,7 +35,7 @@ export function toWidgetProfileSnapshot(profile: SobrietyProfile): WidgetProfile
     coinNumberColor: profile.coin_number_color || null,
     coinPhoto: profile.coin_photo || null,
     coinImageOnly: profile.coin_image_only ?? false,
-    coinMotto: profile.coin_motto || "",
+    coinMotto: (profile.coin_motto || "").slice(0, 18),
     substances: Array.isArray(profile.substances) ? profile.substances : [],
   };
 }
