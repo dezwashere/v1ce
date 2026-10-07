@@ -17,7 +17,6 @@ import { usePremium } from "@/context/PremiumContext";
 import { supabase, TABLES } from "@/lib/supabase";
 import { useColors } from "@/hooks/useColors";
 import GifterBadge from "@/components/GifterBadge";
-import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { fonts } from "@/constants/typography";
 import { daysSince } from "@/constants/app";
 import { verifyWidgetSharedSnapshot, writeWidgetProfileSnapshot } from "@/lib/widgetCache";
@@ -524,9 +523,6 @@ export default function Settings() {
         <TouchableOpacity onPress={toggleTheme} style={[styles.outline, { borderColor: colors.foreground }]}>
           <Text style={[styles.outlineText, { color: colors.foreground }]}>{isDark ? "DARK" : "LIGHT"}</Text>
         </TouchableOpacity>
-
-        <Text style={[styles.label, { color: colors.mutedForeground, marginTop: 24 }]}>LANGUAGE</Text>
-        <LanguageSwitcher />
 
         <TouchableOpacity
           onPress={() => router.push("/widget")}
