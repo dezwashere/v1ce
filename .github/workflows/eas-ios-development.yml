@@ -7,10 +7,14 @@ on:
         description: 'Type BUILD to start a paid EAS iOS build'
         required: true
         type: string
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/eas-ios-development.yml"
 
 jobs:
   build:
-    if: ${{ inputs.confirm == 'BUILD' }}
+    if: ${{ github.event_name == 'push' || inputs.confirm == 'BUILD' }}
     name: Start EAS iOS development build
     runs-on: ubuntu-latest
     env:
