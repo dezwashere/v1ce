@@ -193,7 +193,8 @@ export const I18N_RESOURCES = {
     "profile.previewHelp": "This is how your coin and status note will appear to your friends.",
     "profile.saveShort": "SAVE",
     "profile.photoPermission": "Photo access is required to choose a profile picture.",
-    "profile.uploadError": "Couldn't upload that photo."
+    "profile.uploadError": "Couldn't upload that photo.",
+    "birthday.friendBoost": "MAKE SOME NOISE!"
   },
   "ko": {
     "nav.home": "홈",
@@ -381,7 +382,8 @@ export const I18N_RESOURCES = {
     "profile.previewHelp": "친구들에게 보이는 코인과 상태 메모 미리보기입니다.",
     "profile.saveShort": "저장",
     "profile.photoPermission": "프로필 사진을 선택하려면 사진 접근 권한이 필요합니다.",
-    "profile.uploadError": "사진을 업로드할 수 없습니다."
+    "profile.uploadError": "사진을 업로드할 수 없습니다.",
+    "birthday.friendBoost": "오늘은 신나게 축하해요!"
   },
   "es": {
     "nav.home": "INICIO",
@@ -574,7 +576,8 @@ export const I18N_RESOURCES = {
     "profile.previewHelp": "Así verán tus amigos tu moneda y tu nota de estado.",
     "profile.saveShort": "GUARDAR",
     "profile.photoPermission": "Se necesita acceso a tus fotos para elegir una foto de perfil.",
-    "profile.uploadError": "No se pudo subir esa foto."
+    "profile.uploadError": "No se pudo subir esa foto.",
+    "birthday.friendBoost": "¡A CELEBRAR!"
   },
   "vi": {
     "nav.home": "TRANG CHỦ",
@@ -762,7 +765,8 @@ export const I18N_RESOURCES = {
     "profile.previewHelp": "Đây là cách bạn bè sẽ thấy đồng xu và ghi chú trạng thái của bạn.",
     "profile.saveShort": "LƯU",
     "profile.photoPermission": "Cần quyền truy cập ảnh để chọn ảnh hồ sơ.",
-    "profile.uploadError": "Không thể tải ảnh đó lên."
+    "profile.uploadError": "Không thể tải ảnh đó lên.",
+    "birthday.friendBoost": "ĂN MỪNG THÔI!"
   },
   "zh": {
     "nav.home": "首页",
@@ -926,7 +930,8 @@ export const I18N_RESOURCES = {
     "profile.previewHelp": "这是好友看到你的纪念币和状态备注的样子。",
     "profile.saveShort": "保存",
     "profile.photoPermission": "选择头像需要照片访问权限。",
-    "profile.uploadError": "无法上传该照片。"
+    "profile.uploadError": "无法上传该照片。",
+    "birthday.friendBoost": "一起庆祝吧！"
   },
   "am": {
     "nav.home": "ዋና",
@@ -1114,6 +1119,7 @@ export const I18N_RESOURCES = {
     "profile.previewHelp": "ጓደኞችዎ ሳንቲምዎን እና የሁኔታ ማስታወሻዎን እንዲህ ያያሉ።",
     "profile.saveShort": "አስቀምጥ",
     "profile.photoPermission": "የመገለጫ ምስል ለመምረጥ የፎቶ ፈቃድ ያስፈልጋል።",
-    "profile.uploadError": "ያንን ፎቶ መስቀል አልተቻለም።"
+    "profile.uploadError": "ያንን ፎቶ መስቀል አልተቻለም።",
+    "birthday.friendBoost": "እናክብር!"
   }
 } as Record<I18nLang, Record<string, string | string[]>>;
