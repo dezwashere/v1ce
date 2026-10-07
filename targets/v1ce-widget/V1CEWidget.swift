@@ -33,8 +33,14 @@ struct Snapshot: Codable {
 }
 
 private func snap() -> Snapshot? {
-  guard let d = UserDefaults(suiteName: group)?.data(forKey: "v1ce_widget_profile_v1") else { return nil }
-  return try? JSONDecoder().decode(Snapshot.self, from: d)
+  guard let defaults = UserDefaults(suiteName: group) else { return nil }
+  if let data = defaults.data(forKey: "v1ce_widget_profile_v1") {
+    return try? JSONDecoder().decode(Snapshot.self, from: data)
+  }
+  if let string = defaults.string(forKey: "v1ce_widget_profile_v1"), let data = string.data(using: .utf8) {
+    return try? JSONDecoder().decode(Snapshot.self, from: data)
+  }
+  return nil
 }
 
 private func days(_ s: String, _ now: Date) -> Int {

@@ -20,7 +20,7 @@ import GifterBadge from "@/components/GifterBadge";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { fonts } from "@/constants/typography";
 import { daysSince } from "@/constants/app";
-import { writeWidgetProfileSnapshot } from "@/lib/widgetCache";
+import { verifyWidgetSharedSnapshot, writeWidgetProfileSnapshot } from "@/lib/widgetCache";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
 import ShapePicker from "@/components/customize/ShapePicker";
 import ColorPicker from "@/components/customize/ColorPicker";
@@ -182,6 +182,7 @@ export default function Settings() {
   const [uploading, setUploading] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingCoin, setSavingCoin] = useState(false);
+  const [widgetDiagnostic, setWidgetDiagnostic] = useState("");
 
   const [shape, setShape] = useState(profile?.coin_shape || "circle");
   const [coinColor, setCoinColor] = useState(profile?.coin_color || "#F5D680");
@@ -257,8 +258,8 @@ export default function Settings() {
       coin_shape: shape,
       coin_color: coinColor,
       coin_show_border: showBorder,
-      coin_border_color: borderColor || coinColor || "#0A0A0A",
-      coin_number_color: numberColor || coinColor || "#0A0A0A",
+      coin_border_color: borderColor || "",
+      coin_number_color: numberColor || "",
       number_style: numberStyle,
       coin_motto: message.trim().slice(0, COIN_MESSAGE_MAX),
       coin_shape_path: null,
@@ -429,7 +430,7 @@ export default function Settings() {
           <NumberStylePicker value={numberStyle} onChange={setNumberStyle} />
         </DropdownSection>
 
-        <Text style={[styles.controlTitle, { color: colors.foreground }]}>COIN MESSAGE</Text>
+        <Text style={[styles.controlTitle, { color: colors.foreground }]}>COIN MESSAGE · BACK OF COIN</Text>
         <TextInput
           value={message}
           onChangeText={(value) => setMessage(value.slice(0, COIN_MESSAGE_MAX))}
@@ -439,6 +440,8 @@ export default function Settings() {
           style={[styles.input, { borderColor: colors.foreground, color: colors.foreground }]}
         />
         <Text style={[styles.helper, { color: colors.mutedForeground, textAlign: "right" }]}>{message.length}/{COIN_MESSAGE_MAX}</Text>
+        <TouchableOpacity onPress={async()=>{const result=await verifyWidgetSharedSnapshot();setWidgetDiagnostic(result.ok?"WIDGET DATA VERIFIED":result.reason||"WIDGET DATA NOT VERIFIED");}} style={[styles.outline,{borderColor:colors.foreground,marginTop:12}]}><Text style={[styles.outlineText,{color:colors.foreground}]}>CHECK WIDGET DATA</Text></TouchableOpacity>
+        {widgetDiagnostic?<Text style={[styles.helper,{color:colors.mutedForeground,textAlign:"center"}]}>{widgetDiagnostic}</Text>:null}
 
         <TouchableOpacity
           onPress={saveCoin}
