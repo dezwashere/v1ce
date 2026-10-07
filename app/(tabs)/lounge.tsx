@@ -39,7 +39,7 @@ export default function Lounge(){
 
    <View style={styles.sectionHead}><Text style={[styles.section,{color:colors.foreground}]}>{t("lounge.friends")} ({visibleFriends.length})</Text><TouchableOpacity onPress={()=>router.push("/friends")} style={[styles.addBtn,{backgroundColor:colors.foreground}]}><Text style={[styles.addText,{color:colors.background}]}>{t("lounge.addFriend")} +</Text></TouchableOpacity></View>
    <View style={styles.grid}>{visibleFriends.map((f)=><TouchableOpacity key={f.id} onPress={()=>setPreview({name:f.name,days:f.days,status:f.status,avatarSeed:f.avatarSeed,shape:f.shape,color:f.color,motto:f.motto,birthday:f.birthday,showCoin:f.showCoin})} style={[styles.friendCard,{borderColor:colors.border}]}>
-    <LofiAvatar seed={f.avatarSeed||f.name} size={66}/><Text style={[styles.friendName,{color:colors.foreground}]}>{f.name}</Text><Text style={[styles.friendDays,{color:colors.mutedForeground}]}>{f.days} days</Text>{f.birthday?<BirthdayTag/>:null}
+    <LofiAvatar seed={f.avatarSeed||f.name} size={66}/><Text style={[styles.friendName,{color:colors.foreground}]}>{f.name}</Text><Text style={[styles.friendDays,{color:colors.mutedForeground}]}>{f.days} days</Text>{f.birthday?<><BirthdayTag/><Text style={[styles.birthdayBoost,{color:colors.foreground}]}>{t("birthday.friendBoost")}</Text></>:null}
    </TouchableOpacity>)}</View>
 
    <Text style={[styles.section,{color:colors.foreground}]}>{t("lounge.loungeChat")}</Text>
@@ -95,6 +95,7 @@ const styles=StyleSheet.create({
  friendCard:{width:"48.5%",borderWidth:1,padding:12,minHeight:145,alignItems:"flex-start"},
  friendName:{fontFamily:fonts.black,fontSize:15,marginTop:8},
  friendDays:{fontFamily:fonts.body,fontSize:11,marginTop:2},
+ birthdayBoost:{fontFamily:fonts.black,fontSize:9,letterSpacing:1.1,marginTop:6},
  chat:{borderWidth:1,padding:14,minHeight:100},
  message:{flexDirection:"row",alignItems:"center",gap:8,marginBottom:10},
  messageText:{flex:1,fontFamily:fonts.body,fontSize:13,lineHeight:18},
