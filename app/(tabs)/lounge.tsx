@@ -10,29 +10,25 @@ import LofiAvatar from "@/components/lounge/LofiAvatar";
 import CoinPreview from "@/components/lounge/CoinPreview";
 import BirthdayCard from "@/components/birthday/BirthdayCard";
 import BirthdayTag from "@/components/birthday/BirthdayTag";
+import { LOUNGE_PREVIEW_CHAT, LOUNGE_PREVIEW_ENABLED, LOUNGE_PREVIEW_FRIENDS } from "@/lib/loungePreviewData";
 
-const DEMO=[
- {id:"mia",name:"Mia",days:327,birthday:true,status:"Still here. And so proud of that.",avatarSeed:"MIA",shape:"circle",color:"#F5D680",motto:"KEEP GOING",showCoin:true},
- {id:"jordan",name:"Jordan",days:118,birthday:true,status:"Quiet progress is still progress.",avatarSeed:"JORDAN",shape:"hexagon",color:"#E8B4B8",motto:"JUST FOR TODAY",showCoin:true},
- {id:"sam",name:"Sam",days:42,birthday:false,status:"One day at a time.",avatarSeed:"SAM",shape:"shield",color:"#2E8B57",motto:"NOT TODAY",showCoin:true},
-] as const;
-const EGG_RESPONSES=["YES.","NO.","NOT TODAY.","GIVE IT TIME.","DO IT.","DON'T DO IT.","WAIT.","TRUST YOURSELF.","YOU ALREADY KNOW.","ASK AGAIN LATER.","SLEEP ON IT.","KEEP GOING.","LET IT GO.","LEAVE IT ALONE.","TAKE THE RISK.","NOT WORTH IT.","ONE THING AT A TIME.","TRY AGAIN TOMORROW.","CALL SOMEONE.","GO OUTSIDE.","STAY HOME.","BE PATIENT.","START SMALL.","STOP OVERTHINKING IT.","MAYBE.","ABSOLUTELY.","PROBABLY NOT.","WRONG QUESTION.","THE TIMING IS OFF.","THE TIMING IS RIGHT.","EAT TACO BELL.","EAT TACO TIME.","PLAY A VIDEO GAME.","SCREAM."];
+const EGG_RESPONSES=["YES","NO","NOT TODAY","GIVE IT TIME","DO IT","DON'T DO IT","WAIT","TRUST YOURSELF","YOU ALREADY KNOW","ASK AGAIN LATER","SLEEP ON IT","KEEP GOING","LET IT GO","LEAVE IT ALONE","TAKE THE RISK","NOT WORTH IT","ONE THING AT A TIME","TRY AGAIN TOMORROW","CALL SOMEONE","GO OUTSIDE","STAY HOME","BE PATIENT","START SMALL","STOP OVERTHINKING IT","MAYBE","ABSOLUTELY","PROBABLY NOT","WRONG QUESTION","THE TIMING IS OFF","THE TIMING IS RIGHT","EAT TACO BELL","EAT TACO TIME","PLAY A VIDEO GAME","SCREAM"];
 const SERIOUS=/suicid|kill myself|hurt myself|overdose|emergency|chest pain|can't breathe|cant breathe|poison|bleeding heavily/i;
 
 export default function Lounge(){
  const router=useRouter(); const colors=useColors(); const {user,profile}=useAuth();
- const [message,setMessage]=useState(""); const [messages,setMessages]=useState<LoungeChatMessage[]>([]); const [friends,setFriends]=useState<FriendConnection[]>([]); const [sending,setSending]=useState(false);
+ const [message,setMessage]=useState(""); const [messages,setMessages]=useState<LoungeChatMessage[]>([]); const [friends,setFriends]=useState<FriendConnection[]>([]); const [previewMessages,setPreviewMessages]=useState(LOUNGE_PREVIEW_CHAT); const [sending,setSending]=useState(false);
  const [preview,setPreview]=useState<{name:string;days:number;status?:string;avatarSeed?:string;shape?:string;color?:string;motto?:string;birthday?:boolean;showCoin?:boolean}|null>(null); const [birthdayOpen,setBirthdayOpen]=useState(false); const [birthdayName,setBirthdayName]=useState("");
  const [eggQuestion,setEggQuestion]=useState(""); const [eggAnswer,setEggAnswer]=useState("");
  const eggShake=useRef(new Animated.Value(0)).current;
 
  const load=useCallback(async()=>{if(!user?.id)return;const [{data:friendData,error:friendError},{data:messageData,error:messageError}]=await Promise.all([supabase.rpc("get_my_friend_connections"),supabase.rpc("get_lounge_messages")]);if(friendError)Alert.alert("V1CE",friendError.message);else setFriends(((friendData||[]) as FriendConnection[]).filter(f=>f.status==="accepted"));if(messageError)Alert.alert("V1CE",messageError.message);else setMessages((messageData||[]) as LoungeChatMessage[]);},[user?.id]);
  useEffect(()=>{load();const channel=user?.id?supabase.channel("v1ce-lounge").on("postgres_changes",{event:"INSERT",schema:"public",table:TABLES.LoungeChatMessage},()=>load()).subscribe():null;return()=>{if(channel)supabase.removeChannel(channel);};},[load,user?.id]);
- const send=async()=>{const body=message.trim();if(!body||!user?.id||sending)return;setSending(true);const {error}=await supabase.from(TABLES.LoungeChatMessage).insert({sender_id:user.id,body});if(error)Alert.alert("V1CE",error.message);else setMessage("");setSending(false);if(!error)load();};
- const askEgg=()=>{const q=eggQuestion.trim();if(!q)return;const answer=SERIOUS.test(q)?"I DON'T KNOW.":EGG_RESPONSES[Math.floor(Math.random()*EGG_RESPONSES.length)];setEggAnswer("");Animated.sequence([Animated.timing(eggShake,{toValue:-1,duration:70,useNativeDriver:true}),Animated.timing(eggShake,{toValue:1,duration:90,useNativeDriver:true}),Animated.timing(eggShake,{toValue:-1,duration:90,useNativeDriver:true}),Animated.timing(eggShake,{toValue:1,duration:90,useNativeDriver:true}),Animated.timing(eggShake,{toValue:0,duration:70,useNativeDriver:true})]).start(()=>setEggAnswer(answer));};
+ const send=async()=>{const body=message.trim();if(!body||sending)return;if(LOUNGE_PREVIEW_ENABLED){setPreviewMessages(current=>[...current,{id:`preview-${Date.now()}`,name:"You",body,avatarSeed:"MIA"}]);setMessage("");return;}if(!user?.id)return;setSending(true);const {error}=await supabase.from(TABLES.LoungeChatMessage).insert({sender_id:user.id,body});if(error)Alert.alert("V1CE",error.message);else setMessage("");setSending(false);if(!error)load();};
+ const askEgg=()=>{const q=eggQuestion.trim();if(!q)return;const answer=SERIOUS.test(q)?"I DON'T KNOW":EGG_RESPONSES[Math.floor(Math.random()*EGG_RESPONSES.length)];setEggAnswer("");Animated.sequence([Animated.timing(eggShake,{toValue:-1,duration:70,useNativeDriver:true}),Animated.timing(eggShake,{toValue:1,duration:90,useNativeDriver:true}),Animated.timing(eggShake,{toValue:-1,duration:90,useNativeDriver:true}),Animated.timing(eggShake,{toValue:1,duration:90,useNativeDriver:true}),Animated.timing(eggShake,{toValue:0,duration:70,useNativeDriver:true})]).start(()=>setEggAnswer(answer));};
  const isBirthday=profile?.birthday&&new Date(profile.birthday).getMonth()===new Date().getMonth()&&new Date(profile.birthday).getDate()===new Date().getDate();
  const friendName=(f:FriendConnection)=>f.requester_id===user?.id?f.recipient_name||f.recipient_email||"Friend":f.requester_name||f.requester_email||"Friend";
- const visibleFriends=useMemo(()=>__DEV__?DEMO:friends.slice(0,6).map((f)=>({id:f.id,name:friendName(f),days:1,birthday:false,status:"",avatarSeed:friendName(f),shape:"circle",color:"#F5D680",motto:"FREE FROM",showCoin:true})),[friends,user?.id]);
+ const visibleFriends=useMemo(()=>LOUNGE_PREVIEW_ENABLED?LOUNGE_PREVIEW_FRIENDS:friends.slice(0,6).map((f)=>({id:f.id,name:friendName(f),days:1,birthday:false,status:"",avatarSeed:friendName(f),shape:"circle",color:"#F5D680",motto:"FREE FROM",showCoin:true})),[friends,user?.id]);
 
  return <KeyboardAvoidingView style={{flex:1,backgroundColor:colors.background}} behavior={Platform.OS==="ios"?"padding":"height"} keyboardVerticalOffset={96}>
   <ScrollView style={{backgroundColor:colors.background}} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -47,7 +43,7 @@ export default function Lounge(){
 
    <Text style={[styles.section,{color:colors.foreground}]}>LOUNGE CHAT</Text>
    <View style={[styles.chat,{borderColor:colors.border}]}>
-    {__DEV__?[["Jordan","Checking in. Hope everybody is having a good day."],["Mia","Feeling grateful today. Another day, another chance."],["Sam","One day at a time."]].map(([n,b])=><View key={n} style={styles.message}><LofiAvatar seed={n} size={30}/><Text style={[styles.messageText,{color:colors.foreground}]}><Text style={styles.bold}>{n}: </Text>{b}</Text></View>):messages.map(m=><View key={m.id} style={styles.message}><LofiAvatar seed={m.display_name||m.sender_name||"F"} size={30}/><Text style={[styles.messageText,{color:colors.foreground}]}><Text style={styles.bold}>{m.sender_id===user?.id?"You":m.display_name||m.sender_name||"Friend"}: </Text>{m.body||m.message}</Text></View>)}
+    {LOUNGE_PREVIEW_ENABLED?previewMessages.map(m=><View key={m.id} style={styles.message}><LofiAvatar seed={m.avatarSeed||m.name} size={30}/><Text style={[styles.messageText,{color:colors.foreground}]}><Text style={styles.bold}>{m.name}: </Text>{m.body}</Text></View>):messages.map(m=><View key={m.id} style={styles.message}><LofiAvatar seed={m.display_name||m.sender_name||"F"} size={30}/><Text style={[styles.messageText,{color:colors.foreground}]}><Text style={styles.bold}>{m.sender_id===user?.id?"You":m.display_name||m.sender_name||"Friend"}: </Text>{m.body||m.message}</Text></View>)}
    </View>
    {user?.id?<View style={styles.composer}><TextInput value={message} onChangeText={setMessage} maxLength={500} placeholder="Say something..." placeholderTextColor={colors.mutedForeground} style={[styles.input,{color:colors.foreground,borderColor:colors.border}]}/><TouchableOpacity disabled={sending} onPress={send} style={[styles.send,{backgroundColor:colors.foreground}]}><Text style={[styles.bold,{color:colors.background}]}>SEND</Text></TouchableOpacity></View>:null}
 
@@ -61,7 +57,7 @@ export default function Lounge(){
           <Path d="M105 8 C67 8 31 65 22 128 C10 211 48 260 105 260 C162 260 200 211 188 128 C179 65 143 8 105 8 Z" fill={colors.background} stroke={colors.foreground} strokeWidth={4}/>
         </Svg>
         <View style={[styles.eggWindow,{backgroundColor:colors.foreground}]}>
-          <Text numberOfLines={3} adjustsFontSizeToFit minimumFontScale={.55} style={[styles.eggAnswer,{color:colors.background}]}>{eggAnswer||"TAP THE EGG"}</Text>
+          <Text numberOfLines={3} adjustsFontSizeToFit minimumFontScale={.62} allowFontScaling={false} style={[styles.eggAnswer,{color:colors.background}]}>{eggAnswer||"TAP THE EGG"}</Text>
         </View>
       </Animated.View>
     </TouchableOpacity>
@@ -110,6 +106,6 @@ const styles=StyleSheet.create({
  eggSub:{fontFamily:fonts.body,fontSize:13,marginTop:4,marginBottom:12},
  eggInput:{borderWidth:1,minHeight:48,paddingHorizontal:12,fontFamily:fonts.body},
  eggWrap:{width:210,height:270,alignSelf:"center",marginVertical:22,alignItems:"center",justifyContent:"center"},
- eggWindow:{position:"absolute",left:34,right:34,minHeight:72,paddingHorizontal:10,paddingVertical:12,alignItems:"center",justifyContent:"center"},
+ eggWindow:{position:"absolute",left:34,right:34,height:76,paddingHorizontal:10,paddingVertical:8,alignItems:"center",justifyContent:"center",overflow:"hidden"},
  eggAnswer:{fontFamily:fonts.black,fontSize:18,lineHeight:22,letterSpacing:1.2,textAlign:"center"},
 });

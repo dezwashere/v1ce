@@ -16,11 +16,21 @@ jobs:
           cache: npm
       - run: npm install --no-audit --no-fund
       - run: npx expo prebuild -p ios --clean
+      - name: Build iOS app target
+        run: |
+          WORKSPACE=$(find ios -maxdepth 1 -name "*.xcworkspace" -print -quit)
+          test -n "$WORKSPACE"
+          xcodebuild -workspace "$WORKSPACE" -scheme V1CE -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
       - name: Build iOS widget target
         run: |
           WORKSPACE=$(find ios -maxdepth 1 -name "*.xcworkspace" -print -quit)
           test -n "$WORKSPACE"
           xcodebuild -workspace "$WORKSPACE" -scheme V1CEWidget -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
+      - name: Verify App Group entitlements
+        run: |
+          MATCHES=$(grep -Rl "group.app.v1ce" ios --include="*.entitlements" | wc -l | tr -d " ")
+          echo "Found $MATCHES entitlement files containing group.app.v1ce"
+          test "$MATCHES" -ge 2
 
   android-widget:
     runs-on: ubuntu-latest

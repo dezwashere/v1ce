@@ -7,6 +7,7 @@ import { fonts } from "@/constants/typography";
 import { daysSince } from "@/constants/app";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
 import RotatingLabel from "@/components/home/RotatingLabel";
+import { CUSTOMIZE_WORD_PREFS_KEY } from "@/lib/rotatingTextPrefs";
 
 export default function CoinScreen() {
   const { profile } = useAuth();
@@ -17,7 +18,7 @@ export default function CoinScreen() {
     <ScrollView style={{backgroundColor:colors.background}} contentContainerStyle={styles.page}>
       <Text style={[styles.title,{color:colors.foreground}]}>COIN</Text>
       <Text style={[styles.sub,{color:colors.mutedForeground}]}>Your progress, in one place.</Text>
-      <View style={styles.rotating}><RotatingLabel /></View>
+      <View style={styles.rotating}><RotatingLabel prefsKey={CUSTOMIZE_WORD_PREFS_KEY} /></View>
       <View style={styles.coin}>
         <SobrietyCoin
           days={daysSince(profile.sobriety_date)}
