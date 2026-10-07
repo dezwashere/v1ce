@@ -40,4 +40,4 @@ jobs:
           fi
 
       - name: Start iOS development build
-        run: npx eas-cli@latest build --platform ios --profile development --non-interactive --no-wait
+        run: npx eas-cli@latest build --platform ios --profile development --non-interactive
