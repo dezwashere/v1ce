@@ -6,6 +6,7 @@ import BirthdayPrompts from "@/components/birthday/BirthdayPrompts";
 import BirthdayStylePicker from "@/components/birthday/BirthdayStylePicker";
 import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
+import { useTranslation } from "@/lib/i18n";
 
 export default function BirthdayCard({
   name,
@@ -19,6 +20,7 @@ export default function BirthdayCard({
   onShare?: (message: string) => void;
 }) {
   const colors = useColors();
+  const { t } = useTranslation();
   const [song, setSong] = useState("arcade");
   const [post, setPost] = useState(true);
 
@@ -27,8 +29,8 @@ export default function BirthdayCard({
       <View style={styles.overlay}>
         <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.foreground }]}>
           <BirthdayConfetti />
-          <Text style={[styles.kicker, { color: colors.gold }]}>HAPPY</Text>
-          <Text style={[styles.title, { color: colors.foreground }]}>BIRTHDAY,{"\n"}{name.toUpperCase()}.</Text>
+          <Text style={[styles.kicker, { color: colors.gold }]}>{t("birthday.kicker")}</Text>
+          <Text style={[styles.title, { color: colors.foreground }]}>{t("birthday.title")}{"\n"}{name.toUpperCase()}.</Text>
           <BirthdayStylePicker value={song} onChange={setSong} postToLounge={post} onTogglePost={() => setPost((v) => !v)} />
           <BirthdayPrompts
             onSelect={(text) => {
@@ -37,7 +39,7 @@ export default function BirthdayCard({
             }}
           />
           <TouchableOpacity onPress={onClose} style={[styles.button, { backgroundColor: colors.foreground }]}>
-            <Text style={{ color: colors.background, fontFamily: fonts.black, letterSpacing: 2 }}>CLOSE</Text>
+            <Text style={{ color: colors.background, fontFamily: fonts.black, letterSpacing: 2 }}>{t("common.close")}</Text>
           </TouchableOpacity>
         </View>
       </View>
