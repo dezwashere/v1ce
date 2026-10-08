@@ -2,24 +2,26 @@ import React from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
+import { useTranslation } from "@/lib/i18n";
 import type { RotatingTextPrefs } from "@/lib/rotatingTextPrefs";
 
 export default function RotatingTextSettings({ title, prefs, onChange }: { title: string; prefs: RotatingTextPrefs; onChange: (next: RotatingTextPrefs) => void }) {
   const colors = useColors();
+  const { t } = useTranslation();
   const words = [...prefs.customWords, "", "", "", "", ""].slice(0, 5);
   return (
     <View style={[styles.block, { borderTopColor: colors.border }]}>
       <Text style={[styles.title, { color: colors.foreground }]}>{title}</Text>
-      <Text style={[styles.help, { color: colors.mutedForeground }]}>Rotate the default words, add up to five of your own, or turn rotation off and pause on one word.</Text>
+      <Text style={[styles.help, { color: colors.mutedForeground }]}>{t("rotating.help")}</Text>
       <TouchableOpacity onPress={() => onChange({ ...prefs, rotating: !prefs.rotating })} style={[styles.toggle, { borderColor: colors.foreground, backgroundColor: prefs.rotating ? colors.foreground : colors.background }]}>
-        <Text style={{ color: prefs.rotating ? colors.background : colors.foreground, fontFamily: fonts.black, letterSpacing: 1.5 }}>ROTATION {prefs.rotating ? "ON" : "OFF"}</Text>
+        <Text style={{ color: prefs.rotating ? colors.background : colors.foreground, fontFamily: fonts.black, letterSpacing: 1.5 }}>{t("rotating.rotation")} {prefs.rotating ? t("rotating.on") : t("rotating.off")}</Text>
       </TouchableOpacity>
       {!prefs.rotating ? <>
-        <Text style={[styles.label, { color: colors.mutedForeground }]}>PAUSE ON</Text>
-        <TextInput value={prefs.pausedWord} onChangeText={(pausedWord) => onChange({ ...prefs, pausedWord: pausedWord.toUpperCase().slice(0, 24) })} maxLength={24} placeholder="SOBER" placeholderTextColor={colors.mutedForeground} autoCapitalize="characters" style={[styles.input, { borderColor: colors.foreground, color: colors.foreground }]} />
+        <Text style={[styles.label, { color: colors.mutedForeground }]}>{t("rotating.pauseOn")}</Text>
+        <TextInput value={prefs.pausedWord} onChangeText={(pausedWord) => onChange({ ...prefs, pausedWord: pausedWord.toUpperCase().slice(0, 24) })} maxLength={24} placeholder={t("settings.freeFrom")} placeholderTextColor={colors.mutedForeground} autoCapitalize="characters" style={[styles.input, { borderColor: colors.foreground, color: colors.foreground }]} />
       </> : null}
-      <Text style={[styles.label, { color: colors.mutedForeground }]}>YOUR WORDS · UP TO 5</Text>
-      {words.map((word, index) => <TextInput key={index} value={word} onChangeText={(value) => { const next=[...words]; next[index]=value.toUpperCase().slice(0,24); onChange({ ...prefs, customWords: next }); }} maxLength={24} placeholder={`WORD ${index + 1}`} placeholderTextColor={colors.mutedForeground} autoCapitalize="characters" style={[styles.input, { borderColor: colors.border, color: colors.foreground }]} />)}
+      <Text style={[styles.label, { color: colors.mutedForeground }]}>{t("rotating.yourWords")}</Text>
+      {words.map((word, index) => <TextInput key={index} value={word} onChangeText={(value) => { const next=[...words]; next[index]=value.toUpperCase().slice(0,24); onChange({ ...prefs, customWords: next }); }} maxLength={24} placeholder={`${t("rotating.word")} ${index + 1}`} placeholderTextColor={colors.mutedForeground} autoCapitalize="characters" style={[styles.input, { borderColor: colors.border, color: colors.foreground }]} />)}
     </View>
   );
 }
