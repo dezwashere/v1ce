@@ -4,31 +4,32 @@ import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 import { supabase } from "@/lib/supabase";
 import { fonts } from "@/constants/typography";
+import { useTranslation } from "@/lib/i18n";
 
 export default function ShareScreen(){
-  const {user}=useAuth(); const c=useColors();
+  const {user}=useAuth(); const c=useColors(); const {t}=useTranslation();
   const [giftEmail,setGiftEmail]=useState(""); const [plan,setPlan]=useState<"monthly"|"yearly">("monthly"); const [busy,setBusy]=useState(false);
   const gift=async()=>{const email=giftEmail.trim();if(!email)return;setBusy(true);const {data,error}=await supabase.functions.invoke("create-checkout",{body:{plan,giftEmail:email,gifterEmail:user?.email||"",successUrl:"v1ce://share?gift=1",cancelUrl:"v1ce://share"}});setBusy(false);if(error||!data?.url){Alert.alert("V1CE",error?.message||"Gift checkout is not available.");return;}Linking.openURL(data.url);};
   return <ScrollView style={{backgroundColor:c.background}} contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-    <Text style={[styles.title,{color:c.foreground}]}>SHARE & GIFT</Text>
+    <Text style={[styles.title,{color:c.foreground}]}>{t("share.title")}</Text>
     <View style={[styles.card,{borderColor:c.foreground}]}>
-      <Text style={[styles.section,{color:c.foreground}]}>ADD V1CE TO YOUR HOME SCREEN</Text>
-      <Text style={[styles.step,{color:c.mutedForeground}]}>1. Touch and hold an empty area of your Home Screen.</Text>
-      <Text style={[styles.step,{color:c.mutedForeground}]}>2. Open Widgets / Add Widget.</Text>
-      <Text style={[styles.step,{color:c.mutedForeground}]}>3. Find V1CE.</Text>
-      <Text style={[styles.step,{color:c.mutedForeground}]}>4. Add it and place it where you want.</Text>
-      <Text style={[styles.note,{color:c.mutedForeground}]}>Button names can vary slightly between iPhone and Android.</Text>
+      <Text style={[styles.section,{color:c.foreground}]}>{t("share.addHome")}</Text>
+      <Text style={[styles.step,{color:c.mutedForeground}]}>{t("share.step1")}</Text>
+      <Text style={[styles.step,{color:c.mutedForeground}]}>{t("share.step2")}</Text>
+      <Text style={[styles.step,{color:c.mutedForeground}]}>{t("share.step3")}</Text>
+      <Text style={[styles.step,{color:c.mutedForeground}]}>{t("share.step4")}</Text>
+      <Text style={[styles.note,{color:c.mutedForeground}]}>{t("share.note")}</Text>
     </View>
     <View style={[styles.card,{borderColor:c.foreground}]}>
-      <Text style={[styles.section,{color:c.foreground}]}>PAY IT FORWARD</Text>
-      <Text style={[styles.sub,{color:c.mutedForeground}]}>Gift Premium to someone on their journey.</Text>
-      <Text style={[styles.label,{color:c.mutedForeground}]}>THEIR EMAIL</Text>
+      <Text style={[styles.section,{color:c.foreground}]}>{t("share.payForward")}</Text>
+      <Text style={[styles.sub,{color:c.mutedForeground}]}>{t("share.giftSub")}</Text>
+      <Text style={[styles.label,{color:c.mutedForeground}]}>{t("share.email")}</Text>
       <TextInput value={giftEmail} onChangeText={setGiftEmail} autoCapitalize="none" keyboardType="email-address" placeholder="friend@email.com" placeholderTextColor={c.mutedForeground} style={[styles.input,{borderColor:c.foreground,color:c.foreground}]}/>
       <View style={styles.plans}>
         <TouchableOpacity onPress={()=>setPlan("monthly")} style={[styles.plan,{backgroundColor:plan==="monthly"?c.foreground:c.background,borderColor:c.foreground}]}><Text style={[styles.planText,{color:plan==="monthly"?c.background:c.foreground}]}>$2.99 / MO</Text></TouchableOpacity>
         <TouchableOpacity onPress={()=>setPlan("yearly")} style={[styles.plan,{backgroundColor:plan==="yearly"?c.foreground:c.background,borderColor:c.foreground}]}><Text style={[styles.planText,{color:plan==="yearly"?c.background:c.foreground}]}>$22 / YR GIFT</Text></TouchableOpacity>
       </View>
-      <TouchableOpacity disabled={busy} onPress={gift} style={[styles.primary,{backgroundColor:c.foreground,opacity:busy?.5:1}]}><Text style={[styles.primaryText,{color:c.background}]}>{busy?"LOADING...":"SEND THE GIFT"}</Text></TouchableOpacity>
+      <TouchableOpacity disabled={busy} onPress={gift} style={[styles.primary,{backgroundColor:c.foreground,opacity:busy?.5:1}]}><Text style={[styles.primaryText,{color:c.background}]}>{busy?t("share.loading"):t("share.sendGift")}</Text></TouchableOpacity>
     </View>
   </ScrollView>;
 }
