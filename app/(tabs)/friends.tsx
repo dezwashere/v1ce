@@ -131,7 +131,7 @@ export default function Friends() {
       </View>
       <View style={[styles.rule, { backgroundColor: colors.foreground }]} />
 
-      <Text style={[styles.heading, { color: colors.foreground }]}>INCOMING REQUESTS</Text>
+      <Text style={[styles.heading, { color: colors.foreground }]}>{t("friends.incoming")}</Text>
       {pending.length === 0 ? (
         <Text style={[styles.empty, { color: colors.mutedForeground }]}>{t("friends.noPendingRequests")}</Text>
       ) : (
@@ -150,22 +150,22 @@ export default function Friends() {
         ))
       )}
 
-      <Text style={[styles.heading, { color: colors.foreground, marginTop: 24 }]}>SENT REQUESTS</Text>
+      <Text style={[styles.heading, { color: colors.foreground, marginTop: 24 }]}>{t("friends.sentRequests")}</Text>
       {outgoing.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.mutedForeground }]}>No sent requests.</Text>
+        <Text style={[styles.empty, { color: colors.mutedForeground }]}>{t("friends.noSentRequests")}</Text>
       ) : outgoing.map((f) => (
         <View key={f.id} style={[styles.card, { borderColor: colors.border }]}>
           <View>
             <Text style={{ color: colors.foreground, fontFamily: fonts.bodySemi }}>{f.recipient_name || f.recipient_email || "Friend"}</Text>
-            <Text style={{ color: colors.mutedForeground, fontFamily: fonts.body, fontSize: 11, marginTop: 3 }}>REQUEST PENDING</Text>
+            <Text style={{ color: colors.mutedForeground, fontFamily: fonts.body, fontSize: 11, marginTop: 3 }}>{t("friends.requestPending")}</Text>
           </View>
           <TouchableOpacity onPress={() => remove(f.id)}>
-            <Text style={{ color: colors.mutedForeground, fontFamily: fonts.extraBold }}>CANCEL</Text>
+            <Text style={{ color: colors.mutedForeground, fontFamily: fonts.extraBold }}>{t("friends.cancel")}</Text>
           </TouchableOpacity>
         </View>
       ))}
 
-      <Text style={[styles.heading, { color: colors.foreground, marginTop: 24 }]}>FRIENDS</Text>
+      <Text style={[styles.heading, { color: colors.foreground, marginTop: 24 }]}>{t("friends.yourFriends")}</Text>
       {friends.length === 0 ? (
         <Text style={[styles.foot, { color: colors.mutedForeground }]}>{t("friends.noFriendsYet")}</Text>
       ) : (
@@ -180,8 +180,8 @@ export default function Friends() {
                   <Text style={[styles.friendTileStatus, { color: colors.foreground }]}>{f.is_active_in_lounge ? t("friends.active") : t("friends.inactive")}</Text>
                 </TouchableOpacity>
                 <View style={styles.tileActions}>
-                  <TouchableOpacity onPress={() => remove(f.id)}><Text style={{ color: colors.mutedForeground, fontFamily: fonts.extraBold, fontSize: 8 }}>REMOVE</Text></TouchableOpacity>
-                  <TouchableOpacity onPress={() => block(f.id)}><Text style={{ color: colors.mutedForeground, fontFamily: fonts.bodyBold, fontSize: 8 }}>BLOCK</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => remove(f.id)}><Text style={{ color: colors.mutedForeground, fontFamily: fonts.extraBold, fontSize: 8 }}>{t("friends.remove")}</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => block(f.id)}><Text style={{ color: colors.mutedForeground, fontFamily: fonts.bodyBold, fontSize: 8 }}>{t("friends.blockUser")}</Text></TouchableOpacity>
                 </View>
               </View>
             );
