@@ -4,10 +4,12 @@ import { useRouter } from "expo-router";
 import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "@/lib/i18n";
 
 export default function PaywallOverlay({ children }: { children?: React.ReactNode }) {
   const colors = useColors();
   const router = useRouter();
+  const { t } = useTranslation();
   return (
     <View style={styles.wrap}>
       {children}
@@ -16,15 +18,15 @@ export default function PaywallOverlay({ children }: { children?: React.ReactNod
           <View style={[styles.lock, { backgroundColor: colors.secondary }]}>
             <Feather name="lock" size={20} color={colors.foreground} />
           </View>
-          <Text style={[styles.title, { color: colors.foreground }]}>Unlock Customization</Text>
+          <Text style={[styles.title, { color: colors.foreground }]}>{t("paywall.unlock")}</Text>
           <Text style={[styles.body, { color: colors.mutedForeground }]}>
-            Personalize your coin with custom shapes, colors, and number styles
+            {t("paywall.body")}
           </Text>
           <TouchableOpacity onPress={() => router.push("/(tabs)/premium")} style={[styles.button, { backgroundColor: colors.foreground }]}>
             <Feather name="star" size={16} color={colors.background} />
-            <Text style={{ color: colors.background, fontFamily: fonts.bodyBold }}>Upgrade to Premium</Text>
+            <Text style={{ color: colors.background, fontFamily: fonts.bodyBold }}>{t("paywall.upgrade")}</Text>
           </TouchableOpacity>
-          <Text style={[styles.note, { color: colors.mutedForeground }]}>One-time purchase</Text>
+          <Text style={[styles.note, { color: colors.mutedForeground }]}>{t("paywall.purchase")}</Text>
         </View>
       </View>
     </View>
