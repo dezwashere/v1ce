@@ -16,6 +16,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { usePremium } from "@/context/PremiumContext";
 import { supabase, TABLES } from "@/lib/supabase";
 import { useColors } from "@/hooks/useColors";
+import { useTranslation } from "@/lib/i18n";
 import GifterBadge from "@/components/GifterBadge";
 import { fonts } from "@/constants/typography";
 import { daysSince } from "@/constants/app";
@@ -86,6 +87,7 @@ function Toggle({
   label: string;
 }) {
   const colors = useColors();
+  const { t } = useTranslation();
   return (
     <TouchableOpacity onPress={onPress} style={styles.toggleRow}>
       <View style={[styles.toggleTrack, { backgroundColor: value ? colors.foreground : colors.secondary }]}>
@@ -344,7 +346,7 @@ export default function Settings() {
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={[styles.title, { color: colors.foreground }]}>SETTINGS</Text>
+      <Text style={[styles.title, { color: colors.foreground }]}>{t("settings.title")}</Text>
 
       <View style={[styles.section, { borderBottomColor: colors.border }]}>
         <View style={styles.preview}>
@@ -367,14 +369,14 @@ export default function Settings() {
           onPress={randomizeCoin}
           style={[styles.randomize, { borderColor: colors.foreground }]}
         >
-          <Text style={[styles.randomizeText, { color: colors.foreground }]}>↻  RANDOMIZE COIN</Text>
+          <Text style={[styles.randomizeText, { color: colors.foreground }]}>{t("settings.randomize")}</Text>
         </TouchableOpacity>
         <Text style={[styles.helper, { color: colors.mutedForeground }]}>
           Don’t like it? Tap randomize again. Save only when you want to keep it.
         </Text>
 
         <DropdownSection
-          label="SHAPE"
+          label={t("settings.shape")}
           summary={shape.toUpperCase()}
           open={shapeOpen}
           onToggle={() => setShapeOpen((value) => !value)}
@@ -383,22 +385,22 @@ export default function Settings() {
         </DropdownSection>
 
         <DropdownSection
-          label="COLORS"
+          label={t("settings.colors")}
           summary={`COIN ${coinColor.toUpperCase()} · BORDER ${borderColor ? borderColor.toUpperCase() : "AUTO"} · NUMBER ${numberColor ? numberColor.toUpperCase() : "AUTO"}`}
           open={colorsOpen}
           onToggle={() => setColorsOpen((value) => !value)}
         >
-          <ColorControl label="COIN COLOR" value={coinColor} onChange={setCoinColor} />
+          <ColorControl label={t("settings.coinColor")} value={coinColor} onChange={setCoinColor} />
 
           <View style={[styles.subSection, { borderTopColor: colors.border }]}>
             <Toggle
               value={showBorder}
               onPress={() => setShowBorder((previous) => !previous)}
-              label={showBorder ? "Border on" : "Border off"}
+              label={showBorder ? t("settings.borderOn") : t("settings.borderOff")}
             />
             {showBorder ? (
               <ColorControl
-                label="BORDER COLOR"
+                label={t("settings.borderColor")}
                 value={borderColor || coinColor}
                 onChange={setBorderColor}
                 allowAuto
@@ -410,7 +412,7 @@ export default function Settings() {
 
           <View style={[styles.subSection, { borderTopColor: colors.border }]}>
             <ColorControl
-              label="NUMBER COLOR"
+              label={t("settings.numberColor")}
               value={numberColor || coinColor}
               onChange={setNumberColor}
               allowAuto
@@ -421,7 +423,7 @@ export default function Settings() {
         </DropdownSection>
 
         <DropdownSection
-          label="NUMBER FONT"
+          label={t("settings.numberFont")}
           summary={numberStyle.replace(/_/g, " ").toUpperCase()}
           open={fontOpen}
           onToggle={() => setFontOpen((value) => !value)}
@@ -429,17 +431,17 @@ export default function Settings() {
           <NumberStylePicker value={numberStyle} onChange={setNumberStyle} />
         </DropdownSection>
 
-        <Text style={[styles.controlTitle, { color: colors.foreground }]}>COIN MESSAGE · BACK OF COIN</Text>
+        <Text style={[styles.controlTitle, { color: colors.foreground }]}>{t("settings.coinMessage")}</Text>
         <TextInput
           value={message}
           onChangeText={(value) => setMessage(value.slice(0, COIN_MESSAGE_MAX))}
           maxLength={COIN_MESSAGE_MAX}
-          placeholder="FREE FROM"
+          placeholder={t("settings.freeFrom")}
           placeholderTextColor={colors.mutedForeground}
           style={[styles.input, { borderColor: colors.foreground, color: colors.foreground }]}
         />
         <Text style={[styles.helper, { color: colors.mutedForeground, textAlign: "right" }]}>{message.length}/{COIN_MESSAGE_MAX}</Text>
-        <TouchableOpacity onPress={async()=>{const result=await verifyWidgetSharedSnapshot();setWidgetDiagnostic(result.ok?"WIDGET DATA VERIFIED":result.reason||"WIDGET DATA NOT VERIFIED");}} style={[styles.outline,{borderColor:colors.foreground,marginTop:12}]}><Text style={[styles.outlineText,{color:colors.foreground}]}>CHECK WIDGET DATA</Text></TouchableOpacity>
+        <TouchableOpacity onPress={async()=>{const result=await verifyWidgetSharedSnapshot();setWidgetDiagnostic(result.ok?"WIDGET DATA VERIFIED":result.reason||"WIDGET DATA NOT VERIFIED");}} style={[styles.outline,{borderColor:colors.foreground,marginTop:12}]}><Text style={[styles.outlineText,{color:colors.foreground}]}>{t("settings.checkWidget")}</Text></TouchableOpacity>
         {widgetDiagnostic?<Text style={[styles.helper,{color:colors.mutedForeground,textAlign:"center"}]}>{widgetDiagnostic}</Text>:null}
 
         <TouchableOpacity
@@ -448,33 +450,33 @@ export default function Settings() {
           style={[styles.primary, { backgroundColor: colors.foreground, opacity: savingCoin ? 0.45 : 1 }]}
         >
           <Text style={[styles.primaryText, { color: colors.background }]}>
-            {savingCoin ? "SAVING..." : "SAVE COIN"}
+            {savingCoin ? t("profile.saving") : t("settings.saveCoin")}
           </Text>
         </TouchableOpacity>
       </View>
 
       <View style={[styles.section, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>WORDS</Text>
+        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t("settings.words")}</Text>
         <DropdownSection
-          label="HOME ROTATING WORDS"
-          summary={homeWordPrefs.rotating ? "ROTATING" : `PAUSED · ${homeWordPrefs.pausedWord || "SOBER"}`}
+          label={t("settings.homeWords")}
+          summary={homeWordPrefs.rotating ? t("settings.rotating") : `${t("settings.paused")} · ${homeWordPrefs.pausedWord || "SOBER"}`}
           open={homeWordsOpen}
           onToggle={() => setHomeWordsOpen((value) => !value)}
         >
-          <RotatingTextSettings title="HOME ROTATING WORDS" prefs={homeWordPrefs} onChange={updateHomeWords} />
+          <RotatingTextSettings title={t("settings.homeWords")} prefs={homeWordPrefs} onChange={updateHomeWords} />
         </DropdownSection>
         <DropdownSection
-          label="COIN ROTATING WORDS"
-          summary={chipWordPrefs.rotating ? "ROTATING" : `PAUSED · ${chipWordPrefs.pausedWord || "SOBER"}`}
+          label={t("settings.coinWords")}
+          summary={chipWordPrefs.rotating ? t("settings.rotating") : `${t("settings.paused")} · ${chipWordPrefs.pausedWord || "SOBER"}`}
           open={coinWordsOpen}
           onToggle={() => setCoinWordsOpen((value) => !value)}
         >
-          <RotatingTextSettings title="COIN ROTATING WORDS" prefs={chipWordPrefs} onChange={updateChipWords} />
+          <RotatingTextSettings title={t("settings.coinWords")} prefs={chipWordPrefs} onChange={updateChipWords} />
         </DropdownSection>
       </View>
 
       <View style={[styles.section, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>PROFILE</Text>
+        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t("settings.profile")}</Text>
         <View style={styles.avatarWrap}>
           {avatarUrl ? (
             <Image source={{ uri: avatarUrl }} style={styles.avatar} />
@@ -488,21 +490,21 @@ export default function Settings() {
           </View>
           <TouchableOpacity disabled={uploading} onPress={pickAvatar}>
             <Text style={[styles.avatarAction, { color: colors.foreground }]}>
-              {uploading ? "UPLOADING..." : avatarUrl ? "CHANGE PFP" : "ADD PFP"}
+              {uploading ? t("profile.uploading") : avatarUrl ? t("settings.changePfp") : t("settings.addPfp")}
             </Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={[styles.label, { color: colors.mutedForeground }]}>DISPLAY NAME</Text>
+        <Text style={[styles.label, { color: colors.mutedForeground }]}>{t("settings.displayName")}</Text>
         <TextInput
           value={name}
           onChangeText={setName}
           maxLength={20}
-          placeholder="Your name"
+          placeholder={t("settings.yourName")}
           placeholderTextColor={colors.mutedForeground}
           style={[styles.input, { borderColor: colors.foreground, color: colors.foreground }]}
         />
-        <Text style={[styles.label, { color: colors.mutedForeground, marginTop: 18 }]}>BIRTHDAY</Text>
+        <Text style={[styles.label, { color: colors.mutedForeground, marginTop: 18 }]}>{t("settings.birthday")}</Text>
         <TextInput
           value={birthday || ""}
           onChangeText={setBirthday}
@@ -512,29 +514,29 @@ export default function Settings() {
         />
         <TouchableOpacity onPress={saveProfile} disabled={savingProfile} style={[styles.outline, { borderColor: colors.foreground }]}>
           <Text style={[styles.outlineText, { color: colors.foreground }]}>
-            {savingProfile ? "SAVING..." : "SAVE PROFILE"}
+            {savingProfile ? t("profile.saving") : t("settings.saveProfile")}
           </Text>
         </TouchableOpacity>
       </View>
 
       <View style={[styles.section, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>APP</Text>
-        <Text style={[styles.label, { color: colors.mutedForeground }]}>THEME</Text>
+        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t("settings.app")}</Text>
+        <Text style={[styles.label, { color: colors.mutedForeground }]}>{t("settings.theme")}</Text>
         <TouchableOpacity onPress={toggleTheme} style={[styles.outline, { borderColor: colors.foreground }]}>
-          <Text style={[styles.outlineText, { color: colors.foreground }]}>{isDark ? "DARK" : "LIGHT"}</Text>
+          <Text style={[styles.outlineText, { color: colors.foreground }]}>{isDark ? t("settings.dark") : t("settings.light")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => router.push("/widget")}
           style={[styles.outline, { borderColor: colors.foreground, marginTop: 24 }]}
         >
-          <Text style={[styles.outlineText, { color: colors.foreground }]}>SHARE / WIDGET</Text>
+          <Text style={[styles.outlineText, { color: colors.foreground }]}>{t("settings.shareWidget")}</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.account}>
         <Text style={[styles.accountEmail, { color: colors.foreground }]}>
-          {user?.email || profile?.email || "Guest"}
+          {user?.email || profile?.email || t("settings.guest")}
         </Text>
         <TouchableOpacity
           style={[styles.logout, { borderColor: colors.destructive }]}
@@ -543,7 +545,7 @@ export default function Settings() {
             router.replace("/onboarding");
           }}
         >
-          <Text style={{ color: colors.destructive, fontFamily: fonts.black, letterSpacing: 2 }}>LOG OUT</Text>
+          <Text style={{ color: colors.destructive, fontFamily: fonts.black, letterSpacing: 2 }}>{t("settings.logout")}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
