@@ -5,9 +5,10 @@ import { useColors } from "@/hooks/useColors";
 import { supabase } from "@/lib/supabase";
 import { fonts } from "@/constants/typography";
 import { useTranslation } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n";
 
 export default function ShareScreen(){
-  const {user}=useAuth(); const c=useColors(); const {t}=useTranslation();
+  const {user}=useAuth(); const c=useColors(); const {t}=useTranslation(); const {t}=useTranslation();
   const [giftEmail,setGiftEmail]=useState(""); const [plan,setPlan]=useState<"monthly"|"yearly">("monthly"); const [busy,setBusy]=useState(false);
   const gift=async()=>{const email=giftEmail.trim();if(!email)return;setBusy(true);const {data,error}=await supabase.functions.invoke("create-checkout",{body:{plan,giftEmail:email,gifterEmail:user?.email||"",successUrl:"v1ce://share?gift=1",cancelUrl:"v1ce://share"}});setBusy(false);if(error||!data?.url){Alert.alert("V1CE",error?.message||"Gift checkout is not available.");return;}Linking.openURL(data.url);};
   return <ScrollView style={{backgroundColor:c.background}} contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
