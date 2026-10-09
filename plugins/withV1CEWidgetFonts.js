@@ -2,12 +2,24 @@ const {withDangerousMod}=require("expo/config-plugins");
 const fs=require("fs"),path=require("path"),https=require("https");
 
 const expoFonts=[
- ["@expo-google-fonts/roboto-mono","RobotoMono-Variable.ttf","700Bold"],
- ["@expo-google-fonts/oswald","Oswald-Variable.ttf","600SemiBold"],
- ["@expo-google-fonts/raleway","Raleway-Variable.ttf","700Bold"],
- ["@expo-google-fonts/fraunces","Fraunces-Variable.ttf","700Bold"],
- ["@expo-google-fonts/caveat","Caveat-Regular.ttf","400Regular"],
- ["@expo-google-fonts/dynapuff","DynaPuff-Variable.ttf","600SemiBold"]
+ ["@expo-google-fonts/cinzel","Cinzel.ttf","700Bold"],
+ ["@expo-google-fonts/poppins","Poppins.ttf","700Bold"],
+ ["@expo-google-fonts/space-mono","SpaceMono.ttf","700Bold"],
+ ["@expo-google-fonts/fredoka","Fredoka.ttf","400Regular"],
+ ["@expo-google-fonts/ibm-plex-serif","IBMPlexSerif.ttf","700Bold"],
+ ["@expo-google-fonts/dm-sans","DMSans.ttf","700Bold"],
+ ["@expo-google-fonts/courier-prime","CourierPrime.ttf","700Bold"],
+ ["@expo-google-fonts/bodoni-moda","BodoniModa.ttf","700Bold"],
+ ["@expo-google-fonts/syne","Syne.ttf","700Bold"],
+ ["@expo-google-fonts/pacifico","Pacifico.ttf","400Regular"],
+ ["@expo-google-fonts/bebas-neue","BebasNeue.ttf","400Regular"],
+ ["@expo-google-fonts/inter","Inter.ttf","700Bold"],
+ ["@expo-google-fonts/roboto-mono","RobotoMono.ttf","700Bold"],
+ ["@expo-google-fonts/oswald","Oswald.ttf","600SemiBold"],
+ ["@expo-google-fonts/raleway","Raleway.ttf","700Bold"],
+ ["@expo-google-fonts/fraunces","Fraunces.ttf","700Bold"],
+ ["@expo-google-fonts/caveat","Caveat.ttf","400Regular"],
+ ["@expo-google-fonts/dynapuff","DynaPuff.ttf","600SemiBold"]
 ];
 
 const localFonts=[
