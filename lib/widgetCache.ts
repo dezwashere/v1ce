@@ -66,6 +66,20 @@ export function toWidgetProfileSnapshot(profile: SobrietyProfile): WidgetProfile
   };
 }
 
+export async function writeWidgetFriends(friends: WidgetFriend[]) {
+  const selected = friends.slice(0, 3).map((friend) => ({
+    id: friend.id,
+    name: friend.name.slice(0, 60),
+    avatar: friend.avatar || "",
+  }));
+  const json = JSON.stringify(selected);
+  await AsyncStorage.setItem(V1CE_WIDGET_FRIENDS_KEY, json);
+  if (Platform.OS === "ios") {
+    iosWidgetStorage.set(V1CE_WIDGET_FRIENDS_KEY, json);
+    ExtensionStorage.reloadWidget();
+  }
+}
+
 function clearIosWidgetFields() {
   Object.values(IOS_WIDGET_KEYS).forEach((key) => iosWidgetStorage.remove(key));
   iosWidgetStorage.remove(V1CE_WIDGET_CACHE_KEY);
