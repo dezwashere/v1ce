@@ -15,6 +15,22 @@ private let coinShowBorderKey = "v1ce_widget_coin_show_border"
 private let coinBorderColorKey = "v1ce_widget_coin_border_color"
 private let coinNumberColorKey = "v1ce_widget_coin_number_color"
 private let coinMottoKey = "v1ce_widget_coin_motto"
+private let isPremiumKey = "v1ce_widget_is_premium"
+private let personalQuoteKey = "v1ce_widget_personal_quote"
+private let selectedFriendsKey = "v1ce_widget_selected_friends"
+
+private struct WidgetFriend: Decodable, Identifiable {
+  let id: String
+  let name: String
+  let avatar: String
+}
+
+private func selectedFriends() -> [WidgetFriend] {
+  guard let json = UserDefaults(suiteName: group)?.string(forKey: selectedFriendsKey),
+        let data = json.data(using: .utf8) else { return [] }
+  let decoded = (try? JSONDecoder().decode([WidgetFriend].self, from: data)) ?? []
+  return Array(decoded.prefix(3))
+}
 
 struct Snapshot: Codable {
   let sobrietyDate: String
@@ -27,6 +43,8 @@ struct Snapshot: Codable {
   let coinBorderColor: String?
   let coinNumberColor: String?
   let coinMotto: String
+  let isPremium: Bool
+  let personalQuote: String
 
   init(
     sobrietyDate: String,
@@ -38,7 +56,9 @@ struct Snapshot: Codable {
     coinShowBorder: Bool,
     coinBorderColor: String?,
     coinNumberColor: String?,
-    coinMotto: String
+    coinMotto: String,
+    isPremium: Bool,
+    personalQuote: String
   ) {
     self.sobrietyDate = sobrietyDate
     self.displayName = displayName
@@ -50,6 +70,8 @@ struct Snapshot: Codable {
     self.coinBorderColor = coinBorderColor
     self.coinNumberColor = coinNumberColor
     self.coinMotto = coinMotto
+    self.isPremium = isPremium
+    self.personalQuote = personalQuote
   }
 
   init(from decoder: Decoder) throws {
@@ -64,6 +86,8 @@ struct Snapshot: Codable {
     coinBorderColor = try c.decodeIfPresent(String.self, forKey: .coinBorderColor)
     coinNumberColor = try c.decodeIfPresent(String.self, forKey: .coinNumberColor)
     coinMotto = try c.decodeIfPresent(String.self, forKey: .coinMotto) ?? ""
+    isPremium = try c.decodeIfPresent(Bool.self, forKey: .isPremium) ?? false
+    personalQuote = try c.decodeIfPresent(String.self, forKey: .personalQuote) ?? ""
   }
 }
 
@@ -83,7 +107,9 @@ private func snap() -> Snapshot? {
       coinShowBorder: defaults.integer(forKey: coinShowBorderKey) != 0,
       coinBorderColor: defaults.string(forKey: coinBorderColorKey),
       coinNumberColor: defaults.string(forKey: coinNumberColorKey),
-      coinMotto: defaults.string(forKey: coinMottoKey) ?? ""
+      coinMotto: defaults.string(forKey: coinMottoKey) ?? "",
+      isPremium: defaults.integer(forKey: isPremiumKey) != 0,
+      personalQuote: defaults.string(forKey: personalQuoteKey) ?? ""
     )
   }
 
@@ -149,7 +175,18 @@ private func customColor(_ value: String?, fallback: Color) -> Color {
 }
 
 private let fontNames: [String: String] = [
-  "classic": "Big Shoulders Stencil",
+  "classic": "Cinzel",
+  "poppins": "Poppins",
+  "monospace": "Space Mono",
+  "fredoka": "Fredoka",
+  "serif": "IBM Plex Serif",
+  "dmsans": "DM Sans",
+  "courier": "Courier Prime",
+  "bodoni": "Bodoni Moda",
+  "syne": "Syne",
+  "pacifico": "Pacifico",
+  "bebas": "Bebas Neue",
+  "inter": "Inter",
   "big_shoulders_stencil": "Big Shoulders Stencil",
   "roboto_mono": "Roboto Mono",
   "oswald": "Oswald",
@@ -214,8 +251,9 @@ private struct CoinShape: Shape {
 private func registerWidgetFonts() {
   let names = [
     "BigShouldersStencilDisplay-Regular",
-    "RobotoMono-Variable", "Oswald-Variable", "Raleway-Variable",
-    "Fraunces-Variable", "Caveat-Regular", "DynaPuff-Variable"
+    "Cinzel", "Poppins", "SpaceMono", "Fredoka", "IBMPlexSerif", "DMSans",
+    "CourierPrime", "BodoniModa", "Syne", "Pacifico", "BebasNeue", "Inter",
+    "RobotoMono", "Oswald", "Raleway", "Fraunces", "Caveat", "DynaPuff"
   ]
   for name in names {
     guard let url = Bundle.main.url(forResource: name, withExtension: "ttf") else { continue }
@@ -265,68 +303,143 @@ struct V1CEWidgetView: View {
     let text = customColor(data?.coinNumberColor, fallback: autoContrast(bgName))
     let border = customColor(data?.coinBorderColor, fallback: autoContrast(bgName))
     let showBorder = data?.coinShowBorder ?? true
-    let size: CGFloat = family == .systemLarge ? 58 : family == .systemMedium ? 42 : 34
     let shapeName = data?.coinShape ?? "circle"
-    let font = widgetFont(data?.numberStyle ?? "classic", size: size)
+    let style = data?.numberStyle ?? "classic"
 
     GeometryReader { geo in
-      let inset: CGFloat = family == .systemLarge ? 18 : family == .systemMedium ? 14 : 10
-      let coinSide = max(0, min(geo.size.width, geo.size.height) - inset * 2)
+      let isSmall = family == .systemSmall
+      let isMedium = family == .systemMedium
+      let coinSide = max(0, min(geo.size.width, geo.size.height) - (isSmall ? 20 : 32))
+      let numberFont = widgetFont(style, size: isSmall ? 34 : 42)
+      let labelFont = widgetFont(style, size: isSmall ? 9 : 11)
+      let detailFont = widgetFont(style, size: isSmall ? 7 : 9)
 
-      ZStack {
+      let coin = ZStack {
         CoinShape(name: shapeName, custom: data?.coinShapePath)
           .fill(bg)
           .frame(width: coinSide, height: coinSide)
         if showBorder {
           CoinShape(name: shapeName, custom: data?.coinShapePath)
-            .stroke(border, lineWidth: family == .systemLarge ? 3 : 2)
+            .stroke(border, lineWidth: 2)
             .frame(width: max(0, coinSide - 10), height: max(0, coinSide - 10))
         }
-        if entry.showBack {
-        VStack(spacing: family == .systemLarge ? 8 : 4) {
-          Text("V1CE")
-            .font(.system(size: family == .systemLarge ? 14 : 10, weight: .bold))
-            .tracking(family == .systemLarge ? 4 : 2.5)
-            .opacity(0.7)
+        VStack(spacing: 2) {
           Text("\(value.0)")
-            .font(font)
-            .minimumScaleFactor(0.45)
-            .lineLimit(1)
-          Text((data?.coinMotto.isEmpty == false ? data?.coinMotto : nil) ?? "FREE FROM")
-            .font(.system(size: family == .systemLarge ? 11 : 8, weight: .semibold))
-            .tracking(1.8)
-            .multilineTextAlignment(.center)
-            .lineLimit(3)
-            .opacity(0.7)
-            .padding(.horizontal, family == .systemLarge ? 18 : 8)
-        }
-        .foregroundColor(text)
-        .padding(10)
-        } else {
-          VStack(spacing: family == .systemLarge ? 5 : 2) {
-          Text("\(value.0)")
-            .font(font)
+            .font(numberFont)
             .minimumScaleFactor(0.45)
             .lineLimit(1)
           Text(value.1)
-            .font(.system(size: family == .systemLarge ? 11 : 8, weight: .semibold, design: .default))
+            .font(labelFont)
             .tracking(1.8)
+            .lineLimit(1)
+          Text((data?.coinMotto.isEmpty == false ? data?.coinMotto : nil) ?? "FREE FROM")
+            .font(detailFont)
+            .tracking(1.2)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .minimumScaleFactor(0.58)
           if let name = data?.displayName, !name.isEmpty {
-            Text(name.uppercased())
-              .font(.system(size: family == .systemLarge ? 8 : 6, weight: .medium))
+            Text(String(name.prefix(20)).uppercased())
+              .font(detailFont)
               .tracking(1.2)
               .lineLimit(1)
-          }
-          if family == .systemLarge, let motto = data?.coinMotto, !motto.isEmpty {
-            Text(motto)
-              .font(.system(size: 10))
-              .multilineTextAlignment(.center)
-              .lineLimit(3)
-              .padding(.horizontal, 18)
+              .minimumScaleFactor(0.6)
           }
         }
-          .foregroundColor(text)
+        .foregroundColor(text)
+        .padding(10)
+        if entry.showBack && !(data?.isPremium ?? false) {
+          Text("V1CE")
+            .font(widgetFont(style, size: 7))
+            .tracking(2)
+            .foregroundColor(text.opacity(0.42))
+            .frame(width: coinSide * 0.72, height: coinSide * 0.72, alignment: .top)
+        }
+      }
+
+      Group {
+        if isSmall {
+          coin.frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if isMedium {
+          HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
+              Text("\(value.0) \(value.1)")
+                .font(.system(size: 23, weight: .semibold, design: .rounded))
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+              Text("SOBRIETY")
+                .font(.system(size: 10, weight: .medium))
+                .tracking(2)
+              ViewThatFits(in: .vertical) {
+                ForEach([12.0, 11.0, 10.0, 9.0], id: \.self) { fontSize in
+                  Text(data?.personalQuote.isEmpty == false ? (data?.personalQuote ?? "") : "Add a personal quote in your profile")
+                    .font(.system(size: fontSize))
+                    .italic()
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundStyle(.secondary)
+                }
+              }
+              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            coin.frame(width: coinSide, height: coinSide)
+          }
           .padding(10)
+        } else if family == .systemLarge {
+          let widgetFriends = selectedFriends()
+          VStack(alignment: .leading, spacing: 16) {
+            Text("FRIENDS")
+              .font(.system(size: 15, weight: .semibold))
+              .tracking(2)
+            if widgetFriends.isEmpty {
+              Spacer(minLength: 0)
+              Text("Add Friends")
+                .font(.system(size: 22, weight: .semibold))
+                .frame(maxWidth: .infinity)
+              Spacer(minLength: 0)
+            } else {
+            HStack(spacing: 10) {
+              ForEach(0..<3, id: \.self) { index in
+                VStack(spacing: 8) {
+                  if index < widgetFriends.count,
+                     let url = URL(string: widgetFriends[index].avatar),
+                     url.scheme == "https" {
+                    AsyncImage(url: url) { image in
+                      image.resizable().scaledToFill()
+                    } placeholder: {
+                      Image(systemName: "person").foregroundStyle(.secondary)
+                    }
+                    .frame(width: 64, height: 64)
+                    .clipShape(Circle())
+                  } else {
+                    Circle()
+                      .strokeBorder(.secondary, lineWidth: 1)
+                      .frame(width: 64, height: 64)
+                      .overlay(Image(systemName: "person").foregroundStyle(.secondary))
+                  }
+                  Text(index < widgetFriends.count ? widgetFriends[index].name : "Add friend")
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+              }
+            }
+            }
+            Spacer(minLength: 0)
+            Text("Manage widget friends from the Friends page")
+              .font(.system(size: 11))
+              .foregroundStyle(.secondary)
+          }
+          .padding(18)
+        } else {
+          // Accessory families need their own compact treatment.
+          VStack(spacing: 2) {
+            Text("\(value.0)").font(.headline)
+            Text(value.1).font(.caption2)
+          }
+          .minimumScaleFactor(0.6)
         }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)

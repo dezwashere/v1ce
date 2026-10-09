@@ -43,7 +43,7 @@ const ALL_FONTS = [
   "roboto_mono", "oswald", "raleway", "fraunces", "caveat", "dyna_puff",
 ] as const;
 const FREE_FONTS = ["classic", "bebas", "bodoni", "big_shoulders_stencil"] as const;
-const COIN_MESSAGE_MAX = 18;
+const COIN_MESSAGE_MAX = 20;
 const RANDOM_MESSAGES = [
   "FREE FROM",
   "KEEP GOING",

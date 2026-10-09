@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useAuth } from "@/context/AuthContext";
@@ -7,6 +8,7 @@ import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 import { useTranslation } from "@/lib/i18n";
 import LofiAvatar from "@/components/lounge/LofiAvatar";
+import { writeWidgetFriends } from "@/lib/widgetCache";
 
 export default function Friends() {
   const { user } = useAuth();
@@ -14,6 +16,10 @@ export default function Friends() {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [friends, setFriends] = useState<FriendConnection[]>([]);
+  const [widgetFriendIds, setWidgetFriendIds] = useState<string[]>([]);
+  const [widgetSelectionLoaded, setWidgetSelectionLoaded] = useState(false);
+  const [friendsLoaded, setFriendsLoaded] = useState(false);
+  const widgetSelectionKey = user?.id ? `v1ce_widget_friends_${user.id}` : "";
   const [pending, setPending] = useState<FriendConnection[]>([]);
   const [outgoing, setOutgoing] = useState<FriendConnection[]>([]);
   const [blocked, setBlocked] = useState<BlockedUser[]>([]);
@@ -28,15 +34,81 @@ export default function Friends() {
     if (error) Alert.alert("V1CE", error.message);
     if (blockError) Alert.alert("V1CE", blockError.message);
     const rows = (data || []) as FriendConnection[];
-    setFriends(rows.filter((f) => f.status === "accepted"));
+    if (!error) {
+      setFriends(rows.filter((f) => f.status === "accepted"));
+      setFriendsLoaded(true);
+    }
     setPending(rows.filter((f) => f.status === "pending" && (f.recipient_id === user.id || f.recipient_email === user.email)));
     setOutgoing(rows.filter((f) => f.status === "pending" && f.requester_id === user.id));
     setBlocked((blocks || []) as BlockedUser[]);
   };
 
   useEffect(() => {
-    if (signedIn) load();
+    setFriendsLoaded(false);
+    if (signedIn) void load();
   }, [user?.id, signedIn]);
+
+  useEffect(() => {
+    let active = true;
+    setWidgetSelectionLoaded(false);
+    setWidgetFriendIds([]);
+    if (!widgetSelectionKey) return;
+    void AsyncStorage.getItem(widgetSelectionKey).then((saved) => {
+      if (!active) return;
+      let ids: string[] = [];
+      try {
+        const parsed: unknown = saved ? JSON.parse(saved) : [];
+        if (Array.isArray(parsed)) ids = parsed.filter((id): id is string => typeof id === "string").slice(0, 3);
+      } catch {}
+      setWidgetFriendIds(ids);
+      setWidgetSelectionLoaded(true);
+    });
+    return () => { active = false; };
+  }, [widgetSelectionKey]);
+
+  const syncWidgetFriends = async (ids: string[], accepted: FriendConnection[]) => {
+    await writeWidgetFriends(ids.flatMap((id) => {
+      const friend = accepted.find((f) => f.id === id);
+      if (!friend) return [];
+      const isRequester = friend.requester_id === user?.id;
+      return [{ id, name: isRequester ? (friend.recipient_name || "Friend") : (friend.requester_name || "Friend"), avatar: (isRequester ? friend.recipient_avatar : friend.requester_avatar) || "" }];
+    }));
+  };
+
+  useEffect(() => {
+    if (!widgetSelectionLoaded || !friendsLoaded || !widgetSelectionKey) return;
+    const acceptedIds = new Set(friends.map((friend) => friend.id));
+    const validIds = widgetFriendIds.filter((id) => acceptedIds.has(id));
+    void (async () => {
+      try {
+        if (validIds.length !== widgetFriendIds.length) {
+          await AsyncStorage.setItem(widgetSelectionKey, JSON.stringify(validIds));
+          setWidgetFriendIds(validIds);
+        }
+        await syncWidgetFriends(validIds, friends);
+      } catch {
+        Alert.alert("V1CE", "Could not refresh widget friends.");
+      }
+    })();
+  }, [widgetSelectionLoaded, friendsLoaded, widgetSelectionKey, friends]);
+
+  const toggleWidgetFriend = async (friendId: string) => {
+    if (!widgetSelectionLoaded || !widgetSelectionKey) return;
+    const next = widgetFriendIds.includes(friendId)
+      ? widgetFriendIds.filter((id) => id !== friendId)
+      : [...widgetFriendIds, friendId].slice(0, 3);
+    if (!widgetFriendIds.includes(friendId) && widgetFriendIds.length >= 3) {
+      Alert.alert("V1CE", "Select up to three friends for your widget. Deselect one first.");
+      return;
+    }
+    try {
+      await AsyncStorage.setItem(widgetSelectionKey, JSON.stringify(next));
+      await syncWidgetFriends(next, friends);
+      setWidgetFriendIds(next);
+    } catch {
+      Alert.alert("V1CE", "Could not save widget friend selection.");
+    }
+  };
 
   const send = async () => {
     if (!user?.id || !email.trim()) return;
@@ -166,6 +238,7 @@ export default function Friends() {
       ))}
 
       <Text style={[styles.heading, { color: colors.foreground, marginTop: 24 }]}>{t("friends.yourFriends")}</Text>
+      <Text style={[styles.sub, { color: colors.mutedForeground }]}>Select up to three accepted friends for your Large widget ({widgetFriendIds.filter((id) => friends.some((f) => f.id === id)).length}/3).</Text>
       {friends.length === 0 ? (
         <Text style={[styles.foot, { color: colors.mutedForeground }]}>{t("friends.noFriendsYet")}</Text>
       ) : (
@@ -175,6 +248,9 @@ export default function Friends() {
             return (
               <View key={f.id} style={[styles.friendTile, { borderColor: colors.border }]}>
                 <LofiAvatar seed={name} size={58} color={colors.foreground} />
+                <TouchableOpacity disabled={!widgetSelectionLoaded} onPress={() => void toggleWidgetFriend(f.id)} accessibilityRole="checkbox" accessibilityState={{ checked: widgetFriendIds.includes(f.id), disabled: !widgetSelectionLoaded }}>
+                  <Text style={[styles.friendTileStatus, { color: colors.foreground }]}>{widgetFriendIds.includes(f.id) ? "Selected for widget" : "Add to widget"}</Text>
+                </TouchableOpacity>
                 <Text numberOfLines={1} style={[styles.friendTileName, { color: colors.foreground }]}>{name}</Text>
                 <TouchableOpacity onPress={() => toggleLounge(f.id, !!f.is_active_in_lounge)}>
                   <Text style={[styles.friendTileStatus, { color: colors.foreground }]}>{f.is_active_in_lounge ? t("friends.active") : t("friends.inactive")}</Text>

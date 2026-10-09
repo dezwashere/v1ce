@@ -1,8 +1,31 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Path, Polygon } from "react-native-svg";
-import { resolveCoinColor } from "@/constants/coin";
-import { fonts } from "@/constants/typography";
+import Svg, { Circle, Image, Path, Polygon } from "react-native-svg";
+import { NUMBER_STYLES, resolveCoinColor } from "@/constants/coin";
+import { usePremium } from "@/context/PremiumContext";
+import { CoinBackground } from "@/components/coin/CoinBackground";
+
+const FONT_FAMILIES: Record<string,string> = {
+  "Big Shoulders Stencil":"BigShouldersStencilDisplayRegular",
+  "Roboto Mono":"RobotoMono_700Bold",
+  "Oswald":"Oswald_600SemiBold",
+  "Raleway":"Raleway_700Bold",
+  "Fraunces":"Fraunces_700Bold",
+  "Caveat":"Caveat_400Regular",
+  "DynaPuff":"DynaPuff_600SemiBold",
+  Cinzel:"Cinzel_700Bold",
+  Poppins:"Poppins_700Bold",
+  "Space Mono":"SpaceMono_700Bold",
+  "Fredoka One":"Fredoka_400Regular",
+  "IBM Plex Serif":"IBMPlexSerif_700Bold",
+  "DM Sans":"DMSans_700Bold",
+  "Courier Prime":"CourierPrime_700Bold",
+  "Bodoni Moda":"BodoniModa_700Bold",
+  Syne:"Syne_700Bold",
+  Pacifico:"Pacifico_400Regular",
+  "Bebas Neue":"BebasNeue_400Regular",
+  Inter:"Inter_700Bold",
+};
 
 const PATHS: Record<string, string> = {
   hexagon: "M25 2 L75 2 L100 50 L75 98 L25 98 L0 50 Z",
@@ -16,16 +39,16 @@ const PATHS: Record<string, string> = {
 };
 
 const SAFE_BOUNDS: Record<string,{width:number;height:number;y:number}> = {
-  circle:{width:.70,height:.62,y:0},
-  hexagon:{width:.66,height:.60,y:0},
-  octagon:{width:.68,height:.62,y:0},
-  shield:{width:.58,height:.54,y:-.03},
-  diamond:{width:.50,height:.44,y:0},
-  star:{width:.40,height:.36,y:0},
-  badge:{width:.52,height:.46,y:0},
-  cross:{width:.46,height:.42,y:0},
-  arrow:{width:.44,height:.18,y:0},
-  drawn:{width:.60,height:.52,y:0},
+  circle:{width:.72,height:.62,y:0},
+  hexagon:{width:.68,height:.62,y:0},
+  octagon:{width:.70,height:.64,y:0},
+  shield:{width:.62,height:.56,y:-.03},
+  diamond:{width:.54,height:.46,y:0},
+  star:{width:.42,height:.38,y:0},
+  badge:{width:.54,height:.48,y:0},
+  cross:{width:.48,height:.44,y:0},
+  arrow:{width:.46,height:.20,y:0},
+  drawn:{width:.62,height:.54,y:0},
 };
 
 type Props = {
@@ -37,7 +60,11 @@ type Props = {
   customShapePath?: string;
   showBorder?: boolean;
   borderColor?: string;
+  numberColor?: string;
+  numberStyle?: string;
+  coinPhoto?: string;
   imageOnlyMode?: boolean;
+  background?: string;
   days?: number;
   displayName?: string;
 };
@@ -63,21 +90,37 @@ export default function CoinBack({
   customShapePath,
   showBorder = true,
   borderColor,
+  numberColor,
+  numberStyle = "big_shoulders_stencil",
+  coinPhoto,
   imageOnlyMode = false,
+  background = "solid",
   days = 0,
   displayName = "",
 }: Props) {
+  const { isPremium } = usePremium();
   const colors = resolveCoinColor(color);
   const resolvedBorder = borderColor || colors.border;
+  const resolvedNumberColor = numberColor || colors.text;
+  const numStyle=NUMBER_STYLES[numberStyle as keyof typeof NUMBER_STYLES]||NUMBER_STYLES.big_shoulders_stencil;
+  const selectedFontFamily=FONT_FAMILIES[numStyle.fontFamily]||undefined;
   const customPoints = shape === "drawn" ? parseCustomPolygon(customShapePath) : null;
   const path = PATHS[shape] || PATHS.hexagon;
   const years = Math.floor(days / 365);
-  const mainNumber = years >= 1 ? years : days;
+  const months = Math.floor((days % 365) / 30);
+  let mainNumber = days;
+  let label = "DAYS";
+  if (years >= 1) { mainNumber = years; label = years === 1 ? "YEAR" : "YEARS"; }
+  else if (months >= 1) { mainNumber = months; label = months === 1 ? "MONTH" : "MONTHS"; }
   const safe=SAFE_BOUNDS[shape]||SAFE_BOUNDS.circle;
   const safeWidth=size*safe.width;
   const safeHeight=size*safe.height;
   const safeTop=(size-safeHeight)/2+size*safe.y;
-  const safeMotto=(motto||"FREE FROM").slice(0,18);
+  const safeMotto=(motto||"FREE FROM").slice(0,20);
+  const safeName=(displayName||"").slice(0,20);
+  const narrow=["star","cross","arrow","diamond","badge"].includes(shape);
+  const numberFontSize=size*(narrow?.24:.30);
+  const numberLineHeight=numberFontSize*1.32;
 
   return (
     <View style={[styles.wrap, { width: size, height: size }]}>
@@ -85,49 +128,50 @@ export default function CoinBack({
         {shape === "circle" ? (
           <>
             <Circle cx="50" cy="50" r="48" fill={colors.bg} />
+            {coinPhoto ? <Image href={{uri:coinPhoto}} x="2" y="2" width="96" height="96" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Circle cx="50" cy="50" r="48" fill="none" stroke={resolvedBorder} strokeWidth="3" /> : null}
           </>
         ) : customPoints ? (
           <>
             <Polygon points={customPoints} fill={colors.bg} />
+            {coinPhoto ? <Image href={{uri:coinPhoto}} x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Polygon points={customPoints} fill="none" stroke={resolvedBorder} strokeWidth="3" /> : null}
           </>
         ) : (
           <>
             <Path d={path} fill={colors.bg} />
+            {coinPhoto ? <Image href={{uri:coinPhoto}} x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Path d={path} fill="none" stroke={resolvedBorder} strokeWidth="3" /> : null}
           </>
         )}
       </Svg>
-      <View style={[styles.content, { width: safeWidth, height:safeHeight, top:safeTop, pointerEvents: "none" }]}>
-        <Text style={[styles.brand, { color: colors.text, fontSize: size * 0.055 }]}>V1CE</Text>
-        {imageOnlyMode ? (
-          <>
-            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.48} style={[styles.days, { color: colors.text, fontSize: size * 0.18, maxWidth:safeWidth }]}>{days}</Text>
-            <Text style={[styles.label, { color: colors.text }]}>DAYS</Text>
-            {displayName ? <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text> : null}
-          </>
-        ) : (
-          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.48} style={[styles.days, { color: colors.text, fontSize: size * 0.20, maxWidth:safeWidth }]}>{mainNumber}</Text>
-        )}
-        <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.62} style={[styles.free, { color: colors.text, fontSize: size * 0.042, maxWidth:safeWidth }]}>{safeMotto}</Text>
-        {substances.length > 0 ? (
-          <Text style={[styles.subs, { color: colors.text, fontSize: size * 0.038 }]} numberOfLines={3}>
-            {substances.join("\n").toUpperCase()}
-          </Text>
-        ) : null}
+      <View style={[StyleSheet.absoluteFill,{pointerEvents:"none"}]}>
+        <CoinBackground kind={background} size={size} color={colors.bg} />
       </View>
+      {!isPremium ? (
+        <View pointerEvents="none" style={[styles.brandWrap,{top:safeTop + size*.012}]}>
+          <Text style={[styles.brand,{color:resolvedNumberColor,fontSize:size*.038,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight}]}>V1CE</Text>
+        </View>
+      ) : null}
+      {imageOnlyMode ? null : (
+        <View style={[styles.content, { width: safeWidth, height:safeHeight, top:safeTop, pointerEvents: "none" }]}>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.48} style={[styles.days, { color: resolvedNumberColor, fontSize:numberFontSize, lineHeight:numberLineHeight, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{mainNumber}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65} style={[styles.label, { color: resolvedNumberColor, fontSize:size*.075, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{label}</Text>
+          <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.58} style={[styles.free, { color: resolvedNumberColor, fontSize:size*.042, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeMotto}</Text>
+          {safeName ? <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={[styles.name, { color: resolvedNumberColor, fontSize:size*.036, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeName}</Text> : null}
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: { alignItems: "center", justifyContent: "center" },
-  content: { position: "absolute", alignItems: "center", justifyContent: "center", paddingHorizontal: 4, overflow:"hidden", alignSelf:"center" },
-  brand: { fontFamily: fonts.bodyBold, letterSpacing: 4, textAlign: "center", opacity: 0.7, marginBottom: 4 },
-  free: { fontFamily: fonts.bodyBold, letterSpacing: 2, textAlign: "center", textTransform: "uppercase", marginTop: 6, opacity: 0.7 },
-  subs: { marginTop: 8, fontFamily: fonts.bodyBold, letterSpacing: 1.5, textAlign: "center", opacity: 0.55, lineHeight: 14 },
-  days: { fontFamily: fonts.display, textAlign: "center" },
-  label: { fontSize: 10, letterSpacing: 3, fontFamily: fonts.bodyBold, opacity: 0.7 },
-  name: { fontSize: 9, letterSpacing: 2, marginTop: 6, fontFamily: fonts.bodySemi, textTransform: "uppercase", opacity: 0.5 },
+  content: { position:"absolute",alignItems:"center",justifyContent:"center",alignSelf:"center",overflow:"visible",paddingHorizontal:2,paddingVertical:8 },
+  brandWrap: { position:"absolute",left:0,right:0,alignItems:"center" },
+  brand: { letterSpacing:2.6,textAlign:"center",opacity:0.42 },
+  free: { letterSpacing: 1.5, textAlign: "center", textTransform: "uppercase", marginTop: 5, opacity: 0.72 },
+  days: { textAlign: "center", overflow:"visible" },
+  label: { letterSpacing: 3, opacity: 0.7, textAlign:"center", marginTop:0, lineHeight:24, overflow:"visible" },
+  name: { letterSpacing: 2, marginTop: 5, textAlign: "center", textTransform: "uppercase", opacity: 0.4 },
 });

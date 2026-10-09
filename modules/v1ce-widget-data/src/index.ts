@@ -1,5 +1,5 @@
 import { requireOptionalNativeModule } from "expo-modules-core";
-type V1CEWidgetDataModuleType = { setSnapshot(json: string): void; clearSnapshot(): void; };
+type V1CEWidgetDataModuleType = { setSnapshot(json: string): void; clearSnapshot(): void; setFriends(json: string): void; };
 
 const nativeModule = requireOptionalNativeModule<V1CEWidgetDataModuleType>("V1CEWidgetData");
 
@@ -8,4 +8,5 @@ const nativeModule = requireOptionalNativeModule<V1CEWidgetDataModuleType>("V1CE
 export default nativeModule ?? {
   setSnapshot: () => {},
   clearSnapshot: () => {},
+  setFriends: () => {},
 };

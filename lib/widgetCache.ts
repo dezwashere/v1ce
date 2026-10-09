@@ -5,6 +5,8 @@ import type { SobrietyProfile } from "@/lib/supabase";
 import V1CEWidgetData from "@/modules/v1ce-widget-data/src";
 
 export const V1CE_WIDGET_CACHE_KEY = "v1ce_widget_profile_v1";
+export const V1CE_WIDGET_FRIENDS_KEY = "v1ce_widget_selected_friends";
+export type WidgetFriend = { id: string; name: string; avatar: string };
 const V1CE_APP_GROUP = "group.app.v1ce";
 const iosWidgetStorage = new ExtensionStorage(V1CE_APP_GROUP);
 
@@ -20,6 +22,8 @@ const IOS_WIDGET_KEYS = {
   coinBorderColor: "v1ce_widget_coin_border_color",
   coinNumberColor: "v1ce_widget_coin_number_color",
   coinMotto: "v1ce_widget_coin_motto",
+  isPremium: "v1ce_widget_is_premium",
+  personalQuote: "v1ce_widget_personal_quote",
 } as const;
 
 export type WidgetProfileSnapshot = {
@@ -36,6 +40,8 @@ export type WidgetProfileSnapshot = {
   coinPhoto: string | null;
   coinImageOnly: boolean;
   coinMotto: string;
+  isPremium: boolean;
+  personalQuote: string;
   substances: string[];
 };
 
@@ -53,14 +59,33 @@ export function toWidgetProfileSnapshot(profile: SobrietyProfile): WidgetProfile
     coinNumberColor: profile.coin_number_color || null,
     coinPhoto: profile.coin_photo || null,
     coinImageOnly: profile.coin_image_only ?? false,
-    coinMotto: (profile.coin_motto || "").slice(0, 18),
+    coinMotto: (profile.coin_motto || "").slice(0, 20),
+    isPremium: !!profile.is_premium,
+    personalQuote: (profile.personal_quote || "").slice(0, 90),
     substances: Array.isArray(profile.substances) ? profile.substances : [],
   };
+}
+
+export async function writeWidgetFriends(friends: WidgetFriend[]) {
+  const selected = friends.slice(0, 3).map((friend) => ({
+    id: friend.id,
+    name: friend.name.slice(0, 60),
+    avatar: friend.avatar || "",
+  }));
+  const json = JSON.stringify(selected);
+  await AsyncStorage.setItem(V1CE_WIDGET_FRIENDS_KEY, json);
+  if (Platform.OS === "ios") {
+    iosWidgetStorage.set(V1CE_WIDGET_FRIENDS_KEY, json);
+    ExtensionStorage.reloadWidget();
+  } else if (Platform.OS === "android") {
+    V1CEWidgetData.setFriends(json);
+  }
 }
 
 function clearIosWidgetFields() {
   Object.values(IOS_WIDGET_KEYS).forEach((key) => iosWidgetStorage.remove(key));
   iosWidgetStorage.remove(V1CE_WIDGET_CACHE_KEY);
+  iosWidgetStorage.remove(V1CE_WIDGET_FRIENDS_KEY);
 }
 
 function writeIosWidgetFields(snapshot: WidgetProfileSnapshot) {
@@ -80,12 +105,15 @@ function writeIosWidgetFields(snapshot: WidgetProfileSnapshot) {
     ? iosWidgetStorage.set(IOS_WIDGET_KEYS.coinNumberColor, snapshot.coinNumberColor)
     : iosWidgetStorage.remove(IOS_WIDGET_KEYS.coinNumberColor);
   iosWidgetStorage.set(IOS_WIDGET_KEYS.coinMotto, snapshot.coinMotto);
+  iosWidgetStorage.set(IOS_WIDGET_KEYS.isPremium, snapshot.isPremium ? 1 : 0);
+  iosWidgetStorage.set(IOS_WIDGET_KEYS.personalQuote, snapshot.personalQuote);
   iosWidgetStorage.set(IOS_WIDGET_KEYS.ready, 1);
 }
 
 export async function writeWidgetProfileSnapshot(profile: SobrietyProfile | null) {
   if (!profile?.sobriety_date) {
     await AsyncStorage.removeItem(V1CE_WIDGET_CACHE_KEY);
+    await AsyncStorage.removeItem(V1CE_WIDGET_FRIENDS_KEY);
     if (Platform.OS === "ios") {
       try {
         clearIosWidgetFields();

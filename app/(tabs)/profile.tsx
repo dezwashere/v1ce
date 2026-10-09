@@ -13,19 +13,21 @@ import {useTranslation} from "@/lib/i18n";
 
 const AVATARS=["MIA","CROSS","LEAF","JORDAN","PINK","DOTS","TAYLOR","CASEY"];
 const STATUS_MAX=100;
+const QUOTE_MAX=90;
 
 export default function ProfileScreen(){
   const {profile,user,setProfile}=useAuth();
   const colors=useColors();
   const {t}=useTranslation();
   const [status,setStatus]=useState(profile?.status_note||"");
+  const [quote,setQuote]=useState(profile?.personal_quote||"");
   const [avatarSeed,setAvatarSeed]=useState(profile?.default_avatar_seed||"MIA");
   const [avatarUrl,setAvatarUrl]=useState(profile?.avatar_url||"");
   const [showCoin,setShowCoin]=useState(profile?.show_coin??true);
   const [saving,setSaving]=useState(false);
   const [uploading,setUploading]=useState(false);
 
-  useEffect(()=>{if(!profile)return;setStatus(profile.status_note||"");setAvatarSeed(profile.default_avatar_seed||"MIA");setAvatarUrl(profile.avatar_url||"");setShowCoin(profile.show_coin??true);},[profile?.id]);
+  useEffect(()=>{if(!profile)return;setStatus(profile.status_note||"");setQuote(profile.personal_quote||"");setAvatarSeed(profile.default_avatar_seed||"MIA");setAvatarUrl(profile.avatar_url||"");setShowCoin(profile.show_coin??true);},[profile?.id]);
   if(!profile)return <View style={{flex:1,backgroundColor:colors.background}}/>;
 
   const pickAvatar=async()=>{
@@ -52,7 +54,7 @@ export default function ProfileScreen(){
   const save=async()=>{
     if(saving||!profile.id)return;
     setSaving(true);
-    const values={status_note:status.trim(),default_avatar_seed:avatarSeed,show_coin:showCoin,avatar_url:avatarUrl||null};
+    const values={personal_quote:quote.trim().slice(0,QUOTE_MAX),status_note:status.trim(),default_avatar_seed:avatarSeed,show_coin:showCoin,avatar_url:avatarUrl||null};
     const {data,error}=await supabase.from(TABLES.SobrietyProfile).update(values).eq("id",profile.id).select().single();
     if(error)Alert.alert("V1CE",error.message);else if(data)setProfile(data);
     setSaving(false);
@@ -86,6 +88,12 @@ export default function ProfileScreen(){
     <View style={[styles.statusBox,{borderColor:colors.border}]}>
       <TextInput value={status} onChangeText={v=>setStatus(v.slice(0,STATUS_MAX))} maxLength={STATUS_MAX} multiline placeholder={t("profile.statusPlaceholder")} placeholderTextColor={colors.mutedForeground} style={[styles.statusInput,{color:colors.foreground}]}/>
       <Text style={[styles.counter,{color:colors.mutedForeground}]}>{status.length}/{STATUS_MAX}</Text>
+    </View>
+
+    <Text style={[styles.sectionLabel,{color:colors.foreground,marginTop:22}]}>Personal quote</Text>
+    <View style={[styles.statusBox,{borderColor:colors.border}]}>
+      <TextInput value={quote} onChangeText={v=>setQuote(v.slice(0,QUOTE_MAX))} maxLength={QUOTE_MAX} multiline placeholder="Your quote for the medium widget" placeholderTextColor={colors.mutedForeground} style={[styles.statusInput,{color:colors.foreground}]}/>
+      <Text style={[styles.counter,{color:colors.mutedForeground}]}>{quote.length}/{QUOTE_MAX}</Text>
     </View>
 
     <View style={[styles.coinToggleCard,{borderColor:colors.border}]}>

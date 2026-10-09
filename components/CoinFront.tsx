@@ -91,6 +91,7 @@ export default function CoinFront({
   numberStyle="big_shoulders_stencil",
   size=260,
   displayName,
+  motto="",
   customShapePath,
   showBorder=true,
   coinPhoto,
@@ -118,6 +119,9 @@ export default function CoinFront({
   const narrow=["star","cross","arrow","diamond","badge"].includes(shape);
   const numberFontSize=size*(narrow?.24:.30);
   const numberLineHeight=numberFontSize*1.32;
+  const selectedFontFamily=FONT_FAMILIES[numStyle.fontFamily]||undefined;
+  const safeMotto=(motto||"FREE FROM").slice(0,20);
+  const safeName=(displayName||"").slice(0,20);
   const verticalOffset=size*bounds.y;
   const path=PATHS[shape]||PATHS.hexagon;
 
@@ -152,12 +156,13 @@ export default function CoinFront({
             lineHeight:numberLineHeight,
             letterSpacing:numberFontSize*(numStyle.letterSpacing??0),
             fontWeight:numStyle.fontWeight,
-            fontFamily:FONT_FAMILIES[numStyle.fontFamily]||undefined,
+            fontFamily:selectedFontFamily,
             maxWidth,
           }]}>{mainNumber}</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65} style={[styles.label,{color:resolvedNumberColor,fontSize:size*.075,fontFamily:"BebasNeue_400Regular",maxWidth}]}>{label}</Text>
-          {displayName ? (
-            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={[styles.name,{color:resolvedNumberColor,fontSize:size*.036,maxWidth}]}>{displayName}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65} style={[styles.label,{color:resolvedNumberColor,fontSize:size*.075,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{label}</Text>
+          <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.58} style={[styles.motto,{color:resolvedNumberColor,fontSize:size*.042,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{safeMotto}</Text>
+          {safeName ? (
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={[styles.name,{color:resolvedNumberColor,fontSize:size*.036,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{safeName}</Text>
           ) : null}
         </View>
       )}
@@ -172,5 +177,6 @@ const styles=StyleSheet.create({
   content:{position:"absolute",alignItems:"center",justifyContent:"center",alignSelf:"center",overflow:"visible",paddingHorizontal:2,paddingVertical:8},
   number:{includeFontPadding:true,textAlign:"center",overflow:"visible"},
   label:{letterSpacing:3,opacity:.7,textAlign:"center",marginTop:0,lineHeight:24,overflow:"visible"},
-  name:{fontFamily:fonts.bodyMedium,letterSpacing:2,opacity:.4,marginTop:8,textAlign:"center",textTransform:"uppercase"},
+  motto:{letterSpacing:1.5,opacity:.72,marginTop:5,textAlign:"center",textTransform:"uppercase"},
+  name:{letterSpacing:2,opacity:.4,marginTop:5,textAlign:"center",textTransform:"uppercase"},
 });

@@ -1,6 +1,11 @@
 package app.v1ce.widget
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import java.net.URL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.GlanceModifier
@@ -24,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.first
 import org.json.JSONObject
+import org.json.JSONArray
+import androidx.glance.LocalSize
 
 private val Context.v1ceWidgetStore by preferencesDataStore(name="v1ce_widget")
 
@@ -48,13 +55,30 @@ private fun fontFamily(style:String)=when(style){
 class V1CEWidget:GlanceAppWidget(){
  override val sizeMode:SizeMode=SizeMode.Exact
  override suspend fun provideGlance(context:Context,id:androidx.glance.GlanceId){
-  val raw=context.v1ceWidgetStore.data.first()[stringPreferencesKey("snapshot")]
+  val preferences=context.v1ceWidgetStore.data.first()
+  val raw=preferences[stringPreferencesKey("snapshot")]
+  val friendsJson=preferences[stringPreferencesKey("friends")]
+  val selectedFriends=runCatching{JSONArray(friendsJson ?: "[]")}.getOrDefault(JSONArray())
+  val avatarBitmaps=withContext(Dispatchers.IO) {
+   (0 until minOf(3,selectedFriends.length())).map { index ->
+    val avatar=selectedFriends.optJSONObject(index)?.optString("avatar").orEmpty()
+    runCatching {
+     val url=URL(avatar)
+     if(url.protocol!="https") null else {
+      val connection=url.openConnection().apply { connectTimeout=2500; readTimeout=2500 }
+      connection.getInputStream().use { BitmapFactory.decodeStream(it) }
+    }
+    }.getOrNull()
+   }
+  }
   provideContent{
    val d=raw?.let{JSONObject(it)}
    val date=d?.optString("sobrietyDate","")?:""
    val name=d?.optString("displayName","")?:""
    val bg=coinColor(d?.optString("coinColor","#F5D680")?:"#F5D680")
-   val isLarge=false
+   val widgetSize=LocalSize.current
+   val isLarge=widgetSize.width >= 230.dp && widgetSize.height >= 180.dp
+   val friends=runCatching{JSONArray(friendsJson ?: "[]")}.getOrDefault(JSONArray())
    val numberOverride=d?.optString("coinNumberColor","")?:""
    val borderOverride=d?.optString("coinBorderColor","")?:""
    val numberColor=if(numberOverride.isNotBlank())parseColor(numberOverride,contrast(bg)) else contrast(bg)
@@ -71,9 +95,32 @@ class V1CEWidget:GlanceAppWidget(){
    val borderRes=context.resources.getIdentifier("v1ce_shape_${shape}_border","drawable",context.packageName)
 
    Box(GlanceModifier.fillMaxSize().clickable(actionStartActivity<app.v1ce.MainActivity>()),contentAlignment=Alignment.Center){
-    if(shapeRes!=0) Image(ImageProvider(shapeRes),"V1CE coin",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(bg)))
-    if(showBorder && borderRes!=0) Image(ImageProvider(borderRes),"",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(borderColor)))
-    Column(horizontalAlignment=Alignment.CenterHorizontally,verticalAlignment=Alignment.CenterVertically){
+    if(!isLarge && shapeRes!=0) Image(ImageProvider(shapeRes),"V1CE coin",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(bg)))
+    if(!isLarge && showBorder && borderRes!=0) Image(ImageProvider(borderRes),"",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(borderColor)))
+    if(isLarge){
+     Column(horizontalAlignment=Alignment.CenterHorizontally,verticalAlignment=Alignment.CenterVertically){
+      Text("FRIENDS",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=15.sp,fontWeight=FontWeight.Bold))
+      if(friends.length()==0){
+       Text("Add Friends",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=22.sp))
+      }else{
+       Row(horizontalArrangement=Arrangement.Center){
+        for(i in 0..2){
+         val friend=if(i<friends.length())friends.optJSONObject(i) else null
+         Column(modifier=GlanceModifier.defaultWeight(),horizontalAlignment=Alignment.CenterHorizontally){
+          val avatar=avatarBitmaps.getOrNull(i)
+          if(avatar!=null){
+           Image(ImageProvider(avatar),"Friend avatar",GlanceModifier.width(56.dp).height(56.dp))
+          }else{
+           Text("◯",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=32.sp))
+          }
+          Text(friend?.optString("name") ?: "Add Friend",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=11.sp,textAlign=TextAlign.Center),maxLines=2)
+         }
+        }
+       }
+      }
+      Text("Manage widget friends from the Friends page",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=10.sp))
+     }
+    }else Column(horizontalAlignment=Alignment.CenterHorizontally,verticalAlignment=Alignment.CenterVertically){
      val motto=d?.optString("coinMotto","")?:""
      if(showBack){
       Text("V1CE",style=TextStyle(color=ColorProvider(numberColor),fontSize=10.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center))
