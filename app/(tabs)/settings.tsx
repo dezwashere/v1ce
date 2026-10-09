@@ -244,13 +244,20 @@ export default function Settings() {
     .toUpperCase();
 
   const randomizeCoin = () => {
-    setShape(randomItem(isPremium ? ALL_SHAPES : FREE_SHAPES));
+    // Personal quotes and custom coin messages are user-authored content.
+    // Randomization must never replace either one.
+    const personalText = (profile?.personal_quote || message || "").trim();
+    // Tight silhouettes cannot safely display long personal text.
+    const roomyShapes = ["circle", "hexagon", "octagon", "shield"] as const;
+    const shapes = isPremium
+      ? (personalText.length > 20 ? roomyShapes : ALL_SHAPES)
+      : FREE_SHAPES;
+    setShape(randomItem(shapes));
     setCoinColor(randomColor());
     setShowBorder(Math.random() > 0.25);
     setBorderColor(randomColor());
     setNumberColor("");
     setNumberStyle(randomItem(isPremium ? ALL_FONTS : FREE_FONTS));
-    setMessage(randomItem(RANDOM_MESSAGES).slice(0, COIN_MESSAGE_MAX));
   };
 
   const saveCoin = async () => {
