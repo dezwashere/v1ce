@@ -171,6 +171,7 @@ function DropdownSection({
 }
 
 export default function Settings() {
+  const { t } = useTranslation();
   const { profile, user, setProfile, signOut } = useAuth();
   const colors = useColors();
   const { toggleTheme, isDark } = useTheme();
