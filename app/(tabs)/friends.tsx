@@ -7,7 +7,8 @@ import { supabase, TABLES, type BlockedUser, type FriendConnection } from "@/lib
 import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 import { useTranslation } from "@/lib/i18n";
-import LofiAvatar from "@/components/lounge/LofiAvatar";
+import FriendAvatar from "@/components/lounge/FriendAvatar";
+import CoinPreview from "@/components/lounge/CoinPreview";
 import { writeWidgetFriends } from "@/lib/widgetCache";
 
 export default function Friends() {
@@ -15,6 +16,7 @@ export default function Friends() {
   const colors = useColors();
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
+  const [previewFriend, setPreviewFriend] = useState<FriendConnection | null>(null);
   const [friends, setFriends] = useState<FriendConnection[]>([]);
   const [widgetFriendIds, setWidgetFriendIds] = useState<string[]>([]);
   const [widgetSelectionLoaded, setWidgetSelectionLoaded] = useState(false);
@@ -245,13 +247,14 @@ export default function Friends() {
         <View style={styles.friendGrid}>
           {friends.map((f) => {
             const name = friendName(f);
+            const photo = (f.requester_id === user?.id ? f.recipient_avatar : f.requester_avatar) || "";
             return (
               <View key={f.id} style={[styles.friendTile, { borderColor: colors.border }]}>
-                <LofiAvatar seed={name} size={58} color={colors.foreground} />
+                <TouchableOpacity onPress={() => setPreviewFriend(f)} accessibilityRole="button" accessibilityLabel={`View ${name} profile`}><FriendAvatar seed={name} uri={photo} size={58} /></TouchableOpacity>
                 <TouchableOpacity disabled={!widgetSelectionLoaded} onPress={() => void toggleWidgetFriend(f.id)} accessibilityRole="checkbox" accessibilityState={{ checked: widgetFriendIds.includes(f.id), disabled: !widgetSelectionLoaded }}>
                   <Text style={[styles.friendTileStatus, { color: colors.foreground }]}>{widgetFriendIds.includes(f.id) ? "Selected for widget" : "Add to widget"}</Text>
                 </TouchableOpacity>
-                <Text numberOfLines={1} style={[styles.friendTileName, { color: colors.foreground }]}>{name}</Text>
+                <TouchableOpacity onPress={() => setPreviewFriend(f)} style={{width:"100%"}}><Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75} style={[styles.friendTileName, { color: colors.foreground }]}>{name}</Text></TouchableOpacity>
                 <TouchableOpacity onPress={() => toggleLounge(f.id, !!f.is_active_in_lounge)}>
                   <Text style={[styles.friendTileStatus, { color: colors.foreground }]}>{f.is_active_in_lounge ? t("friends.active") : t("friends.inactive")}</Text>
                 </TouchableOpacity>
@@ -265,6 +268,7 @@ export default function Friends() {
         </View>
       )}
 
+      <CoinPreview visible={!!previewFriend} onClose={() => setPreviewFriend(null)} name={previewFriend ? friendName(previewFriend) : ""} days={0} avatarSeed={previewFriend ? friendName(previewFriend) : ""} showCoin={false} />
       {blocked.length > 0 ? (
         <>
           <Text style={[styles.heading, { color: colors.foreground, marginTop: 28 }]}>{t("friends.blockedUsers")}</Text>
@@ -303,9 +307,9 @@ const styles = StyleSheet.create({
   foot: { textAlign: "center", fontSize: 14, fontFamily: fonts.body, marginTop: 36 },
   card: { borderWidth: 2, padding: 16, marginBottom: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 },
   actions: { flexDirection: "row", gap: 14, alignItems: "center" },
-  friendGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  friendTile: { width: "31.5%", minHeight: 150, borderWidth: 2, alignItems: "center", justifyContent: "center", padding: 8 },
-  friendTileName: { width: "100%", textAlign: "center", fontFamily: fonts.extraBold, fontSize: 12, marginTop: 8 },
+  friendGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", columnGap: 4, rowGap: 10 },
+  friendTile: { width: "32%", minHeight: 175, borderWidth: 2, alignItems: "center", justifyContent: "center", padding: 5 },
+  friendTileName: { width: "100%", textAlign: "center", fontFamily: fonts.extraBold, fontSize: 11, lineHeight: 15, marginTop: 8 },
   friendTileStatus: { fontFamily: fonts.bodyBold, fontSize: 8, letterSpacing: 0.5, marginTop: 4, textAlign: "center" },
   tileActions: { marginTop: 8, gap: 5, alignItems: "center" },
 });
