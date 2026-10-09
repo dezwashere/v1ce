@@ -33,8 +33,15 @@ export function resolveCoinColor(value?: string) {
   if (value && value in COIN_COLORS) return COIN_COLORS[value as keyof typeof COIN_COLORS];
   if (value && /^#[0-9A-Fa-f]{6}$/.test(value)) {
     const hex = value.toUpperCase();
-    const luminance = (parseInt(hex.slice(1,3),16)*299 + parseInt(hex.slice(3,5),16)*587 + parseInt(hex.slice(5,7),16)*114) / 1000;
-    const text = luminance > 155 ? "#0A0A0A" : "#FFFFFF";
+    // WCAG relative luminance: choose the text with the stronger contrast.
+    const channels = [1, 3, 5].map((index) => {
+      const value = parseInt(hex.slice(index, index + 2), 16) / 255;
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    });
+    const luminance = channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+    const contrastWithDark = (luminance + 0.05) / 0.05;
+    const contrastWithLight = 1.05 / (luminance + 0.05);
+    const text = contrastWithDark >= contrastWithLight ? "#000000" : "#FFFFFF";
     return { bg: hex, border: text, text, accent: text === "#FFFFFF" ? "#888888" : "#777777" };
   }
   return COIN_COLORS.gold;
