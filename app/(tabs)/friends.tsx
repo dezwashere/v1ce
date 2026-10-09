@@ -18,6 +18,7 @@ export default function Friends() {
   const [friends, setFriends] = useState<FriendConnection[]>([]);
   const [widgetFriendIds, setWidgetFriendIds] = useState<string[]>([]);
   const [widgetSelectionLoaded, setWidgetSelectionLoaded] = useState(false);
+  const [friendsLoaded, setFriendsLoaded] = useState(false);
   const widgetSelectionKey = user?.id ? `v1ce_widget_friends_${user.id}` : "";
   const [pending, setPending] = useState<FriendConnection[]>([]);
   const [outgoing, setOutgoing] = useState<FriendConnection[]>([]);
@@ -33,14 +34,18 @@ export default function Friends() {
     if (error) Alert.alert("V1CE", error.message);
     if (blockError) Alert.alert("V1CE", blockError.message);
     const rows = (data || []) as FriendConnection[];
-    setFriends(rows.filter((f) => f.status === "accepted"));
+    if (!error) {
+      setFriends(rows.filter((f) => f.status === "accepted"));
+      setFriendsLoaded(true);
+    }
     setPending(rows.filter((f) => f.status === "pending" && (f.recipient_id === user.id || f.recipient_email === user.email)));
     setOutgoing(rows.filter((f) => f.status === "pending" && f.requester_id === user.id));
     setBlocked((blocks || []) as BlockedUser[]);
   };
 
   useEffect(() => {
-    if (signedIn) load();
+    setFriendsLoaded(false);
+    if (signedIn) void load();
   }, [user?.id, signedIn]);
 
   useEffect(() => {
@@ -69,6 +74,23 @@ export default function Friends() {
       return [{ id, name: isRequester ? (friend.recipient_name || "Friend") : (friend.requester_name || "Friend"), avatar: (isRequester ? friend.recipient_avatar : friend.requester_avatar) || "" }];
     }));
   };
+
+  useEffect(() => {
+    if (!widgetSelectionLoaded || !friendsLoaded || !widgetSelectionKey) return;
+    const acceptedIds = new Set(friends.map((friend) => friend.id));
+    const validIds = widgetFriendIds.filter((id) => acceptedIds.has(id));
+    void (async () => {
+      try {
+        if (validIds.length !== widgetFriendIds.length) {
+          await AsyncStorage.setItem(widgetSelectionKey, JSON.stringify(validIds));
+          setWidgetFriendIds(validIds);
+        }
+        await syncWidgetFriends(validIds, friends);
+      } catch {
+        Alert.alert("V1CE", "Could not refresh widget friends.");
+      }
+    })();
+  }, [widgetSelectionLoaded, friendsLoaded, widgetSelectionKey, friends]);
 
   const toggleWidgetFriend = async (friendId: string) => {
     if (!widgetSelectionLoaded || !widgetSelectionKey) return;
