@@ -16,16 +16,16 @@ const PATHS: Record<string, string> = {
 };
 
 const SAFE_BOUNDS: Record<string,{width:number;height:number;y:number}> = {
-  circle:{width:.70,height:.62,y:0},
-  hexagon:{width:.66,height:.60,y:0},
-  octagon:{width:.68,height:.62,y:0},
-  shield:{width:.58,height:.54,y:-.03},
-  diamond:{width:.50,height:.44,y:0},
-  star:{width:.40,height:.36,y:0},
-  badge:{width:.52,height:.46,y:0},
-  cross:{width:.46,height:.42,y:0},
-  arrow:{width:.44,height:.18,y:0},
-  drawn:{width:.60,height:.52,y:0},
+  circle:{width:.72,height:.62,y:0},
+  hexagon:{width:.68,height:.62,y:0},
+  octagon:{width:.70,height:.64,y:0},
+  shield:{width:.62,height:.56,y:-.03},
+  diamond:{width:.54,height:.46,y:0},
+  star:{width:.42,height:.38,y:0},
+  badge:{width:.54,height:.48,y:0},
+  cross:{width:.48,height:.44,y:0},
+  arrow:{width:.46,height:.20,y:0},
+  drawn:{width:.62,height:.54,y:0},
 };
 
 type Props = {
@@ -77,7 +77,7 @@ export default function CoinBack({
   const safeWidth=size*safe.width;
   const safeHeight=size*safe.height;
   const safeTop=(size-safeHeight)/2+size*safe.y;
-  const safeMotto=(motto||"FREE FROM").slice(0,18);
+  const safeMotto=(motto||"FREE FROM").slice(0,20);
 
   return (
     <View style={[styles.wrap, { width: size, height: size }]}>
