@@ -30,7 +30,7 @@ module.exports=function(config){
   const a=c.modResults.manifest.application?.[0];if(!a)return c;
   a.receiver=a.receiver||[];
   if(!a.receiver.some(r=>r.$?.["android:name"]==="app.v1ce.widget.V1CEWidgetReceiver"))
-   a.receiver.push({$:{"android:name":"app.v1ce.widget.V1CEWidgetReceiver","android:exported":"false"},
+   a.receiver.push({$:{"android:name":"app.v1ce.widget.V1CEWidgetReceiver","android:exported":"true"},
     "intent-filter":[{action:[{$:{"android:name":"android.appwidget.action.APPWIDGET_UPDATE"}}]}],
     "meta-data":[{$:{"android:name":"android.appwidget.provider","android:resource":"@xml/v1ce_widget_info"}}]});
   return c;
