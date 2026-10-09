@@ -145,9 +145,16 @@ export default function CoinBack({
           </>
         )}
       </Svg>
+      <View style={[StyleSheet.absoluteFill,{pointerEvents:"none"}]}>
+        <CoinBackground kind={background} size={size} color={colors.bg} />
+      </View>
+      {!isPremium ? (
+        <View pointerEvents="none" style={[styles.brandWrap,{top:safeTop + size*.012}]}>
+          <Text style={[styles.brand,{color:resolvedNumberColor,fontSize:size*.038,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight}]}>V1CE</Text>
+        </View>
+      ) : null}
       {imageOnlyMode ? null : (
         <View style={[styles.content, { width: safeWidth, height:safeHeight, top:safeTop, pointerEvents: "none" }]}>
-          {!isPremium ? <Text style={[styles.brand, { color: resolvedNumberColor, fontSize: size * 0.038, fontFamily:selectedFontFamily }]}>V1CE</Text> : null}
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.48} style={[styles.days, { color: resolvedNumberColor, fontSize:numberFontSize, lineHeight:numberLineHeight, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{mainNumber}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65} style={[styles.label, { color: resolvedNumberColor, fontSize:size*.075, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{label}</Text>
           <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.58} style={[styles.free, { color: resolvedNumberColor, fontSize:size*.042, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeMotto}</Text>
@@ -160,8 +167,9 @@ export default function CoinBack({
 
 const styles = StyleSheet.create({
   wrap: { alignItems: "center", justifyContent: "center" },
-  content: { position: "absolute", alignItems: "center", justifyContent: "center", paddingHorizontal: 4, overflow:"hidden", alignSelf:"center" },
-  brand: { letterSpacing: 2.6, textAlign: "center", opacity: 0.42, marginBottom: 2 },
+  content: { position:"absolute",alignItems:"center",justifyContent:"center",alignSelf:"center",overflow:"visible",paddingHorizontal:2,paddingVertical:8 },
+  brandWrap: { position:"absolute",left:0,right:0,alignItems:"center" },
+  brand: { letterSpacing:2.6,textAlign:"center",opacity:0.42 },
   free: { letterSpacing: 1.5, textAlign: "center", textTransform: "uppercase", marginTop: 5, opacity: 0.72 },
   days: { textAlign: "center", overflow:"visible" },
   label: { letterSpacing: 3, opacity: 0.7, textAlign:"center", marginTop:0, lineHeight:24, overflow:"visible" },
