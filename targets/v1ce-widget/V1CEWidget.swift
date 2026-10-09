@@ -155,7 +155,18 @@ private func customColor(_ value: String?, fallback: Color) -> Color {
 }
 
 private let fontNames: [String: String] = [
-  "classic": "Big Shoulders Stencil",
+  "classic": "Cinzel",
+  "poppins": "Poppins",
+  "monospace": "Space Mono",
+  "fredoka": "Fredoka",
+  "serif": "IBM Plex Serif",
+  "dmsans": "DM Sans",
+  "courier": "Courier Prime",
+  "bodoni": "Bodoni Moda",
+  "syne": "Syne",
+  "pacifico": "Pacifico",
+  "bebas": "Bebas Neue",
+  "inter": "Inter",
   "big_shoulders_stencil": "Big Shoulders Stencil",
   "roboto_mono": "Roboto Mono",
   "oswald": "Oswald",
@@ -220,8 +231,9 @@ private struct CoinShape: Shape {
 private func registerWidgetFonts() {
   let names = [
     "BigShouldersStencilDisplay-Regular",
-    "RobotoMono-Variable", "Oswald-Variable", "Raleway-Variable",
-    "Fraunces-Variable", "Caveat-Regular", "DynaPuff-Variable"
+    "Cinzel", "Poppins", "SpaceMono", "Fredoka", "IBMPlexSerif", "DMSans",
+    "CourierPrime", "BodoniModa", "Syne", "Pacifico", "BebasNeue", "Inter",
+    "RobotoMono", "Oswald", "Raleway", "Fraunces", "Caveat", "DynaPuff"
   ]
   for name in names {
     guard let url = Bundle.main.url(forResource: name, withExtension: "ttf") else { continue }
