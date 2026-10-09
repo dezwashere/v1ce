@@ -28,7 +28,8 @@ private struct WidgetFriend: Decodable, Identifiable {
 private func selectedFriends() -> [WidgetFriend] {
   guard let json = UserDefaults(suiteName: group)?.string(forKey: selectedFriendsKey),
         let data = json.data(using: .utf8) else { return [] }
-  return Array((try? JSONDecoder().decode([WidgetFriend].self, from: data))?.prefix(3) ?? [])
+  let decoded = (try? JSONDecoder().decode([WidgetFriend].self, from: data)) ?? []
+  return Array(decoded.prefix(3))
 }
 
 struct Snapshot: Codable {
@@ -385,19 +386,21 @@ struct V1CEWidgetView: View {
           }
           .padding(10)
         } else if family == .systemLarge {
-          // Review layout only: friend profiles require a shared friend snapshot.
+          let widgetFriends = selectedFriends()
           VStack(alignment: .leading, spacing: 16) {
             Text("FRIENDS")
               .font(.system(size: 15, weight: .semibold))
               .tracking(2)
             HStack(spacing: 10) {
-              ForEach(0..<3, id: \.self) { _ in
+              ForEach(0..<3, id: \.self) { index in
                 VStack(spacing: 8) {
                   Circle()
                     .strokeBorder(.secondary, lineWidth: 1)
                     .frame(width: 64, height: 64)
                     .overlay(Image(systemName: "person").foregroundStyle(.secondary))
-                  Text("Friend")
+                  Text(index < widgetFriends.count ? widgetFriends[index].name : "Add friend")
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
                 }
@@ -405,7 +408,7 @@ struct V1CEWidgetView: View {
               }
             }
             Spacer(minLength: 0)
-            Text("Friend data connection pending")
+            Text("Manage widget friends from the Friends page")
               .font(.system(size: 11))
               .foregroundStyle(.secondary)
           }
