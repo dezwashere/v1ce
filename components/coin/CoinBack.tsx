@@ -120,7 +120,7 @@ export default function CoinBack({
   const safeName=(displayName||"").slice(0,20);
   const narrow=["star","cross","arrow","diamond","badge"].includes(shape);
   const numberFontSize=size*(narrow?.24:.30);
-  const numberLineHeight=numberFontSize*1.55;
+  const numberLineHeight=numberFontSize*1.45;
 
   return (
     <View style={[styles.wrap, { width: size, height: size }]}>
@@ -154,11 +154,11 @@ export default function CoinBack({
         </View>
       ) : null}
       {imageOnlyMode ? null : (
-        <View style={[styles.content, { width: safeWidth, height:safeHeight, top:safeTop, pointerEvents: "none" }]}>
-          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.3} style={[styles.days, { color: resolvedNumberColor, fontSize:numberFontSize, lineHeight:numberLineHeight, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{mainNumber}</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65} style={[styles.label, { color: resolvedNumberColor, fontSize:size*.075, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{label}</Text>
+        <View style={[styles.content, { width: safeWidth, minHeight:safeHeight, top:safeTop, pointerEvents: "none" }]}>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.3} style={[styles.days, { color: resolvedNumberColor, fontSize:numberFontSize, lineHeight:numberLineHeight,includeFontPadding:true, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{mainNumber}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.label, { color: resolvedNumberColor, fontSize:size*.075, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{label}</Text>
           <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.4} style={[styles.free, { color: resolvedNumberColor, fontSize:size*.042, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeMotto}</Text>
-          {safeName ? <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={[styles.name, { color: resolvedNumberColor, fontSize:size*.036, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeName}</Text> : null}
+          {safeName ? <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.name, { color: resolvedNumberColor, fontSize:size*.036, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeName}</Text> : null}
         </View>
       )}
     </View>
