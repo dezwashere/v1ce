@@ -7,10 +7,10 @@ import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 
 export default function CoinPreview({
-  visible,onClose,name,days,shape,color,motto,status,avatarSeed,birthday=false,showCoin=true,showDays=true,onBirthday,
+  visible,onClose,name,days,shape,color,motto,status,avatarSeed,birthday=false,showCoin=true,showDays=true,showCoinPlaceholder=true,onBirthday,
 }: {
   visible:boolean; onClose:()=>void; name:string; days:number; shape?:string; color?:string; motto?:string;
-  status?:string; avatarSeed?:string; birthday?:boolean; showCoin?:boolean; showDays?:boolean; onBirthday?:()=>void;
+  status?:string; avatarSeed?:string; birthday?:boolean; showCoin?:boolean; showDays?:boolean; showCoinPlaceholder?:boolean; onBirthday?:()=>void;
 }) {
   const colors=useColors();
   return <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -21,7 +21,7 @@ export default function CoinPreview({
         {showDays?<Text style={[styles.days,{color:colors.mutedForeground}]}>{days} DAYS</Text>:null}
         {birthday?<View style={styles.birthday}><BirthdayTag/></View>:null}
         {status?<Text style={[styles.status,{color:colors.foreground}]}>{status}</Text>:null}
-        {showCoin?<CoinFront days={days} shape={shape||"circle"} color={color||"gold"} size={170} displayName={name} motto={(motto||"FREE FROM").slice(0,18)}/>:<Text style={[styles.hidden,{color:colors.mutedForeground}]}>COIN HIDDEN</Text>}
+        {showCoin?<CoinFront days={days} shape={shape||"circle"} color={color||"gold"} size={170} displayName={name} motto={(motto||"FREE FROM").slice(0,18)}/>:showCoinPlaceholder?<Text style={[styles.hidden,{color:colors.mutedForeground}]}>COIN HIDDEN</Text>:null}
         {birthday&&onBirthday?<TouchableOpacity onPress={onBirthday} style={[styles.birthdayButton,{backgroundColor:colors.foreground}]}><Text style={[styles.buttonText,{color:colors.background}]}>BIRTHDAY CARD</Text></TouchableOpacity>:null}
         <TouchableOpacity onPress={onClose} style={[styles.button,{borderColor:colors.foreground}]}>
           <Text style={[styles.buttonText,{color:colors.foreground}]}>CLOSE</Text>
