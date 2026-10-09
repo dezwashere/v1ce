@@ -17,6 +17,19 @@ private let coinNumberColorKey = "v1ce_widget_coin_number_color"
 private let coinMottoKey = "v1ce_widget_coin_motto"
 private let isPremiumKey = "v1ce_widget_is_premium"
 private let personalQuoteKey = "v1ce_widget_personal_quote"
+private let selectedFriendsKey = "v1ce_widget_selected_friends"
+
+private struct WidgetFriend: Decodable, Identifiable {
+  let id: String
+  let name: String
+  let avatar: String
+}
+
+private func selectedFriends() -> [WidgetFriend] {
+  guard let json = UserDefaults(suiteName: group)?.string(forKey: selectedFriendsKey),
+        let data = json.data(using: .utf8) else { return [] }
+  return Array((try? JSONDecoder().decode([WidgetFriend].self, from: data))?.prefix(3) ?? [])
+}
 
 struct Snapshot: Codable {
   let sobrietyDate: String
