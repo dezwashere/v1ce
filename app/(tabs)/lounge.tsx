@@ -13,7 +13,7 @@ import BirthdayCard from "@/components/birthday/BirthdayCard";
 import BirthdayTag from "@/components/birthday/BirthdayTag";
 import { LOUNGE_PREVIEW_CHAT, LOUNGE_PREVIEW_ENABLED, LOUNGE_PREVIEW_FRIENDS } from "@/lib/loungePreviewData";
 
-const EGG_RESPONSES=["YES","NO","NOT TODAY","GIVE IT TIME","DO IT","DON'T DO IT","WAIT","TRUST YOURSELF","YOU ALREADY KNOW","ASK AGAIN LATER","SLEEP ON IT","KEEP GOING","LET IT GO","LEAVE IT ALONE","TAKE THE RISK","NOT WORTH IT","ONE THING AT A TIME","TRY AGAIN TOMORROW","CALL SOMEONE","GO OUTSIDE","STAY HOME","BE PATIENT","START SMALL","STOP OVERTHINKING IT","MAYBE","ABSOLUTELY","PROBABLY NOT","WRONG QUESTION","THE TIMING IS OFF","THE TIMING IS RIGHT","EAT TACO BELL","EAT TACO TIME","PLAY A VIDEO GAME","SCREAM"];
+const EGG_RESPONSES=["THE EGG SAYS YES","ABSOLUTELY NOT, BESTIE","THAT'S EMBARRASSING","ASK YOUR THERAPIST","DO IT FOR THE PLOT","THE VIBES SAY NO","GIRL, STAND UP","THAT'S A YOU PROBLEM","CONSULT A PIGEON","NOT IN THIS ECONOMY","GO TOUCH GRASS","HAVE YOU TRIED NAPPING?","THE EGG IS TIRED","DELETE THE TEXT","SEND THE TEXT","BLOCK THEM","UNBLOCK? DON'T.","MERCURY DID NOTHING","THAT'S ABOVE MY PAY GRADE","EAT A LITTLE SNACK","BE SO FOR REAL","THE LORE DEEPENS","ASK A DIFFERENT EGG","YOUR EX WOULD LOVE THAT","SOUNDS ILLEGAL","PUT THE PHONE DOWN","CHAOS IS AN OPTION","THE EGG HAS SPOKEN","YOU NEED A HOBBY","RESPECTFULLY, NO","THIS IS A WENDY'S","SLEEP ON IT, GOBLIN","TACO BELL CAN FIX THIS","SCREAM INTO A PILLOW"];
 const SERIOUS=/suicid|kill myself|hurt myself|overdose|emergency|chest pain|can't breathe|cant breathe|poison|bleeding heavily/i;
 
 export default function Lounge(){
@@ -58,7 +58,7 @@ export default function Lounge(){
           <Path d="M105 8 C67 8 31 65 22 128 C10 211 48 260 105 260 C162 260 200 211 188 128 C179 65 143 8 105 8 Z" fill={colors.background} stroke={colors.foreground} strokeWidth={4}/>
         </Svg>
         <View style={[styles.eggWindow,{backgroundColor:colors.foreground}]}>
-          <Text numberOfLines={4} adjustsFontSizeToFit minimumFontScale={.5} allowFontScaling={false} style={[styles.eggAnswer,{color:colors.background}]}>{eggAnswer||"TAP THE EGG"}</Text>
+          <Text numberOfLines={4} adjustsFontSizeToFit minimumFontScale={.42} allowFontScaling={false} style={[styles.eggAnswer,{color:colors.background}]}>{eggAnswer||"TAP THE EGG"}</Text>
         </View>
       </Animated.View>
     </TouchableOpacity>
@@ -108,6 +108,6 @@ const styles=StyleSheet.create({
  eggSub:{fontFamily:fonts.body,fontSize:13,marginTop:4,marginBottom:12},
  eggInput:{borderWidth:1,minHeight:48,paddingHorizontal:12,fontFamily:fonts.body},
  eggWrap:{width:236,height:302,alignSelf:"center",marginVertical:22,alignItems:"center",justifyContent:"center"},
- eggWindow:{position:"absolute",left:32,right:32,minHeight:96,paddingHorizontal:12,paddingVertical:10,alignItems:"center",justifyContent:"center",overflow:"hidden"},
- eggAnswer:{fontFamily:fonts.black,fontSize:15,lineHeight:20,letterSpacing:.35,textAlign:"center",flexShrink:1},
+ eggWindow:{position:"absolute",left:30,right:30,minHeight:102,paddingHorizontal:10,paddingVertical:8,alignItems:"center",justifyContent:"center",overflow:"hidden"},
+ eggAnswer:{fontFamily:fonts.black,fontSize:14,lineHeight:19,letterSpacing:0,textAlign:"center",flexShrink:1},
 });
