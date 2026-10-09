@@ -62,7 +62,9 @@ type Props = {
   borderColor?: string;
   numberColor?: string;
   numberStyle?: string;
+  coinPhoto?: string;
   imageOnlyMode?: boolean;
+  background?: string;
   days?: number;
   displayName?: string;
 };
@@ -90,7 +92,9 @@ export default function CoinBack({
   borderColor,
   numberColor,
   numberStyle = "big_shoulders_stencil",
+  coinPhoto,
   imageOnlyMode = false,
+  background = "solid",
   days = 0,
   displayName = "",
 }: Props) {
