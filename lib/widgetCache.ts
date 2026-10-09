@@ -77,6 +77,8 @@ export async function writeWidgetFriends(friends: WidgetFriend[]) {
   if (Platform.OS === "ios") {
     iosWidgetStorage.set(V1CE_WIDGET_FRIENDS_KEY, json);
     ExtensionStorage.reloadWidget();
+  } else if (Platform.OS === "android") {
+    V1CEWidgetData.setFriends(json);
   }
 }
 
