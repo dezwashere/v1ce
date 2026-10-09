@@ -118,7 +118,7 @@ export default function CoinFront({
   const safeHeight=size*bounds.height;
   const narrow=["star","cross","arrow","diamond","badge"].includes(shape);
   const numberFontSize=size*(narrow?.24:.30);
-  const numberLineHeight=numberFontSize*1.55;
+  const numberLineHeight=numberFontSize*1.45;
   const selectedFontFamily=FONT_FAMILIES[numStyle.fontFamily]||undefined;
   const safeMotto=(motto||"FREE FROM").slice(0,20);
   const safeName=(displayName||"").slice(0,20);
@@ -149,20 +149,20 @@ export default function CoinFront({
         <CoinBackground kind={background} size={size} color={colors.bg} />
       </View>
       {imageOnlyMode ? null : (
-        <View style={[styles.content,{pointerEvents:"none",width:maxWidth,height:safeHeight,top:(size-safeHeight)/2+verticalOffset}]}>
+        <View style={[styles.content,{pointerEvents:"none",width:maxWidth,minHeight:safeHeight,top:(size-safeHeight)/2+verticalOffset}]}>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.3} style={[styles.number,{
             color:resolvedNumberColor,
             fontSize:numberFontSize,
-            lineHeight:numberLineHeight,
+            lineHeight:numberLineHeight,includeFontPadding:true,
             letterSpacing:numberFontSize*(numStyle.letterSpacing??0),
             fontWeight:numStyle.fontWeight,
             fontFamily:selectedFontFamily,
             maxWidth,
           }]}>{mainNumber}</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65} style={[styles.label,{color:resolvedNumberColor,fontSize:size*.075,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{label}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.label,{color:resolvedNumberColor,fontSize:size*.075,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{label}</Text>
           <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.4} style={[styles.motto,{color:resolvedNumberColor,fontSize:size*.042,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{safeMotto}</Text>
           {safeName ? (
-            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={[styles.name,{color:resolvedNumberColor,fontSize:size*.036,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{safeName}</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.name,{color:resolvedNumberColor,fontSize:size*.036,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{safeName}</Text>
           ) : null}
         </View>
       )}
