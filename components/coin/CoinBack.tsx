@@ -120,7 +120,7 @@ export default function CoinBack({
   const safeName=(displayName||"").slice(0,20);
   const narrow=["star","cross","arrow","diamond","badge"].includes(shape);
   const numberFontSize=size*(narrow?.24:.30);
-  const numberLineHeight=numberFontSize*1.32;
+  const numberLineHeight=numberFontSize*1.55;
 
   return (
     <View style={[styles.wrap, { width: size, height: size }]}>
@@ -155,9 +155,9 @@ export default function CoinBack({
       ) : null}
       {imageOnlyMode ? null : (
         <View style={[styles.content, { width: safeWidth, height:safeHeight, top:safeTop, pointerEvents: "none" }]}>
-          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.48} style={[styles.days, { color: resolvedNumberColor, fontSize:numberFontSize, lineHeight:numberLineHeight, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{mainNumber}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.3} style={[styles.days, { color: resolvedNumberColor, fontSize:numberFontSize, lineHeight:numberLineHeight, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{mainNumber}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65} style={[styles.label, { color: resolvedNumberColor, fontSize:size*.075, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{label}</Text>
-          <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.58} style={[styles.free, { color: resolvedNumberColor, fontSize:size*.042, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeMotto}</Text>
+          <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.4} style={[styles.free, { color: resolvedNumberColor, fontSize:size*.042, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeMotto}</Text>
           {safeName ? <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={[styles.name, { color: resolvedNumberColor, fontSize:size*.036, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeName}</Text> : null}
         </View>
       )}
@@ -167,11 +167,11 @@ export default function CoinBack({
 
 const styles = StyleSheet.create({
   wrap: { alignItems: "center", justifyContent: "center" },
-  content: { position:"absolute",alignItems:"center",justifyContent:"center",alignSelf:"center",overflow:"visible",paddingHorizontal:2,paddingVertical:8 },
+  content: { position:"absolute",alignItems:"center",justifyContent:"center",alignSelf:"center",overflow:"visible",paddingHorizontal:2,paddingVertical:2 },
   brandWrap: { position:"absolute",left:0,right:0,alignItems:"center" },
   brand: { letterSpacing:2.6,textAlign:"center",opacity:0.42 },
   free: { letterSpacing: 1.5, textAlign: "center", textTransform: "uppercase", marginTop: 5, opacity: 0.72 },
   days: { textAlign: "center", overflow:"visible" },
-  label: { letterSpacing: 3, opacity: 0.7, textAlign:"center", marginTop:0, lineHeight:24, overflow:"visible" },
+  label: { letterSpacing: 3, opacity: 0.7, textAlign:"center", marginTop:0, overflow:"visible",includeFontPadding:true },
   name: { letterSpacing: 2, marginTop: 5, textAlign: "center", textTransform: "uppercase", opacity: 0.4 },
 });
