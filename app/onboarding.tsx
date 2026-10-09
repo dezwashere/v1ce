@@ -212,7 +212,7 @@ export default function Onboarding() {
               <V1ceLogo height={64} />
             </View>
             <Text style={styles.title}>{t("onboarding.welcome")}</Text>
-            <Text style={styles.subtitle}>Sign in to save your V1CE journey.</Text>
+            <Text style={styles.subtitle}>{t("onboarding.signInSave")}</Text>
 
             <TouchableOpacity
               style={[styles.providerButton, authDisabled && styles.providerDisabled]}
@@ -234,7 +234,7 @@ export default function Onboarding() {
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR</Text>
+              <Text style={styles.dividerText}>{t("onboarding.or")}</Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -278,7 +278,7 @@ export default function Onboarding() {
         {step === 1 && (
           <>
             <Text style={styles.title}>WHAT'S{"\n"}YOUR NAME?</Text>
-            <Text style={styles.subtitle}>This is the name shown throughout your V1CE experience.</Text>
+            <Text style={styles.subtitle}>{t("onboarding.nameSub")}</Text>
             <Text style={styles.label}>{t("onboarding.nameLabel").toUpperCase()}</Text>
             <TextInput
               value={name}
@@ -350,7 +350,7 @@ export default function Onboarding() {
                 value={otherDoc}
                 onChangeText={setOtherDoc}
                 style={[styles.input, styles.otherDocInput]}
-                placeholder="TYPE YOUR DOC"
+                placeholder={t("onboarding.docPlaceholder")}
                 placeholderTextColor="#A3A3A3"
                 autoCapitalize="sentences"
                 maxLength={60}

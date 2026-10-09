@@ -8,16 +8,18 @@ import { daysSince } from "@/constants/app";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
 import RotatingLabel from "@/components/home/RotatingLabel";
 import { CUSTOMIZE_WORD_PREFS_KEY } from "@/lib/rotatingTextPrefs";
+import { useTranslation } from "@/lib/i18n";
 
 export default function CoinScreen() {
   const { profile } = useAuth();
   const colors = useColors();
   const router = useRouter();
+  const { t } = useTranslation();
   if (!profile) return <View style={{flex:1,backgroundColor:colors.background}} />;
   return (
     <ScrollView style={{backgroundColor:colors.background}} contentContainerStyle={styles.page}>
-      <Text style={[styles.title,{color:colors.foreground}]}>COIN</Text>
-      <Text style={[styles.sub,{color:colors.mutedForeground}]}>Your progress, in one place.</Text>
+      <Text style={[styles.title,{color:colors.foreground}]}>{t("nav.coin")}</Text>
+      <Text style={[styles.sub,{color:colors.mutedForeground}]}>{t("coin.subtitle")}</Text>
       <View style={styles.rotating}><RotatingLabel prefsKey={CUSTOMIZE_WORD_PREFS_KEY} /></View>
       <View style={styles.coin}>
         <SobrietyCoin
@@ -35,7 +37,7 @@ export default function CoinScreen() {
         />
       </View>
       <TouchableOpacity onPress={()=>router.push("/settings")} style={[styles.btn,{borderColor:colors.foreground}]}>
-        <Text style={[styles.btnText,{color:colors.foreground}]}>CUSTOMIZE IN SETTINGS</Text>
+        <Text style={[styles.btnText,{color:colors.foreground}]}>{t("coin.customizeInSettings")}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

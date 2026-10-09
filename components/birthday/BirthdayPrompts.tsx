@@ -2,18 +2,15 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
-
-const PROMPTS = [
-  "Happy birthday — proud of you.",
-  "Another trip around the sun, still showing up.",
-  "Celebrate the days you already won.",
-];
+import { useTranslation } from "@/lib/i18n";
 
 export default function BirthdayPrompts({ onSelect }: { onSelect: (text: string) => void }) {
   const colors = useColors();
+  const { tList } = useTranslation();
+  const prompts = tList("birthday.prompts");
   return (
     <View style={styles.wrap}>
-      {PROMPTS.map((prompt) => (
+      {prompts.map((prompt) => (
         <TouchableOpacity
           key={prompt}
           onPress={() => onSelect(prompt)}

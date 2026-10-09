@@ -4,6 +4,17 @@ import Foundation
 import CoreText
 
 private let group = "group.app.v1ce"
+private let readyKey = "v1ce_widget_ready"
+private let sobrietyDateKey = "v1ce_widget_sobriety_date"
+private let displayNameKey = "v1ce_widget_display_name"
+private let coinColorKey = "v1ce_widget_coin_color"
+private let coinShapeKey = "v1ce_widget_coin_shape"
+private let coinShapePathKey = "v1ce_widget_coin_shape_path"
+private let numberStyleKey = "v1ce_widget_number_style"
+private let coinShowBorderKey = "v1ce_widget_coin_show_border"
+private let coinBorderColorKey = "v1ce_widget_coin_border_color"
+private let coinNumberColorKey = "v1ce_widget_coin_number_color"
+private let coinMottoKey = "v1ce_widget_coin_motto"
 
 struct Snapshot: Codable {
   let sobrietyDate: String
@@ -16,6 +27,30 @@ struct Snapshot: Codable {
   let coinBorderColor: String?
   let coinNumberColor: String?
   let coinMotto: String
+
+  init(
+    sobrietyDate: String,
+    displayName: String,
+    coinColor: String,
+    coinShape: String,
+    coinShapePath: String?,
+    numberStyle: String,
+    coinShowBorder: Bool,
+    coinBorderColor: String?,
+    coinNumberColor: String?,
+    coinMotto: String
+  ) {
+    self.sobrietyDate = sobrietyDate
+    self.displayName = displayName
+    self.coinColor = coinColor
+    self.coinShape = coinShape
+    self.coinShapePath = coinShapePath
+    self.numberStyle = numberStyle
+    self.coinShowBorder = coinShowBorder
+    self.coinBorderColor = coinBorderColor
+    self.coinNumberColor = coinNumberColor
+    self.coinMotto = coinMotto
+  }
 
   init(from decoder: Decoder) throws {
     let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -34,6 +69,24 @@ struct Snapshot: Codable {
 
 private func snap() -> Snapshot? {
   guard let defaults = UserDefaults(suiteName: group) else { return nil }
+
+  if defaults.integer(forKey: readyKey) == 1,
+     let sobrietyDate = defaults.string(forKey: sobrietyDateKey),
+     !sobrietyDate.isEmpty {
+    return Snapshot(
+      sobrietyDate: sobrietyDate,
+      displayName: defaults.string(forKey: displayNameKey) ?? "",
+      coinColor: defaults.string(forKey: coinColorKey) ?? "#F5D680",
+      coinShape: defaults.string(forKey: coinShapeKey) ?? "circle",
+      coinShapePath: defaults.string(forKey: coinShapePathKey),
+      numberStyle: defaults.string(forKey: numberStyleKey) ?? "classic",
+      coinShowBorder: defaults.integer(forKey: coinShowBorderKey) != 0,
+      coinBorderColor: defaults.string(forKey: coinBorderColorKey),
+      coinNumberColor: defaults.string(forKey: coinNumberColorKey),
+      coinMotto: defaults.string(forKey: coinMottoKey) ?? ""
+    )
+  }
+
   if let data = defaults.data(forKey: "v1ce_widget_profile_v1") {
     return try? JSONDecoder().decode(Snapshot.self, from: data)
   }
@@ -216,15 +269,20 @@ struct V1CEWidgetView: View {
     let shapeName = data?.coinShape ?? "circle"
     let font = widgetFont(data?.numberStyle ?? "classic", size: size)
 
-    ZStack {
-      CoinShape(name: shapeName, custom: data?.coinShapePath)
-        .fill(bg)
-      if showBorder {
+    GeometryReader { geo in
+      let inset: CGFloat = family == .systemLarge ? 18 : family == .systemMedium ? 14 : 10
+      let coinSide = max(0, min(geo.size.width, geo.size.height) - inset * 2)
+
+      ZStack {
         CoinShape(name: shapeName, custom: data?.coinShapePath)
-          .stroke(border, lineWidth: family == .systemLarge ? 3 : 2)
-          .padding(family == .systemLarge ? 7 : 4)
-      }
-      if entry.showBack {
+          .fill(bg)
+          .frame(width: coinSide, height: coinSide)
+        if showBorder {
+          CoinShape(name: shapeName, custom: data?.coinShapePath)
+            .stroke(border, lineWidth: family == .systemLarge ? 3 : 2)
+            .frame(width: max(0, coinSide - 10), height: max(0, coinSide - 10))
+        }
+        if entry.showBack {
         VStack(spacing: family == .systemLarge ? 8 : 4) {
           Text("V1CE")
             .font(.system(size: family == .systemLarge ? 14 : 10, weight: .bold))
@@ -244,8 +302,8 @@ struct V1CEWidgetView: View {
         }
         .foregroundColor(text)
         .padding(10)
-      } else {
-        VStack(spacing: family == .systemLarge ? 5 : 2) {
+        } else {
+          VStack(spacing: family == .systemLarge ? 5 : 2) {
           Text("\(value.0)")
             .font(font)
             .minimumScaleFactor(0.45)
@@ -267,9 +325,11 @@ struct V1CEWidgetView: View {
               .padding(.horizontal, 18)
           }
         }
-        .foregroundColor(text)
-        .padding(10)
+          .foregroundColor(text)
+          .padding(10)
+        }
       }
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     .id(entry.showBack)
     .transition(.asymmetric(

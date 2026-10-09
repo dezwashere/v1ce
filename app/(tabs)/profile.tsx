@@ -9,6 +9,7 @@ import {fonts} from "@/constants/typography";
 import {daysSince} from "@/constants/app";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
 import LofiAvatar from "@/components/lounge/LofiAvatar";
+import {useTranslation} from "@/lib/i18n";
 
 const AVATARS=["MIA","CROSS","LEAF","JORDAN","PINK","DOTS","TAYLOR","CASEY"];
 const STATUS_MAX=100;
@@ -16,6 +17,7 @@ const STATUS_MAX=100;
 export default function ProfileScreen(){
   const {profile,user,setProfile}=useAuth();
   const colors=useColors();
+  const {t}=useTranslation();
   const [status,setStatus]=useState(profile?.status_note||"");
   const [avatarSeed,setAvatarSeed]=useState(profile?.default_avatar_seed||"MIA");
   const [avatarUrl,setAvatarUrl]=useState(profile?.avatar_url||"");
@@ -29,7 +31,7 @@ export default function ProfileScreen(){
   const pickAvatar=async()=>{
     if(!user?.id)return;
     const permission=await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if(!permission.granted)return Alert.alert("V1CE","Photo access is required to choose a profile picture.");
+    if(!permission.granted)return Alert.alert("V1CE",t("profile.photoPermission"));
     const result=await ImagePicker.launchImageLibraryAsync({mediaTypes:["images"],allowsEditing:true,aspect:[1,1],quality:.85});
     if(result.canceled||!result.assets[0])return;
     setUploading(true);
@@ -43,7 +45,7 @@ export default function ProfileScreen(){
       if(uploadError)throw uploadError;
       const {data}=supabase.storage.from("avatars").getPublicUrl(path);
       setAvatarUrl(data.publicUrl);
-    }catch(error:any){Alert.alert("V1CE",error?.message||"Couldn't upload that photo.");}
+    }catch(error:any){Alert.alert("V1CE",error?.message||t("profile.uploadError"));}
     finally{setUploading(false);}
   };
 
@@ -58,7 +60,7 @@ export default function ProfileScreen(){
 
   const days=daysSince(profile.sobriety_date);
   return <ScrollView style={{backgroundColor:colors.background}} contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-    <Text style={[styles.title,{color:colors.foreground}]}>EDIT PROFILE</Text>
+    <Text style={[styles.title,{color:colors.foreground}]}>{t("profile.editTitle")}</Text>
 
     <View style={styles.avatarHero}>
       {avatarUrl?<Image source={{uri:avatarUrl}} style={styles.avatarImage}/>:<LofiAvatar seed={avatarSeed} size={150}/>}
@@ -69,27 +71,27 @@ export default function ProfileScreen(){
 
     <TouchableOpacity onPress={pickAvatar} disabled={uploading} style={[styles.actionRow,{borderColor:colors.border}]}>
       <Feather name="image" size={20} color={colors.foreground}/>
-      <Text style={[styles.actionText,{color:colors.foreground}]}>{uploading?"UPLOADING...":"Upload Photo"}</Text>
+      <Text style={[styles.actionText,{color:colors.foreground}]}>{uploading?t("profile.uploading"):t("profile.uploadPhoto")}</Text>
       <Feather name="chevron-right" size={20} color={colors.foreground}/>
     </TouchableOpacity>
 
-    <Text style={[styles.sectionLabel,{color:colors.foreground}]}>Default profile pictures</Text>
+    <Text style={[styles.sectionLabel,{color:colors.foreground}]}>{t("profile.defaultPictures")}</Text>
     <View style={styles.avatarGrid}>
       {AVATARS.map(a=><TouchableOpacity key={a} onPress={()=>{setAvatarSeed(a);setAvatarUrl("");}} style={[styles.avatarChoice,{borderColor:avatarSeed===a&&!avatarUrl?colors.foreground:"transparent"}]}>
         <LofiAvatar seed={a} size={58}/>
       </TouchableOpacity>)}
     </View>
 
-    <Text style={[styles.sectionLabel,{color:colors.foreground,marginTop:22}]}>Status note</Text>
+    <Text style={[styles.sectionLabel,{color:colors.foreground,marginTop:22}]}>{t("profile.statusNote")}</Text>
     <View style={[styles.statusBox,{borderColor:colors.border}]}>
-      <TextInput value={status} onChangeText={v=>setStatus(v.slice(0,STATUS_MAX))} maxLength={STATUS_MAX} multiline placeholder="Still here. And so proud of that." placeholderTextColor={colors.mutedForeground} style={[styles.statusInput,{color:colors.foreground}]}/>
+      <TextInput value={status} onChangeText={v=>setStatus(v.slice(0,STATUS_MAX))} maxLength={STATUS_MAX} multiline placeholder={t("profile.statusPlaceholder")} placeholderTextColor={colors.mutedForeground} style={[styles.statusInput,{color:colors.foreground}]}/>
       <Text style={[styles.counter,{color:colors.mutedForeground}]}>{status.length}/{STATUS_MAX}</Text>
     </View>
 
     <View style={[styles.coinToggleCard,{borderColor:colors.border}]}>
       <View style={{flex:1,paddingRight:12}}>
-        <Text style={[styles.toggleTitle,{color:colors.foreground}]}>Show my coin in lounge</Text>
-        <Text style={[styles.toggleBody,{color:colors.mutedForeground}]}>Your coin and status note will be visible on your friend card and in the lounge.</Text>
+        <Text style={[styles.toggleTitle,{color:colors.foreground}]}>{t("profile.showCoin")}</Text>
+        <Text style={[styles.toggleBody,{color:colors.mutedForeground}]}>{t("profile.showCoinHelp")}</Text>
       </View>
       <TouchableOpacity onPress={()=>setShowCoin(v=>!v)} style={[styles.toggleTrack,{backgroundColor:showCoin?colors.foreground:colors.secondary}]}>
         <View style={[styles.toggleKnob,{backgroundColor:colors.background,transform:[{translateX:showCoin?24:2}]}]}/>
@@ -97,15 +99,15 @@ export default function ProfileScreen(){
     </View>
 
     <View style={[styles.previewCard,{backgroundColor:colors.secondary}]}>
-      {showCoin?<SobrietyCoin days={days} shape={profile.coin_shape||"circle"} color={profile.coin_color||"#F5D680"} numberStyle={profile.number_style||"classic"} size={112} displayName={profile.display_name||""} motto={(profile.coin_motto||"FREE FROM").slice(0,18)} substances={profile.substances||[]} showBorder={profile.coin_show_border??true} borderColor={profile.coin_border_color||undefined} numberColor={profile.coin_number_color||undefined}/>:<View style={styles.hiddenCoin}><Text style={[styles.hiddenText,{color:colors.mutedForeground}]}>COIN HIDDEN</Text></View>}
+      {showCoin?<SobrietyCoin days={days} shape={profile.coin_shape||"circle"} color={profile.coin_color||"#F5D680"} numberStyle={profile.number_style||"classic"} size={112} displayName={profile.display_name||""} motto={(profile.coin_motto||"FREE FROM").slice(0,18)} substances={profile.substances||[]} showBorder={profile.coin_show_border??true} borderColor={profile.coin_border_color||undefined} numberColor={profile.coin_number_color||undefined}/>:<View style={styles.hiddenCoin}><Text style={[styles.hiddenText,{color:colors.mutedForeground}]}>{t("profile.coinHidden")}</Text></View>}
       <View style={styles.previewCopy}>
-        <Text style={[styles.previewQuote,{color:colors.foreground}]}>{status.trim()?"“"+status.trim()+"”":"“Still here. And so proud of that.”"}</Text>
-        <Text style={[styles.previewHelp,{color:colors.mutedForeground}]}>This is how your coin and status note will appear to your friends.</Text>
+        <Text style={[styles.previewQuote,{color:colors.foreground}]}>{status.trim()?"“"+status.trim()+"”":`“${t("profile.statusPlaceholder")}”`}</Text>
+        <Text style={[styles.previewHelp,{color:colors.mutedForeground}]}>{t("profile.previewHelp")}</Text>
       </View>
     </View>
 
     <TouchableOpacity onPress={save} disabled={saving} style={[styles.save,{backgroundColor:colors.foreground,opacity:saving?.55:1}]}>
-      <Text style={[styles.saveText,{color:colors.background}]}>{saving?"SAVING...":"SAVE"}</Text>
+      <Text style={[styles.saveText,{color:colors.background}]}>{saving?t("profile.saving"):t("profile.saveShort")}</Text>
     </TouchableOpacity>
   </ScrollView>;
 }
