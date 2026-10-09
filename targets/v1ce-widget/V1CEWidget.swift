@@ -16,6 +16,7 @@ private let coinBorderColorKey = "v1ce_widget_coin_border_color"
 private let coinNumberColorKey = "v1ce_widget_coin_number_color"
 private let coinMottoKey = "v1ce_widget_coin_motto"
 private let isPremiumKey = "v1ce_widget_is_premium"
+private let personalQuoteKey = "v1ce_widget_personal_quote"
 
 struct Snapshot: Codable {
   let sobrietyDate: String
@@ -29,6 +30,7 @@ struct Snapshot: Codable {
   let coinNumberColor: String?
   let coinMotto: String
   let isPremium: Bool
+  let personalQuote: String
 
   init(
     sobrietyDate: String,
@@ -41,7 +43,8 @@ struct Snapshot: Codable {
     coinBorderColor: String?,
     coinNumberColor: String?,
     coinMotto: String,
-    isPremium: Bool
+    isPremium: Bool,
+    personalQuote: String
   ) {
     self.sobrietyDate = sobrietyDate
     self.displayName = displayName
@@ -54,6 +57,7 @@ struct Snapshot: Codable {
     self.coinNumberColor = coinNumberColor
     self.coinMotto = coinMotto
     self.isPremium = isPremium
+    self.personalQuote = personalQuote
   }
 
   init(from decoder: Decoder) throws {
@@ -69,6 +73,7 @@ struct Snapshot: Codable {
     coinNumberColor = try c.decodeIfPresent(String.self, forKey: .coinNumberColor)
     coinMotto = try c.decodeIfPresent(String.self, forKey: .coinMotto) ?? ""
     isPremium = try c.decodeIfPresent(Bool.self, forKey: .isPremium) ?? false
+    personalQuote = try c.decodeIfPresent(String.self, forKey: .personalQuote) ?? ""
   }
 }
 
@@ -89,7 +94,8 @@ private func snap() -> Snapshot? {
       coinBorderColor: defaults.string(forKey: coinBorderColorKey),
       coinNumberColor: defaults.string(forKey: coinNumberColorKey),
       coinMotto: defaults.string(forKey: coinMottoKey) ?? "",
-      isPremium: defaults.integer(forKey: isPremiumKey) != 0
+      isPremium: defaults.integer(forKey: isPremiumKey) != 0,
+      personalQuote: defaults.string(forKey: personalQuoteKey) ?? ""
     )
   }
 
@@ -351,7 +357,7 @@ struct V1CEWidgetView: View {
               Text("SOBRIETY")
                 .font(.system(size: 10, weight: .medium))
                 .tracking(2)
-              Text("Quote will appear here")
+              Text(data?.personalQuote.isEmpty == false ? (data?.personalQuote ?? "") : "Add a personal quote in your profile")
                 .font(.system(size: 12))
                 .italic()
                 .lineLimit(3)
