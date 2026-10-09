@@ -44,17 +44,6 @@ const ALL_FONTS = [
 ] as const;
 const FREE_FONTS = ["classic", "bebas", "bodoni", "big_shoulders_stencil"] as const;
 const COIN_MESSAGE_MAX = 20;
-const RANDOM_MESSAGES = [
-  "FREE FROM",
-  "KEEP GOING",
-  "ONE DAY AT A TIME",
-  "STILL HERE",
-  "JUST FOR TODAY",
-  "PROGRESS",
-  "I CHOOSE ME",
-  "NOT TODAY",
-];
-
 function randomItem<T>(items: readonly T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
