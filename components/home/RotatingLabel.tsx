@@ -30,7 +30,7 @@ export default function RotatingLabel({ prefsKey = HOME_WORD_PREFS_KEY }: { pref
   const words=customWords.length?customWords:defaultWords;
   const shouldRotate=prefs.rotating && words.length > 1;
   useEffect(()=>{ setIndex(0); if(!shouldRotate||words.length<2)return; const id=setInterval(()=>setIndex(v=>(v+1)%words.length),1600); return()=>clearInterval(id); },[shouldRotate,words.length,words.join("|")]);
-  const visibleWord=shouldRotate?(words[index%Math.max(words.length,1)]||""):(prefs.pausedWord.trim()||words[0]||"");
+  const visibleWord=prefs.rotating ? (words[index%Math.max(words.length,1)]||"") : (prefs.pausedWord.trim()||words[0]||"");
   return <View style={{flexDirection:"row",alignItems:"flex-end",flexWrap:"wrap",gap:10,marginTop:2,maxWidth:"100%"}}>
     <Text style={{color:colors.foreground,fontSize:28,lineHeight:36,fontFamily:fonts.italic,letterSpacing:1.5,fontStyle:"italic"}}>{t("home.daysLabel")}</Text>
     <OutlineText fill={colors.background} stroke={colors.foreground} style={{fontSize:28,lineHeight:30,fontFamily:fonts.italicBlack,letterSpacing:.5,fontStyle:"italic"}}>{visibleWord}</OutlineText>
