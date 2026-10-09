@@ -1,6 +1,11 @@
 package app.v1ce.widget
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import java.net.URL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.GlanceModifier
@@ -53,6 +58,19 @@ class V1CEWidget:GlanceAppWidget(){
   val preferences=context.v1ceWidgetStore.data.first()
   val raw=preferences[stringPreferencesKey("snapshot")]
   val friendsJson=preferences[stringPreferencesKey("friends")]
+  val selectedFriends=runCatching{JSONArray(friendsJson ?: "[]")}.getOrDefault(JSONArray())
+  val avatarBitmaps=withContext(Dispatchers.IO) {
+   (0 until minOf(3,selectedFriends.length())).map { index ->
+    val avatar=selectedFriends.optJSONObject(index)?.optString("avatar").orEmpty()
+    runCatching {
+     val url=URL(avatar)
+     if(url.protocol!="https") null else {
+      val connection=url.openConnection().apply { connectTimeout=2500; readTimeout=2500 }
+      connection.getInputStream().use { BitmapFactory.decodeStream(it) }
+    }
+    }.getOrNull()
+   }
+  }
   provideContent{
    val d=raw?.let{JSONObject(it)}
    val date=d?.optString("sobrietyDate","")?:""
@@ -89,7 +107,12 @@ class V1CEWidget:GlanceAppWidget(){
         for(i in 0..2){
          val friend=if(i<friends.length())friends.optJSONObject(i) else null
          Column(modifier=GlanceModifier.defaultWeight(),horizontalAlignment=Alignment.CenterHorizontally){
-          Text("◯",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=32.sp))
+          val avatar=avatarBitmaps.getOrNull(i)
+          if(avatar!=null){
+           Image(ImageProvider(avatar),"Friend avatar",GlanceModifier.width(56.dp).height(56.dp))
+          }else{
+           Text("◯",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=32.sp))
+          }
           Text(friend?.optString("name") ?: "Add Friend",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=11.sp,textAlign=TextAlign.Center),maxLines=2)
          }
         }
