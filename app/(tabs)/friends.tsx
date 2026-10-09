@@ -268,7 +268,7 @@ export default function Friends() {
         </View>
       )}
 
-      <CoinPreview visible={!!previewFriend} onClose={() => setPreviewFriend(null)} name={previewFriend ? friendName(previewFriend) : ""} days={0} showDays={false} avatarSeed={previewFriend ? friendName(previewFriend) : ""} showCoin={false} />
+      <CoinPreview visible={!!previewFriend} onClose={() => setPreviewFriend(null)} name={previewFriend ? friendName(previewFriend) : ""} days={0} showDays={false} showCoinPlaceholder={false} avatarSeed={previewFriend ? friendName(previewFriend) : ""} showCoin={false} />
       {blocked.length > 0 ? (
         <>
           <Text style={[styles.heading, { color: colors.foreground, marginTop: 28 }]}>{t("friends.blockedUsers")}</Text>
