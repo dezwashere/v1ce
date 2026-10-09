@@ -103,7 +103,7 @@ class V1CEWidget:GlanceAppWidget(){
       if(friends.length()==0){
        Text("Add Friends",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=22.sp))
       }else{
-       Row(horizontalAlignment=Alignment.CenterHorizontally){
+       Row(verticalAlignment=Alignment.CenterVertically){
         for(i in 0..2){
          val friend=if(i<friends.length())friends.optJSONObject(i) else null
          Column(modifier=GlanceModifier.defaultWeight(),horizontalAlignment=Alignment.CenterHorizontally){
