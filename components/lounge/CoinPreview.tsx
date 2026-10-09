@@ -7,10 +7,10 @@ import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 
 export default function CoinPreview({
-  visible,onClose,name,days,shape,color,motto,status,avatarSeed,birthday=false,showCoin=true,onBirthday,
+  visible,onClose,name,days,shape,color,motto,status,avatarSeed,birthday=false,showCoin=true,showDays=true,onBirthday,
 }: {
   visible:boolean; onClose:()=>void; name:string; days:number; shape?:string; color?:string; motto?:string;
-  status?:string; avatarSeed?:string; birthday?:boolean; showCoin?:boolean; onBirthday?:()=>void;
+  status?:string; avatarSeed?:string; birthday?:boolean; showCoin?:boolean; showDays?:boolean; onBirthday?:()=>void;
 }) {
   const colors=useColors();
   return <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -18,7 +18,7 @@ export default function CoinPreview({
       <View style={[styles.card,{backgroundColor:colors.background,borderColor:colors.foreground}]}>
         <LofiAvatar seed={avatarSeed||name} size={78}/>
         <Text style={[styles.name,{color:colors.foreground}]}>{name}</Text>
-        <Text style={[styles.days,{color:colors.mutedForeground}]}>{days} DAYS</Text>
+        {showDays?<Text style={[styles.days,{color:colors.mutedForeground}]}>{days} DAYS</Text>:null}
         {birthday?<View style={styles.birthday}><BirthdayTag/></View>:null}
         {status?<Text style={[styles.status,{color:colors.foreground}]}>{status}</Text>:null}
         {showCoin?<CoinFront days={days} shape={shape||"circle"} color={color||"gold"} size={170} displayName={name} motto={(motto||"FREE FROM").slice(0,18)}/>:<Text style={[styles.hidden,{color:colors.mutedForeground}]}>COIN HIDDEN</Text>}
