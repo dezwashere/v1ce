@@ -401,10 +401,22 @@ struct V1CEWidgetView: View {
             HStack(spacing: 10) {
               ForEach(0..<3, id: \.self) { index in
                 VStack(spacing: 8) {
-                  Circle()
-                    .strokeBorder(.secondary, lineWidth: 1)
+                  if index < widgetFriends.count,
+                     let url = URL(string: widgetFriends[index].avatar),
+                     url.scheme == "https" {
+                    AsyncImage(url: url) { image in
+                      image.resizable().scaledToFill()
+                    } placeholder: {
+                      Image(systemName: "person").foregroundStyle(.secondary)
+                    }
                     .frame(width: 64, height: 64)
-                    .overlay(Image(systemName: "person").foregroundStyle(.secondary))
+                    .clipShape(Circle())
+                  } else {
+                    Circle()
+                      .strokeBorder(.secondary, lineWidth: 1)
+                      .frame(width: 64, height: 64)
+                      .overlay(Image(systemName: "person").foregroundStyle(.secondary))
+                  }
                   Text(index < widgetFriends.count ? widgetFriends[index].name : "Add friend")
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
