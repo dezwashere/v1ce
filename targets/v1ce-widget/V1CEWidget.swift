@@ -391,6 +391,13 @@ struct V1CEWidgetView: View {
             Text("FRIENDS")
               .font(.system(size: 15, weight: .semibold))
               .tracking(2)
+            if widgetFriends.isEmpty {
+              Spacer(minLength: 0)
+              Text("Add Friends")
+                .font(.system(size: 22, weight: .semibold))
+                .frame(maxWidth: .infinity)
+              Spacer(minLength: 0)
+            } else {
             HStack(spacing: 10) {
               ForEach(0..<3, id: \.self) { index in
                 VStack(spacing: 8) {
@@ -406,6 +413,7 @@ struct V1CEWidgetView: View {
                 }
                 .frame(maxWidth: .infinity)
               }
+            }
             }
             Spacer(minLength: 0)
             Text("Manage widget friends from the Friends page")
