@@ -15,6 +15,7 @@ private let coinShowBorderKey = "v1ce_widget_coin_show_border"
 private let coinBorderColorKey = "v1ce_widget_coin_border_color"
 private let coinNumberColorKey = "v1ce_widget_coin_number_color"
 private let coinMottoKey = "v1ce_widget_coin_motto"
+private let isPremiumKey = "v1ce_widget_is_premium"
 
 struct Snapshot: Codable {
   let sobrietyDate: String
@@ -27,6 +28,7 @@ struct Snapshot: Codable {
   let coinBorderColor: String?
   let coinNumberColor: String?
   let coinMotto: String
+  let isPremium: Bool
 
   init(
     sobrietyDate: String,
@@ -38,7 +40,8 @@ struct Snapshot: Codable {
     coinShowBorder: Bool,
     coinBorderColor: String?,
     coinNumberColor: String?,
-    coinMotto: String
+    coinMotto: String,
+    isPremium: Bool
   ) {
     self.sobrietyDate = sobrietyDate
     self.displayName = displayName
@@ -50,6 +53,7 @@ struct Snapshot: Codable {
     self.coinBorderColor = coinBorderColor
     self.coinNumberColor = coinNumberColor
     self.coinMotto = coinMotto
+    self.isPremium = isPremium
   }
 
   init(from decoder: Decoder) throws {
@@ -64,6 +68,7 @@ struct Snapshot: Codable {
     coinBorderColor = try c.decodeIfPresent(String.self, forKey: .coinBorderColor)
     coinNumberColor = try c.decodeIfPresent(String.self, forKey: .coinNumberColor)
     coinMotto = try c.decodeIfPresent(String.self, forKey: .coinMotto) ?? ""
+    isPremium = try c.decodeIfPresent(Bool.self, forKey: .isPremium) ?? false
   }
 }
 
@@ -83,7 +88,8 @@ private func snap() -> Snapshot? {
       coinShowBorder: defaults.integer(forKey: coinShowBorderKey) != 0,
       coinBorderColor: defaults.string(forKey: coinBorderColorKey),
       coinNumberColor: defaults.string(forKey: coinNumberColorKey),
-      coinMotto: defaults.string(forKey: coinMottoKey) ?? ""
+      coinMotto: defaults.string(forKey: coinMottoKey) ?? "",
+      isPremium: defaults.integer(forKey: isPremiumKey) != 0
     )
   }
 
@@ -267,7 +273,10 @@ struct V1CEWidgetView: View {
     let showBorder = data?.coinShowBorder ?? true
     let size: CGFloat = family == .systemLarge ? 58 : family == .systemMedium ? 42 : 34
     let shapeName = data?.coinShape ?? "circle"
-    let font = widgetFont(data?.numberStyle ?? "classic", size: size)
+    let style = data?.numberStyle ?? "classic"
+    let numberFont = widgetFont(style, size: size)
+    let labelFont = widgetFont(style, size: family == .systemLarge ? 15 : family == .systemMedium ? 11 : 9)
+    let detailFont = widgetFont(style, size: family == .systemLarge ? 11 : family == .systemMedium ? 9 : 7)
 
     GeometryReader { geo in
       let inset: CGFloat = family == .systemLarge ? 18 : family == .systemMedium ? 14 : 10
@@ -282,52 +291,38 @@ struct V1CEWidgetView: View {
             .stroke(border, lineWidth: family == .systemLarge ? 3 : 2)
             .frame(width: max(0, coinSide - 10), height: max(0, coinSide - 10))
         }
-        if entry.showBack {
-        VStack(spacing: family == .systemLarge ? 8 : 4) {
-          Text("V1CE")
-            .font(.system(size: family == .systemLarge ? 14 : 10, weight: .bold))
-            .tracking(family == .systemLarge ? 4 : 2.5)
-            .opacity(0.7)
+        VStack(spacing: family == .systemLarge ? 5 : 2) {
+          if entry.showBack && !(data?.isPremium ?? false) {
+            Text("V1CE")
+              .font(detailFont)
+              .tracking(family == .systemLarge ? 3 : 2)
+              .opacity(0.42)
+          }
           Text("\(value.0)")
-            .font(font)
-            .minimumScaleFactor(0.45)
-            .lineLimit(1)
-          Text((data?.coinMotto.isEmpty == false ? data?.coinMotto : nil) ?? "FREE FROM")
-            .font(.system(size: family == .systemLarge ? 11 : 8, weight: .semibold))
-            .tracking(1.8)
-            .multilineTextAlignment(.center)
-            .lineLimit(3)
-            .opacity(0.7)
-            .padding(.horizontal, family == .systemLarge ? 18 : 8)
-        }
-        .foregroundColor(text)
-        .padding(10)
-        } else {
-          VStack(spacing: family == .systemLarge ? 5 : 2) {
-          Text("\(value.0)")
-            .font(font)
+            .font(numberFont)
             .minimumScaleFactor(0.45)
             .lineLimit(1)
           Text(value.1)
-            .font(.system(size: family == .systemLarge ? 11 : 8, weight: .semibold, design: .default))
+            .font(labelFont)
             .tracking(1.8)
+            .lineLimit(1)
+          Text((data?.coinMotto.isEmpty == false ? data?.coinMotto : nil) ?? "FREE FROM")
+            .font(detailFont)
+            .tracking(1.2)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .minimumScaleFactor(0.58)
+            .padding(.horizontal, family == .systemLarge ? 18 : 8)
           if let name = data?.displayName, !name.isEmpty {
-            Text(name.uppercased())
-              .font(.system(size: family == .systemLarge ? 8 : 6, weight: .medium))
+            Text(String(name.prefix(20)).uppercased())
+              .font(detailFont)
               .tracking(1.2)
               .lineLimit(1)
-          }
-          if family == .systemLarge, let motto = data?.coinMotto, !motto.isEmpty {
-            Text(motto)
-              .font(.system(size: 10))
-              .multilineTextAlignment(.center)
-              .lineLimit(3)
-              .padding(.horizontal, 18)
+              .minimumScaleFactor(0.6)
           }
         }
-          .foregroundColor(text)
-          .padding(10)
-        }
+        .foregroundColor(text)
+        .padding(10)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
