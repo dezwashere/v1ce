@@ -283,34 +283,28 @@ struct V1CEWidgetView: View {
     let text = customColor(data?.coinNumberColor, fallback: autoContrast(bgName))
     let border = customColor(data?.coinBorderColor, fallback: autoContrast(bgName))
     let showBorder = data?.coinShowBorder ?? true
-    let size: CGFloat = family == .systemLarge ? 58 : family == .systemMedium ? 42 : 34
     let shapeName = data?.coinShape ?? "circle"
     let style = data?.numberStyle ?? "classic"
-    let numberFont = widgetFont(style, size: size)
-    let labelFont = widgetFont(style, size: family == .systemLarge ? 15 : family == .systemMedium ? 11 : 9)
-    let detailFont = widgetFont(style, size: family == .systemLarge ? 11 : family == .systemMedium ? 9 : 7)
 
     GeometryReader { geo in
-      let inset: CGFloat = family == .systemLarge ? 18 : family == .systemMedium ? 14 : 10
-      let coinSide = max(0, min(geo.size.width, geo.size.height) - inset * 2)
+      let isSmall = family == .systemSmall
+      let isMedium = family == .systemMedium
+      let coinSide = max(0, min(geo.size.width, geo.size.height) - (isSmall ? 20 : 32))
+      let numberFont = widgetFont(style, size: isSmall ? 34 : 42)
+      let labelFont = widgetFont(style, size: isSmall ? 9 : 11)
+      let detailFont = widgetFont(style, size: isSmall ? 7 : 9)
 
-      ZStack {
+      let coin = ZStack {
         CoinShape(name: shapeName, custom: data?.coinShapePath)
           .fill(bg)
           .frame(width: coinSide, height: coinSide)
         if showBorder {
           CoinShape(name: shapeName, custom: data?.coinShapePath)
-            .stroke(border, lineWidth: family == .systemLarge ? 3 : 2)
+            .stroke(border, lineWidth: 2)
             .frame(width: max(0, coinSide - 10), height: max(0, coinSide - 10))
         }
-        VStack(spacing: family == .systemLarge ? 5 : 2) {
-          if entry.showBack && !(data?.isPremium ?? false) {
-            Text("V1CE")
-              .font(detailFont)
-              .tracking(family == .systemLarge ? 3 : 2)
-              .opacity(0.42)
-          }
-          Text("\(value.0)")
+        VStack(spacing: 2) {
+          Text("\\(value.0)")
             .font(numberFont)
             .minimumScaleFactor(0.45)
             .lineLimit(1)
@@ -324,7 +318,6 @@ struct V1CEWidgetView: View {
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .minimumScaleFactor(0.58)
-            .padding(.horizontal, family == .systemLarge ? 18 : 8)
           if let name = data?.displayName, !name.isEmpty {
             Text(String(name.prefix(20)).uppercased())
               .font(detailFont)
@@ -335,6 +328,73 @@ struct V1CEWidgetView: View {
         }
         .foregroundColor(text)
         .padding(10)
+        if entry.showBack && !(data?.isPremium ?? false) {
+          Text("V1CE")
+            .font(widgetFont(style, size: 7))
+            .tracking(2)
+            .foregroundColor(text.opacity(0.42))
+            .frame(width: coinSide * 0.72, height: coinSide * 0.72, alignment: .top)
+        }
+      }
+
+      Group {
+        if isSmall {
+          coin.frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if isMedium {
+          // Review layout: the quote field is not yet supplied by shared storage.
+          HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+              Text("\\(value.0) \\(value.1)")
+                .font(.system(size: 23, weight: .semibold, design: .rounded))
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+              Text("SOBRIETY")
+                .font(.system(size: 10, weight: .medium))
+                .tracking(2)
+              Text("Quote will appear here")
+                .font(.system(size: 12))
+                .italic()
+                .lineLimit(3)
+                .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            coin.frame(width: coinSide, height: coinSide)
+          }
+          .padding(14)
+        } else if family == .systemLarge {
+          // Review layout only: friend profiles require a shared friend snapshot.
+          VStack(alignment: .leading, spacing: 16) {
+            Text("FRIENDS")
+              .font(.system(size: 15, weight: .semibold))
+              .tracking(2)
+            HStack(spacing: 10) {
+              ForEach(0..<3, id: \\.self) { _ in
+                VStack(spacing: 8) {
+                  Circle()
+                    .strokeBorder(.secondary, lineWidth: 1)
+                    .frame(width: 64, height: 64)
+                    .overlay(Image(systemName: "person").foregroundStyle(.secondary))
+                  Text("Friend")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+              }
+            }
+            Spacer(minLength: 0)
+            Text("Friend data connection pending")
+              .font(.system(size: 11))
+              .foregroundStyle(.secondary)
+          }
+          .padding(18)
+        } else {
+          // Accessory families need their own compact treatment.
+          VStack(spacing: 2) {
+            Text("\\(value.0)").font(.headline)
+            Text(value.1).font(.caption2)
+          }
+          .minimumScaleFactor(0.6)
+        }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
