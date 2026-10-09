@@ -1,9 +1,9 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Path, Polygon } from "react-native-svg";
+import Svg, { Circle, Image, Path, Polygon } from "react-native-svg";
 import { NUMBER_STYLES, resolveCoinColor } from "@/constants/coin";
 import { usePremium } from "@/context/PremiumContext";
-import { fonts } from "@/constants/typography";
+import { CoinBackground } from "@/components/coin/CoinBackground";
 
 const FONT_FAMILIES: Record<string,string> = {
   "Big Shoulders Stencil":"BigShouldersStencilDisplayRegular",
