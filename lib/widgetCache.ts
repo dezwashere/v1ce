@@ -83,6 +83,7 @@ export async function writeWidgetFriends(friends: WidgetFriend[]) {
 function clearIosWidgetFields() {
   Object.values(IOS_WIDGET_KEYS).forEach((key) => iosWidgetStorage.remove(key));
   iosWidgetStorage.remove(V1CE_WIDGET_CACHE_KEY);
+  iosWidgetStorage.remove(V1CE_WIDGET_FRIENDS_KEY);
 }
 
 function writeIosWidgetFields(snapshot: WidgetProfileSnapshot) {
@@ -110,6 +111,7 @@ function writeIosWidgetFields(snapshot: WidgetProfileSnapshot) {
 export async function writeWidgetProfileSnapshot(profile: SobrietyProfile | null) {
   if (!profile?.sobriety_date) {
     await AsyncStorage.removeItem(V1CE_WIDGET_CACHE_KEY);
+    await AsyncStorage.removeItem(V1CE_WIDGET_FRIENDS_KEY);
     if (Platform.OS === "ios") {
       try {
         clearIosWidgetFields();
