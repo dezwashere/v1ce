@@ -54,11 +54,11 @@ export default function Lounge(){
     <TextInput value={eggQuestion} onChangeText={setEggQuestion} placeholder={t("lounge.eggPlaceholder")} placeholderTextColor={colors.mutedForeground} style={[styles.eggInput,{borderColor:colors.border,color:colors.foreground}]}/>
     <TouchableOpacity activeOpacity={.85} onPress={askEgg} accessibilityRole="button" accessibilityLabel="Ask the magic egg">
       <Animated.View style={[styles.eggWrap,{transform:[{translateX:eggShake.interpolate({inputRange:[-1,1],outputRange:[-12,12]})},{rotate:eggShake.interpolate({inputRange:[-1,1],outputRange:["-4deg","4deg"]})}]}]}>
-        <Svg width={210} height={270} viewBox="0 0 210 270">
+        <Svg width={236} height={302} viewBox="0 0 210 270">
           <Path d="M105 8 C67 8 31 65 22 128 C10 211 48 260 105 260 C162 260 200 211 188 128 C179 65 143 8 105 8 Z" fill={colors.background} stroke={colors.foreground} strokeWidth={4}/>
         </Svg>
         <View style={[styles.eggWindow,{backgroundColor:colors.foreground}]}>
-          <Text numberOfLines={3} adjustsFontSizeToFit minimumFontScale={.62} allowFontScaling={false} style={[styles.eggAnswer,{color:colors.background}]}>{eggAnswer||"TAP THE EGG"}</Text>
+          <Text numberOfLines={4} adjustsFontSizeToFit minimumFontScale={.5} allowFontScaling={false} style={[styles.eggAnswer,{color:colors.background}]}>{eggAnswer||"TAP THE EGG"}</Text>
         </View>
       </Animated.View>
     </TouchableOpacity>
@@ -107,7 +107,7 @@ const styles=StyleSheet.create({
  eggTitle:{fontFamily:fonts.display,fontSize:27,letterSpacing:1},
  eggSub:{fontFamily:fonts.body,fontSize:13,marginTop:4,marginBottom:12},
  eggInput:{borderWidth:1,minHeight:48,paddingHorizontal:12,fontFamily:fonts.body},
- eggWrap:{width:210,height:270,alignSelf:"center",marginVertical:22,alignItems:"center",justifyContent:"center"},
- eggWindow:{position:"absolute",left:34,right:34,height:76,paddingHorizontal:10,paddingVertical:8,alignItems:"center",justifyContent:"center",overflow:"hidden"},
- eggAnswer:{fontFamily:fonts.black,fontSize:18,lineHeight:22,letterSpacing:1.2,textAlign:"center"},
+ eggWrap:{width:236,height:302,alignSelf:"center",marginVertical:22,alignItems:"center",justifyContent:"center"},
+ eggWindow:{position:"absolute",left:32,right:32,minHeight:96,paddingHorizontal:12,paddingVertical:10,alignItems:"center",justifyContent:"center",overflow:"hidden"},
+ eggAnswer:{fontFamily:fonts.black,fontSize:15,lineHeight:20,letterSpacing:.35,textAlign:"center",flexShrink:1},
 });
