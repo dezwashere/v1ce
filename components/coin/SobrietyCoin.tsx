@@ -54,6 +54,8 @@ export default function SobrietyCoin(props: Props) {
             borderColor={props.borderColor}
             numberColor={props.numberColor}
             numberStyle={props.numberStyle}
+            coinPhoto={props.coinPhoto}
+            background={props.background}
             imageOnlyMode={props.imageOnlyMode}
             days={props.days}
             displayName={props.displayName}
