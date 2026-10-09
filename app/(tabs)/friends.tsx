@@ -8,6 +8,7 @@ import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 import { useTranslation } from "@/lib/i18n";
 import LofiAvatar from "@/components/lounge/LofiAvatar";
+import { writeWidgetFriends } from "@/lib/widgetCache";
 
 export default function Friends() {
   const { user } = useAuth();
@@ -60,6 +61,15 @@ export default function Friends() {
     return () => { active = false; };
   }, [widgetSelectionKey]);
 
+  const syncWidgetFriends = async (ids: string[], accepted: FriendConnection[]) => {
+    await writeWidgetFriends(ids.flatMap((id) => {
+      const friend = accepted.find((f) => f.id === id);
+      if (!friend) return [];
+      const isRequester = friend.requester_id === user?.id;
+      return [{ id, name: isRequester ? (friend.recipient_name || "Friend") : (friend.requester_name || "Friend"), avatar: (isRequester ? friend.recipient_avatar : friend.requester_avatar) || "" }];
+    }));
+  };
+
   const toggleWidgetFriend = async (friendId: string) => {
     if (!widgetSelectionLoaded || !widgetSelectionKey) return;
     const next = widgetFriendIds.includes(friendId)
@@ -71,6 +81,7 @@ export default function Friends() {
     }
     try {
       await AsyncStorage.setItem(widgetSelectionKey, JSON.stringify(next));
+      await syncWidgetFriends(next, friends);
       setWidgetFriendIds(next);
     } catch {
       Alert.alert("V1CE", "Could not save widget friend selection.");
