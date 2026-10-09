@@ -21,6 +21,7 @@ const IOS_WIDGET_KEYS = {
   coinNumberColor: "v1ce_widget_coin_number_color",
   coinMotto: "v1ce_widget_coin_motto",
   isPremium: "v1ce_widget_is_premium",
+  personalQuote: "v1ce_widget_personal_quote",
 } as const;
 
 export type WidgetProfileSnapshot = {
@@ -38,6 +39,7 @@ export type WidgetProfileSnapshot = {
   coinImageOnly: boolean;
   coinMotto: string;
   isPremium: boolean;
+  personalQuote: string;
   substances: string[];
 };
 
@@ -57,6 +59,7 @@ export function toWidgetProfileSnapshot(profile: SobrietyProfile): WidgetProfile
     coinImageOnly: profile.coin_image_only ?? false,
     coinMotto: (profile.coin_motto || "").slice(0, 20),
     isPremium: !!profile.is_premium,
+    personalQuote: (profile.personal_quote || "").slice(0, 90),
     substances: Array.isArray(profile.substances) ? profile.substances : [],
   };
 }
@@ -84,6 +87,7 @@ function writeIosWidgetFields(snapshot: WidgetProfileSnapshot) {
     : iosWidgetStorage.remove(IOS_WIDGET_KEYS.coinNumberColor);
   iosWidgetStorage.set(IOS_WIDGET_KEYS.coinMotto, snapshot.coinMotto);
   iosWidgetStorage.set(IOS_WIDGET_KEYS.isPremium, snapshot.isPremium ? 1 : 0);
+  iosWidgetStorage.set(IOS_WIDGET_KEYS.personalQuote, snapshot.personalQuote);
   iosWidgetStorage.set(IOS_WIDGET_KEYS.ready, 1);
 }
 
