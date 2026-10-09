@@ -128,16 +128,19 @@ export default function CoinBack({
         {shape === "circle" ? (
           <>
             <Circle cx="50" cy="50" r="48" fill={colors.bg} />
+            {coinPhoto ? <Image href={{uri:coinPhoto}} x="2" y="2" width="96" height="96" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Circle cx="50" cy="50" r="48" fill="none" stroke={resolvedBorder} strokeWidth="3" /> : null}
           </>
         ) : customPoints ? (
           <>
             <Polygon points={customPoints} fill={colors.bg} />
+            {coinPhoto ? <Image href={{uri:coinPhoto}} x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Polygon points={customPoints} fill="none" stroke={resolvedBorder} strokeWidth="3" /> : null}
           </>
         ) : (
           <>
             <Path d={path} fill={colors.bg} />
+            {coinPhoto ? <Image href={{uri:coinPhoto}} x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Path d={path} fill="none" stroke={resolvedBorder} strokeWidth="3" /> : null}
           </>
         )}
