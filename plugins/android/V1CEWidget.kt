@@ -30,7 +30,8 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.first
 import org.json.JSONObject
 import org.json.JSONArray
-import androidx.glance.LocalSize
+import android.appwidget.AppWidgetManager
+import androidx.glance.appwidget.GlanceAppWidgetManager
 
 private val Context.v1ceWidgetStore by preferencesDataStore(name="v1ce_widget")
 
@@ -71,13 +72,18 @@ class V1CEWidget:GlanceAppWidget(){
     }.getOrNull()
    }
   }
+  // Read widget dimensions outside Compose to avoid the incompatible
+  // CompositionLocal inline call in the Android Kotlin compiler.
+  val appWidgetId=GlanceAppWidgetManager(context).getAppWidgetId(id)
+  val options=AppWidgetManager.getInstance(context).getAppWidgetOptions(appWidgetId)
+  val width=options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0)
+  val height=options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
+  val isLarge=width >= 230 && height >= 180
   provideContent{
    val d=raw?.let{JSONObject(it)}
    val date=d?.optString("sobrietyDate","")?:""
    val name=d?.optString("displayName","")?:""
    val bg=coinColor(d?.optString("coinColor","#F5D680")?:"#F5D680")
-   val widgetSize=LocalSize.current
-   val isLarge=widgetSize.width >= 230.dp && widgetSize.height >= 180.dp
    val friends=runCatching{JSONArray(friendsJson ?: "[]")}.getOrDefault(JSONArray())
    val numberOverride=d?.optString("coinNumberColor","")?:""
    val borderOverride=d?.optString("coinBorderColor","")?:""
