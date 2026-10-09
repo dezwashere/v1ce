@@ -304,7 +304,7 @@ struct V1CEWidgetView: View {
             .frame(width: max(0, coinSide - 10), height: max(0, coinSide - 10))
         }
         VStack(spacing: 2) {
-          Text("\\(value.0)")
+          Text("\(value.0)")
             .font(numberFont)
             .minimumScaleFactor(0.45)
             .lineLimit(1)
@@ -344,7 +344,7 @@ struct V1CEWidgetView: View {
           // Review layout: the quote field is not yet supplied by shared storage.
           HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
-              Text("\\(value.0) \\(value.1)")
+              Text("\(value.0) \(value.1)")
                 .font(.system(size: 23, weight: .semibold, design: .rounded))
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
@@ -368,7 +368,7 @@ struct V1CEWidgetView: View {
               .font(.system(size: 15, weight: .semibold))
               .tracking(2)
             HStack(spacing: 10) {
-              ForEach(0..<3, id: \\.self) { _ in
+              ForEach(0..<3, id: \.self) { _ in
                 VStack(spacing: 8) {
                   Circle()
                     .strokeBorder(.secondary, lineWidth: 1)
@@ -390,7 +390,7 @@ struct V1CEWidgetView: View {
         } else {
           // Accessory families need their own compact treatment.
           VStack(spacing: 2) {
-            Text("\\(value.0)").font(.headline)
+            Text("\(value.0)").font(.headline)
             Text(value.1).font(.caption2)
           }
           .minimumScaleFactor(0.6)
