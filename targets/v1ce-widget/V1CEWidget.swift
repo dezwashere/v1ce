@@ -347,9 +347,8 @@ struct V1CEWidgetView: View {
         if isSmall {
           coin.frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if isMedium {
-          // Review layout: the quote field is not yet supplied by shared storage.
-          HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 6) {
+          HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
               Text("\(value.0) \(value.1)")
                 .font(.system(size: 23, weight: .semibold, design: .rounded))
                 .minimumScaleFactor(0.6)
@@ -357,16 +356,21 @@ struct V1CEWidgetView: View {
               Text("SOBRIETY")
                 .font(.system(size: 10, weight: .medium))
                 .tracking(2)
-              Text(data?.personalQuote.isEmpty == false ? (data?.personalQuote ?? "") : "Add a personal quote in your profile")
-                .font(.system(size: 12))
-                .italic()
-                .lineLimit(3)
-                .foregroundStyle(.secondary)
+              ViewThatFits(in: .vertical) {
+                ForEach([12.0, 11.0, 10.0, 9.0], id: \.self) { fontSize in
+                  Text(data?.personalQuote.isEmpty == false ? (data?.personalQuote ?? "") : "Add a personal quote in your profile")
+                    .font(.system(size: fontSize))
+                    .italic()
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundStyle(.secondary)
+                }
+              }
+              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             coin.frame(width: coinSide, height: coinSide)
           }
-          .padding(14)
+          .padding(10)
         } else if family == .systemLarge {
           // Review layout only: friend profiles require a shared friend snapshot.
           VStack(alignment: .leading, spacing: 16) {
