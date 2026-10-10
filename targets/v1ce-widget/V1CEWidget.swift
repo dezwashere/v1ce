@@ -455,6 +455,7 @@ struct V1CEWidgetView: View {
             }
           }
           .padding(15)
+          .foregroundColor(.white)
         } else {
           // Accessory families need their own compact treatment.
           VStack(spacing: 2) {
@@ -472,7 +473,7 @@ struct V1CEWidgetView: View {
       removal: .push(from: entry.showBack ? .leading : .trailing)
     ))
     .animation(.easeInOut(duration: 0.8), value: entry.showBack)
-    .v1ceWidgetBackground(bg)
+    .v1ceWidgetBackground(family == .systemLarge ? Color.black : bg)
     .widgetURL(URL(string: "v1ce://widget"))
   }
 }
