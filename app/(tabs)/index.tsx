@@ -81,6 +81,7 @@ export default function Home() {
               size={250}
               displayName={profile?.display_name || ""}
               motto={profile?.coin_motto}
+              backIcon={profile?.coin_back_icon || "none"}
               customShapePath={profile?.coin_shape_path || undefined}
               showBorder={profile?.coin_show_border ?? true}
               coinPhoto={profile?.coin_photo || undefined}
