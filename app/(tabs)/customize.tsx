@@ -30,6 +30,7 @@ export default function CoinScreen() {
           size={285}
           displayName={profile.display_name || ""}
           motto={profile.coin_motto || "FREE FROM"}
+          backIcon={profile.coin_back_icon || "none"}
           substances={profile.substances || []}
           showBorder={profile.coin_show_border ?? true}
           borderColor={profile.coin_border_color || undefined}
