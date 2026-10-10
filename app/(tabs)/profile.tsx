@@ -107,7 +107,7 @@ export default function ProfileScreen(){
     </View>
 
     <View style={[styles.previewCard,{backgroundColor:colors.secondary}]}>
-      {showCoin?<SobrietyCoin days={days} shape={profile.coin_shape||"circle"} color={profile.coin_color||"#F5D680"} numberStyle={profile.number_style||"classic"} size={112} displayName={profile.display_name||""} motto={(profile.coin_motto||"FREE FROM").slice(0,18)} substances={profile.substances||[]} showBorder={profile.coin_show_border??true} borderColor={profile.coin_border_color||undefined} numberColor={profile.coin_number_color||undefined}/>:<View style={styles.hiddenCoin}><Text style={[styles.hiddenText,{color:colors.mutedForeground}]}>{t("profile.coinHidden")}</Text></View>}
+      {showCoin?<SobrietyCoin days={days} shape={profile.coin_shape||"circle"} color={profile.coin_color||"#F5D680"} numberStyle={profile.number_style||"classic"} size={112} displayName={profile.display_name||""} motto={(profile.coin_motto||"FREE FROM").slice(0,18)} backIcon={profile.coin_back_icon||"none"} substances={profile.substances||[]} showBorder={profile.coin_show_border??true} borderColor={profile.coin_border_color||undefined} numberColor={profile.coin_number_color||undefined}/>:<View style={styles.hiddenCoin}><Text style={[styles.hiddenText,{color:colors.mutedForeground}]}>{t("profile.coinHidden")}</Text></View>}
       <View style={styles.previewCopy}>
         <Text style={[styles.previewQuote,{color:colors.foreground}]}>{status.trim()?"“"+status.trim()+"”":`“${t("profile.statusPlaceholder")}”`}</Text>
         <Text style={[styles.previewHelp,{color:colors.mutedForeground}]}>{t("profile.previewHelp")}</Text>
