@@ -387,52 +387,42 @@ struct V1CEWidgetView: View {
           .padding(10)
         } else if family == .systemLarge {
           let widgetFriends = selectedFriends()
-          VStack(alignment: .leading, spacing: 16) {
-            Text("FRIENDS")
-              .font(.system(size: 15, weight: .semibold))
-              .tracking(2)
-            if widgetFriends.isEmpty {
-              Spacer(minLength: 0)
-              Text("Add Friends")
-                .font(.system(size: 22, weight: .semibold))
-                .frame(maxWidth: .infinity)
-              Spacer(minLength: 0)
-            } else {
-            HStack(spacing: 10) {
+          VStack(spacing: 9) {
+            HStack {
+              Text("V1CE").font(.system(size: 15, weight: .bold)).tracking(4)
+              Spacer()
+              Text("PROGRESS OVER PERFECTION")
+                .font(.system(size: 8, weight: .medium)).tracking(0.7)
+                .lineLimit(1).minimumScaleFactor(0.7)
+            }
+            coin.frame(width: min(geo.size.height * 0.48, 158), height: min(geo.size.height * 0.48, 158))
+            Spacer(minLength: 0)
+            HStack(alignment: .top, spacing: 6) {
               ForEach(0..<3, id: \.self) { index in
-                VStack(spacing: 8) {
+                VStack(spacing: 4) {
                   if index < widgetFriends.count,
                      let url = URL(string: widgetFriends[index].avatar),
                      url.scheme == "https" {
                     AsyncImage(url: url) { image in
                       image.resizable().scaledToFill()
                     } placeholder: {
-                      Image(systemName: "person").foregroundStyle(.secondary)
+                      Image(systemName: "person.crop.circle").resizable().foregroundStyle(.secondary)
                     }
-                    .frame(width: 64, height: 64)
-                    .clipShape(Circle())
+                    .frame(width: 54, height: 54).clipShape(Circle())
                   } else {
-                    Circle()
-                      .strokeBorder(.secondary, lineWidth: 1)
-                      .frame(width: 64, height: 64)
+                    Circle().strokeBorder(.secondary, lineWidth: 1)
+                      .frame(width: 54, height: 54)
                       .overlay(Image(systemName: "person").foregroundStyle(.secondary))
                   }
                   Text(index < widgetFriends.count ? widgetFriends[index].name : "Add friend")
-                    .lineLimit(2)
+                    .font(.system(size: 11, weight: .semibold))
+                    .lineLimit(2).minimumScaleFactor(0.7)
                     .multilineTextAlignment(.center)
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
+                }.frame(maxWidth: .infinity)
               }
             }
-            }
-            Spacer(minLength: 0)
-            Text("Manage widget friends from the Friends page")
-              .font(.system(size: 11))
-              .foregroundStyle(.secondary)
           }
-          .padding(18)
+          .padding(15)
         } else {
           // Accessory families need their own compact treatment.
           VStack(spacing: 2) {
