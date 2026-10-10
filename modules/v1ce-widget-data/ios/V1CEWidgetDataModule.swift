@@ -20,6 +20,12 @@ public class V1CEWidgetDataModule: Module {
       WidgetCenter.shared.reloadTimelines(ofKind: widgetKind)
     }
 
+    Function("setFriends") { (json: String) in
+      guard let defaults = UserDefaults(suiteName: appGroup) else { return }
+      defaults.set(json, forKey: "v1ce_widget_selected_friends")
+      WidgetCenter.shared.reloadTimelines(ofKind: widgetKind)
+    }
+
     Function("clearSnapshot") {
       guard let defaults = UserDefaults(suiteName: appGroup) else { return }
 
