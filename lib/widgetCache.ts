@@ -6,7 +6,7 @@ import V1CEWidgetData from "@/modules/v1ce-widget-data/src";
 
 export const V1CE_WIDGET_CACHE_KEY = "v1ce_widget_profile_v1";
 export const V1CE_WIDGET_FRIENDS_KEY = "v1ce_widget_selected_friends";
-export type WidgetFriend = { id: string; name: string; avatar: string };
+export type WidgetFriend = { id: string; name: string; avatar: string; sobrietyDate?: string | null };
 const V1CE_APP_GROUP = "group.app.v1ce";
 const iosWidgetStorage = new ExtensionStorage(V1CE_APP_GROUP);
 
@@ -71,6 +71,7 @@ export async function writeWidgetFriends(friends: WidgetFriend[]) {
     id: friend.id,
     name: friend.name.slice(0, 60),
     avatar: friend.avatar || "",
+    sobrietyDate: friend.sobrietyDate || null,
   }));
   const json = JSON.stringify(selected);
   await AsyncStorage.setItem(V1CE_WIDGET_FRIENDS_KEY, json);
