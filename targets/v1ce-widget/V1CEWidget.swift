@@ -396,7 +396,7 @@ struct V1CEWidgetView: View {
                 .font(.system(size: 8, weight: .medium)).tracking(0.7)
                 .lineLimit(1).minimumScaleFactor(0.7)
             }
-            coin.frame(width: min(geo.size.height * 0.48, 158), height: min(geo.size.height * 0.48, 158))
+            coin.frame(width: coinSide, height: coinSide)
             Spacer(minLength: 0)
             HStack(alignment: .top, spacing: 6) {
               ForEach(0..<3, id: \.self) { index in
