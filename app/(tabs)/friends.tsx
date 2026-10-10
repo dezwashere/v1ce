@@ -69,12 +69,17 @@ export default function Friends() {
   }, [widgetSelectionKey]);
 
   const syncWidgetFriends = async (ids: string[], accepted: FriendConnection[]) => {
-    await writeWidgetFriends(ids.flatMap((id) => {
+    const selected = ids.flatMap((id) => {
       const friend = accepted.find((f) => f.id === id);
       if (!friend) return [];
       const isRequester = friend.requester_id === user?.id;
       return [{ id, name: isRequester ? (friend.recipient_name || "Friend") : (friend.requester_name || "Friend"), avatar: (isRequester ? friend.recipient_avatar : friend.requester_avatar) || "" }];
-    }));
+    });
+    const userIds = selected.map((friend) => { const connection = accepted.find((f) => f.id === friend.id); return connection?.requester_id === user?.id ? connection?.recipient_id : connection?.requester_id; });
+    const validUserIds = userIds.filter((id): id is string => !!id);
+    const { data: profiles, error } = validUserIds.length ? await supabase.from(TABLES.SobrietyProfile).select("user_id,sobriety_date").in("user_id", validUserIds) : { data: [], error: null };
+    if (error) console.warn("Could not load widget friend progress", error.message);
+    await writeWidgetFriends(selected.map((friend, index) => ({ ...friend, sobrietyDate: profiles?.find((profile) => profile.user_id === userIds[index])?.sobriety_date || null })));
   };
 
   useEffect(() => {
