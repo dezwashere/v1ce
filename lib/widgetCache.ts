@@ -80,6 +80,7 @@ export async function writeWidgetFriends(friends: WidgetFriend[]) {
   await AsyncStorage.setItem(V1CE_WIDGET_FRIENDS_KEY, json);
   if (Platform.OS === "ios") {
     iosWidgetStorage.set(V1CE_WIDGET_FRIENDS_KEY, json);
+    V1CEWidgetData.setFriends(json);
     ExtensionStorage.reloadWidget();
   } else if (Platform.OS === "android") {
     V1CEWidgetData.setFriends(json);
@@ -140,6 +141,7 @@ export async function writeWidgetProfileSnapshot(profile: SobrietyProfile | null
       // native fields individually so WidgetKit does not depend on JSON decoding.
       iosWidgetStorage.set(V1CE_WIDGET_CACHE_KEY, snapshot);
       writeIosWidgetFields(snapshotObject);
+      V1CEWidgetData.setSnapshot(snapshot);
       ExtensionStorage.reloadWidget();
     } catch (error) { console.warn("iOS widget snapshot write failed", error); }
   } else {
