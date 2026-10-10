@@ -20,6 +20,35 @@ private let isPremiumKey = "v1ce_widget_is_premium"
 private let personalQuoteKey = "v1ce_widget_personal_quote"
 private let selectedFriendsKey = "v1ce_widget_selected_friends"
 
+private struct MarkerFriendAvatar: View {
+  var body: some View {
+    GeometryReader { geometry in
+      let side = min(geometry.size.width, geometry.size.height)
+      ZStack {
+        Circle().fill(Color.white)
+        Circle().stroke(Color.black, lineWidth: 1.5)
+        Path { p in
+          p.move(to: CGPoint(x: side * 0.12, y: side))
+          p.addQuadCurve(to: CGPoint(x: side * 0.88, y: side), control: CGPoint(x: side * 0.50, y: side * 0.67))
+          p.move(to: CGPoint(x: side * 0.30, y: side * 0.35))
+          p.addQuadCurve(to: CGPoint(x: side * 0.70, y: side * 0.35), control: CGPoint(x: side * 0.50, y: side * 0.02))
+          p.addLine(to: CGPoint(x: side * 0.73, y: side * 0.62))
+          p.addQuadCurve(to: CGPoint(x: side * 0.28, y: side * 0.62), control: CGPoint(x: side * 0.50, y: side * 0.90))
+          p.closeSubpath()
+          p.move(to: CGPoint(x: side * 0.37, y: side * 0.46))
+          p.addLine(to: CGPoint(x: side * 0.43, y: side * 0.46))
+          p.move(to: CGPoint(x: side * 0.58, y: side * 0.46))
+          p.addLine(to: CGPoint(x: side * 0.64, y: side * 0.46))
+          p.move(to: CGPoint(x: side * 0.41, y: side * 0.64))
+          p.addQuadCurve(to: CGPoint(x: side * 0.59, y: side * 0.64), control: CGPoint(x: side * 0.50, y: side * 0.71))
+        }
+        .stroke(Color.black, style: StrokeStyle(lineWidth: 1.8, lineCap: .round, lineJoin: .round))
+      }
+      .clipShape(Circle())
+    }
+  }
+}
+
 private struct WidgetFriend: Decodable, Identifiable {
   let id: String
   let name: String
@@ -435,9 +464,8 @@ struct V1CEWidgetView: View {
                     }
                     .frame(width: min(54, geo.size.width * 0.17), height: min(54, geo.size.width * 0.17)).clipShape(Circle())
                   } else {
-                    Circle().strokeBorder(.secondary, lineWidth: 1)
+                    MarkerFriendAvatar()
                       .frame(width: min(54, geo.size.width * 0.17), height: min(54, geo.size.width * 0.17))
-                      .overlay(Image(systemName: "person").foregroundStyle(.secondary))
                   }
                   Text(index < widgetFriends.count ? widgetFriends[index].name : "Add friend")
                     .font(.system(size: 11, weight: .semibold))
