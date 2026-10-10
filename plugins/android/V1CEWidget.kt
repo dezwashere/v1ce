@@ -128,6 +128,16 @@ class V1CEWidget:GlanceAppWidget(){
            Text("◯",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=32.sp))
           }
           Text(friend?.optString("name") ?: "Add Friend",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=11.sp,textAlign=TextAlign.Center),maxLines=2)
+          val friendDate=friend?.optString("sobrietyDate").orEmpty()
+          if(friendDate.isNotBlank() && friendDate!="null"){
+           val friendDays=runCatching{java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.parse(friendDate.take(10)),java.time.LocalDate.now()).coerceAtLeast(0).toInt()}.getOrNull()
+           if(friendDays!=null){
+            val fy=friendDays/365;val fm=(friendDays%365)/30
+            val fv=if(fy>0)fy else if(fm>0)fm else friendDays
+            val fl=if(fy>0)if(fy==1)"YEAR" else "YEARS" else if(fm>0)if(fm==1)"MONTH" else "MONTHS" else "DAYS"
+            Text("$fv $fl",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=10.sp,textAlign=TextAlign.Center),maxLines=1)
+           }
+          }
          }
         }
        }
