@@ -120,7 +120,7 @@ class V1CEWidget:GlanceAppWidget(){
     if(isLarge){
      Column(horizontalAlignment=Alignment.CenterHorizontally,verticalAlignment=Alignment.CenterVertically){
       Text("V1CE",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=15.sp,fontWeight=FontWeight.Bold))
-      Box(GlanceModifier.width(minOf(148,width*0.46f,height*0.43f).coerceAtLeast(92f).dp).height(minOf(148,width*0.46f,height*0.43f).coerceAtLeast(92f).dp),contentAlignment=Alignment.Center){
+      Box(GlanceModifier.width(minOf(148f,width*0.46f,height*0.43f).coerceAtLeast(92f).dp).height(minOf(148f,width*0.46f,height*0.43f).coerceAtLeast(92f).dp),contentAlignment=Alignment.Center){
        if(shapeRes!=0)Image(ImageProvider(shapeRes),"Your coin",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(bg)))
        if(showBorder && borderRes!=0)Image(ImageProvider(borderRes),"",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(borderColor)))
        Column(horizontalAlignment=Alignment.CenterHorizontally){
