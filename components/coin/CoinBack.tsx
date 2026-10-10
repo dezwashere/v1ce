@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Image, Path, Polygon } from "react-native-svg";
+import Svg, { Circle, Image, Path, Polygon, Defs, LinearGradient, Stop } from "react-native-svg";
 import { NUMBER_STYLES, resolveCoinColor } from "@/constants/coin";
 import { usePremium } from "@/context/PremiumContext";
 import { CoinBackground } from "@/components/coin/CoinBackground";
@@ -125,21 +125,22 @@ export default function CoinBack({
   return (
     <View style={[styles.wrap, { width: size, height: size }]}>
       <Svg width={size} height={size} viewBox="0 0 100 100">
+        <Defs><LinearGradient id="coinSheenBack" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor="#FFFFFF" stopOpacity=".24"/><Stop offset=".42" stopColor="#FFFFFF" stopOpacity="0"/><Stop offset="1" stopColor="#000000" stopOpacity=".22"/></LinearGradient></Defs>
         {shape === "circle" ? (
           <>
-            <Circle cx="50" cy="50" r="48" fill={colors.bg} />
+            <Circle cx="50" cy="50" r="48" fill={colors.bg} /><Circle cx="50" cy="50" r="48" fill="url(#coinSheenBack)"/><Circle cx="50" cy="50" r="45.2" fill="none" stroke="#FFFFFF" strokeOpacity=".27" strokeWidth=".8"/>
             {coinPhoto ? <Image href={{uri:coinPhoto}} x="2" y="2" width="96" height="96" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Circle cx="50" cy="50" r="48" fill="none" stroke={resolvedBorder} strokeWidth="3" /> : null}
           </>
         ) : customPoints ? (
           <>
-            <Polygon points={customPoints} fill={colors.bg} />
+            <Polygon points={customPoints} fill={colors.bg} /><Polygon points={customPoints} fill="url(#coinSheenBack)"/>
             {coinPhoto ? <Image href={{uri:coinPhoto}} x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Polygon points={customPoints} fill="none" stroke={resolvedBorder} strokeWidth="3" /> : null}
           </>
         ) : (
           <>
-            <Path d={path} fill={colors.bg} />
+            <Path d={path} fill={colors.bg} /><Path d={path} fill="url(#coinSheenBack)"/>
             {coinPhoto ? <Image href={{uri:coinPhoto}} x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Path d={path} fill="none" stroke={resolvedBorder} strokeWidth="3" /> : null}
           </>
@@ -155,7 +156,7 @@ export default function CoinBack({
       ) : null}
       {imageOnlyMode ? null : (
         <View style={[styles.content, { width: safeWidth, minHeight:safeHeight, top:safeTop, pointerEvents: "none" }]}>
-          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.3} style={[styles.days, { color: resolvedNumberColor, fontSize:numberFontSize, lineHeight:numberLineHeight,includeFontPadding:true, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{mainNumber}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.3} style={[styles.days, { color: resolvedNumberColor, textShadowColor:"rgba(0,0,0,0.24)",textShadowOffset:{width:1,height:2},textShadowRadius:1, fontSize:numberFontSize, lineHeight:numberLineHeight,includeFontPadding:true, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{mainNumber}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.label, { color: resolvedNumberColor, fontSize:size*.075, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{label}</Text>
           <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.4} style={[styles.free, { color: resolvedNumberColor, fontSize:size*.042, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeMotto}</Text>
           {safeName ? <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.name, { color: resolvedNumberColor, fontSize:size*.036, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeName}</Text> : null}
