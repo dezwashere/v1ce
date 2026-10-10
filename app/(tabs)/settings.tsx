@@ -22,6 +22,7 @@ import { fonts } from "@/constants/typography";
 import { daysSince } from "@/constants/app";
 import { verifyWidgetSharedSnapshot, writeWidgetProfileSnapshot } from "@/lib/widgetCache";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
+import CoinBackDecoration, { COIN_BACK_ICONS, type CoinBackIconName } from "@/components/coin/CoinBackDecoration";
 import ShapePicker from "@/components/customize/ShapePicker";
 import ColorPicker from "@/components/customize/ColorPicker";
 import NumberStylePicker from "@/components/customize/NumberStylePicker";
@@ -185,6 +186,7 @@ export default function Settings() {
   const [numberColor, setNumberColor] = useState(profile?.coin_number_color || "");
   const [numberStyle, setNumberStyle] = useState(profile?.number_style || "classic");
   const [message, setMessage] = useState(profile?.coin_motto || "FREE FROM");
+  const [backIcon, setBackIcon] = useState<CoinBackIconName>((profile?.coin_back_icon || "none") as CoinBackIconName);
   const [shapeOpen, setShapeOpen] = useState(false);
   const [colorsOpen, setColorsOpen] = useState(false);
   const [fontOpen, setFontOpen] = useState(false);
@@ -216,6 +218,7 @@ export default function Settings() {
     setNumberColor(profile.coin_number_color || "");
     setNumberStyle(profile.number_style || "classic");
     setMessage(profile.coin_motto || "FREE FROM");
+    setBackIcon(COIN_BACK_ICONS.includes(profile.coin_back_icon as CoinBackIconName) ? profile.coin_back_icon as CoinBackIconName : "none");
   }, [profile]);
 
   const updateHomeWords = (next: RotatingTextPrefs) => {
@@ -263,6 +266,7 @@ export default function Settings() {
       coin_number_color: numberColor || "",
       number_style: numberStyle,
       coin_motto: message.trim().slice(0, COIN_MESSAGE_MAX),
+      coin_back_icon: backIcon,
       coin_shape_path: null,
     };
     const { data, error } = await supabase
@@ -358,6 +362,7 @@ export default function Settings() {
             size={230}
             displayName={name}
             motto={message}
+            backIcon={backIcon}
             substances={profile.substances || []}
             showBorder={showBorder}
             borderColor={borderColor || undefined}
@@ -441,6 +446,22 @@ export default function Settings() {
           style={[styles.input, { borderColor: colors.foreground, color: colors.foreground }]}
         />
         <Text style={[styles.helper, { color: colors.mutedForeground, textAlign: "right" }]}>{message.length}/{COIN_MESSAGE_MAX}</Text>
+        <Text style={[styles.controlTitle, { color: colors.foreground }]}>COIN BACK DECORATION</Text>
+        <Text style={[styles.helper, { color: colors.mutedForeground }]}>Optional. Tap the coin to preview its back.</Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+          {COIN_BACK_ICONS.map((icon) => (
+            <TouchableOpacity
+              key={icon}
+              accessibilityRole="button"
+              accessibilityLabel={`Coin back: ${icon}`}
+              onPress={() => setBackIcon(icon)}
+              style={{ width: 90, minHeight: 68, borderWidth: 2, borderColor: colors.foreground, backgroundColor: backIcon === icon ? colors.foreground : colors.background, alignItems: "center", justifyContent: "center", gap: 5 }}
+            >
+              {icon === "none" ? null : <CoinBackDecoration icon={icon} size={25} color={backIcon === icon ? colors.background : colors.foreground}/>}
+              <Text style={{ color: backIcon === icon ? colors.background : colors.foreground, fontFamily: fonts.bodyBold, fontSize: 10 }}>{icon.toUpperCase()}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
         <TouchableOpacity onPress={async()=>{const result=await verifyWidgetSharedSnapshot();setWidgetDiagnostic(result.ok?"WIDGET DATA VERIFIED":result.reason||"WIDGET DATA NOT VERIFIED");}} style={[styles.outline,{borderColor:colors.foreground,marginTop:12}]}><Text style={[styles.outlineText,{color:colors.foreground}]}>{t("settings.checkWidget")}</Text></TouchableOpacity>
         {widgetDiagnostic?<Text style={[styles.helper,{color:colors.mutedForeground,textAlign:"center"}]}>{widgetDiagnostic}</Text>:null}
 
