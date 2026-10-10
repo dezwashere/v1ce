@@ -70,6 +70,28 @@ function randomColor() {
   return `#${hex(r)}${hex(g)}${hex(b)}`;
 }
 
+
+function colorLuminance(hex: string) {
+  const channels = [1, 3, 5].map((offset) => {
+    const value = parseInt(hex.slice(offset, offset + 2), 16) / 255;
+    return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+  });
+  return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+}
+
+function readableRandomNumberColor(face: string) {
+  const faceLuminance = colorLuminance(face);
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const candidate = randomColor();
+    const candidateLuminance = colorLuminance(candidate);
+    const ratio = (Math.max(faceLuminance, candidateLuminance) + 0.05) /
+      (Math.min(faceLuminance, candidateLuminance) + 0.05);
+    if (ratio >= 4.5) return candidate;
+  }
+  // Empty uses the app's automatic high-contrast black/white number color.
+  return "";
+}
+
 function Toggle({
   value,
   onPress,
@@ -248,10 +270,11 @@ export default function Settings() {
       ? (personalText.length > 20 ? roomyShapes : ALL_SHAPES)
       : FREE_SHAPES;
     setShape(randomItem(shapes));
-    setCoinColor(randomColor());
+    const faceColor = randomColor();
+    setCoinColor(faceColor);
     setShowBorder(Math.random() > 0.25);
     setBorderColor(randomColor());
-    setNumberColor(randomColor());
+    setNumberColor(readableRandomNumberColor(faceColor));
     setNumberStyle(randomItem(isPremium ? ALL_FONTS : FREE_FONTS));
   };
 
