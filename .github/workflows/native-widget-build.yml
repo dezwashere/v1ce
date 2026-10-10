@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: native-widget-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ios-widget:
     runs-on: macos-latest
