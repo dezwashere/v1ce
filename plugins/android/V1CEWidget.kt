@@ -3,6 +3,9 @@ package app.v1ce.widget
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
 import java.net.URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,6 +38,17 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 
 private val Context.v1ceWidgetStore by preferencesDataStore(name="v1ce_widget")
 
+private fun circularAvatar(source:Bitmap, diameter:Int=112):Bitmap {
+ val output=Bitmap.createBitmap(diameter,diameter,Bitmap.Config.ARGB_8888)
+ val canvas=Canvas(output)
+ val path=Path().apply{addCircle(diameter/2f,diameter/2f,diameter/2f,Path.Direction.CW)}
+ canvas.clipPath(path)
+ val side=minOf(source.width,source.height)
+ val left=(source.width-side)/2
+ val top=(source.height-side)/2
+ canvas.drawBitmap(source,android.graphics.Rect(left,top,left+side,top+side),android.graphics.Rect(0,0,diameter,diameter),Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG))
+ return output
+}
 private fun parseColor(value:String, fallback:Color):Color=runCatching{Color(android.graphics.Color.parseColor(value))}.getOrDefault(fallback)
 private fun coinColor(value:String):Color=when(value){
  "gold"->Color(0xFFF5D680); "silver"->Color(0xFFE0E0E0); "bronze"->Color(0xFFCD7F32)
@@ -67,7 +81,7 @@ class V1CEWidget:GlanceAppWidget(){
      val url=URL(avatar)
      if(url.protocol!="https") null else {
       val connection=url.openConnection().apply { connectTimeout=2500; readTimeout=2500 }
-      connection.getInputStream().use { BitmapFactory.decodeStream(it) }
+      connection.getInputStream().use { BitmapFactory.decodeStream(it)?.let { bitmap -> circularAvatar(bitmap) } }
     }
     }.getOrNull()
    }
@@ -106,7 +120,7 @@ class V1CEWidget:GlanceAppWidget(){
     if(isLarge){
      Column(horizontalAlignment=Alignment.CenterHorizontally,verticalAlignment=Alignment.CenterVertically){
       Text("V1CE",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=15.sp,fontWeight=FontWeight.Bold))
-      Box(GlanceModifier.width(148.dp).height(148.dp),contentAlignment=Alignment.Center){
+      Box(GlanceModifier.width(minOf(148,width*0.46f,height*0.43f).coerceAtLeast(92f).dp).height(minOf(148,width*0.46f,height*0.43f).coerceAtLeast(92f).dp),contentAlignment=Alignment.Center){
        if(shapeRes!=0)Image(ImageProvider(shapeRes),"Your coin",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(bg)))
        if(showBorder && borderRes!=0)Image(ImageProvider(borderRes),"",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(borderColor)))
        Column(horizontalAlignment=Alignment.CenterHorizontally){
@@ -123,7 +137,7 @@ class V1CEWidget:GlanceAppWidget(){
          Column(modifier=GlanceModifier.defaultWeight(),horizontalAlignment=Alignment.CenterHorizontally){
           val avatar=avatarBitmaps.getOrNull(i)
           if(avatar!=null){
-           Image(ImageProvider(avatar),"Friend avatar",GlanceModifier.width(56.dp).height(56.dp))
+           Image(ImageProvider(avatar),"Friend avatar",GlanceModifier.width(minOf(54f,width*0.17f).dp).height(minOf(54f,width*0.17f).dp))
           }else{
            Text("◯",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=32.sp))
           }
