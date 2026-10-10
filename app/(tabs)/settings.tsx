@@ -48,10 +48,13 @@ function randomItem<T>(items: readonly T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+// Match the actual families and shades offered by ColorPicker.
+const PICKER_HUES = [2, 32, 48, 138, 211, 241, 282] as const;
+const PICKER_LIGHTNESS = [31, 42, 53, 66, 80] as const;
 function randomColor() {
-  const hue = Math.floor(Math.random() * 360);
-  const saturation = 70 + Math.floor(Math.random() * 21);
-  const lightness = 45 + Math.floor(Math.random() * 21);
+  const hue = randomItem(PICKER_HUES);
+  const saturation = 86;
+  const lightness = randomItem(PICKER_LIGHTNESS);
   const c = (1 - Math.abs((2 * lightness) / 100 - 1)) * (saturation / 100);
   const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
   const m = lightness / 100 - c / 2;
@@ -245,7 +248,7 @@ export default function Settings() {
     setCoinColor(randomColor());
     setShowBorder(Math.random() > 0.25);
     setBorderColor(randomColor());
-    setNumberColor("");
+    setNumberColor(randomColor());
     setNumberStyle(randomItem(isPremium ? ALL_FONTS : FREE_FONTS));
   };
 
