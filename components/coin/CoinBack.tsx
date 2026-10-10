@@ -4,6 +4,7 @@ import Svg, { Circle, Image, Path, Polygon, Defs, LinearGradient, Stop } from "r
 import { NUMBER_STYLES, resolveCoinColor } from "@/constants/coin";
 import { usePremium } from "@/context/PremiumContext";
 import { CoinBackground } from "@/components/coin/CoinBackground";
+import CoinBackDecoration from "@/components/coin/CoinBackDecoration";
 
 const FONT_FAMILIES: Record<string,string> = {
   "Big Shoulders Stencil":"BigShouldersStencilDisplayRegular",
@@ -67,6 +68,7 @@ type Props = {
   background?: string;
   days?: number;
   displayName?: string;
+  backIcon?: string;
 };
 
 function parseCustomPolygon(value?: string) {
@@ -97,6 +99,7 @@ export default function CoinBack({
   background = "solid",
   days = 0,
   displayName = "",
+  backIcon = "none",
 }: Props) {
   const { isPremium } = usePremium();
   const colors = resolveCoinColor(color);
@@ -159,6 +162,7 @@ export default function CoinBack({
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.3} style={[styles.days, { color: resolvedNumberColor, textShadowColor:"rgba(0,0,0,0.24)",textShadowOffset:{width:1,height:2},textShadowRadius:1, fontSize:numberFontSize, lineHeight:numberLineHeight,includeFontPadding:true, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{mainNumber}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.label, { color: resolvedNumberColor, fontSize:size*.075, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{label}</Text>
           <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.4} style={[styles.free, { color: resolvedNumberColor, fontSize:size*.042, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeMotto}</Text>
+          {backIcon !== "none" ? <View style={{ marginTop: size * 0.014 }}><CoinBackDecoration icon={backIcon} size={size * 0.07} color={resolvedNumberColor} /></View> : null}
           {safeName ? <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.name, { color: resolvedNumberColor, fontSize:size*.036, fontFamily:selectedFontFamily, fontWeight:numStyle.fontWeight, maxWidth:safeWidth }]}>{safeName}</Text> : null}
         </View>
       )}
