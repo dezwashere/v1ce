@@ -50,6 +50,26 @@ private fun circularAvatar(source:Bitmap, diameter:Int=112):Bitmap {
  canvas.drawBitmap(source,android.graphics.Rect(left,top,left+side,top+side),android.graphics.Rect(0,0,diameter,diameter),Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG))
  return output
 }
+private fun markerFriendAvatar():Bitmap {
+ val side=112
+ val bitmap=Bitmap.createBitmap(side,side,Bitmap.Config.ARGB_8888)
+ val c=Canvas(bitmap)
+ val p=Paint(Paint.ANTI_ALIAS_FLAG).apply {color=android.graphics.Color.WHITE;style=Paint.Style.FILL}
+ c.drawCircle(56f,56f,54f,p)
+ p.color=android.graphics.Color.BLACK
+ p.style=Paint.Style.STROKE
+ p.strokeWidth=4f
+ p.strokeCap=Paint.Cap.ROUND
+ c.drawCircle(56f,56f,54f,p)
+ c.drawOval(31f,22f,81f,90f,p)
+ c.drawArc(6f,80f,106f,160f,190f,160f,false,p)
+ c.drawLine(42f,52f,47f,51f,p)
+ c.drawLine(65f,51f,70f,52f,p)
+ c.drawArc(43f,59f,70f,77f,10f,155f,false,p)
+ val hair=Path().apply {moveTo(31f,51f);quadTo(20f,13f,59f,20f);quadTo(84f,17f,81f,51f)}
+ c.drawPath(hair,p)
+ return bitmap
+}
 private fun backDecoration(icon:String, tint:Int):Bitmap? {
  if(icon=="none" || icon.isBlank()) return null
  val bmp=Bitmap.createBitmap(56,56,Bitmap.Config.ARGB_8888)
@@ -92,6 +112,7 @@ class V1CEWidget:GlanceAppWidget(){
   val raw=preferences[stringPreferencesKey("snapshot")]
   val friendsJson=preferences[stringPreferencesKey("friends")]
   val selectedFriends=runCatching{JSONArray(friendsJson ?: "[]")}.getOrDefault(JSONArray())
+  val placeholderAvatar=markerFriendAvatar()
   val avatarBitmaps=withContext(Dispatchers.IO) {
    (0 until minOf(3,selectedFriends.length())).map { index ->
     val avatar=selectedFriends.optJSONObject(index)?.optString("avatar").orEmpty()
@@ -160,6 +181,8 @@ class V1CEWidget:GlanceAppWidget(){
           val avatar=avatarBitmaps.getOrNull(i)
           if(avatar!=null){
            Image(ImageProvider(avatar),"Friend avatar",GlanceModifier.width(minOf(54f,width*0.17f).dp).height(minOf(54f,width*0.17f).dp))
+          }else if(friend!=null){
+           Image(ImageProvider(placeholderAvatar),"Marker style friend portrait",GlanceModifier.width(minOf(54f,width*0.17f).dp).height(minOf(54f,width*0.17f).dp))
           }else{
            Text("◯",style=TextStyle(color=ColorProvider(Color.White),fontSize=32.sp))
           }
