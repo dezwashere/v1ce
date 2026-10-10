@@ -105,7 +105,15 @@ class V1CEWidget:GlanceAppWidget(){
     if(!isLarge && showBorder && borderRes!=0) Image(ImageProvider(borderRes),"",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(borderColor)))
     if(isLarge){
      Column(horizontalAlignment=Alignment.CenterHorizontally,verticalAlignment=Alignment.CenterVertically){
-      Text("FRIENDS",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=15.sp,fontWeight=FontWeight.Bold))
+      Text("V1CE",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=15.sp,fontWeight=FontWeight.Bold))
+      Box(GlanceModifier.width(148.dp).height(148.dp),contentAlignment=Alignment.Center){
+       if(shapeRes!=0)Image(ImageProvider(shapeRes),"Your coin",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(bg)))
+       if(showBorder && borderRes!=0)Image(ImageProvider(borderRes),"",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(borderColor)))
+       Column(horizontalAlignment=Alignment.CenterHorizontally){
+        Text(value.toString(),style=TextStyle(color=ColorProvider(numberColor),fontSize=38.sp,fontWeight=FontWeight.Bold,fontFamily=fontFamily(style),textAlign=TextAlign.Center))
+        Text(label,style=TextStyle(color=ColorProvider(numberColor),fontSize=11.sp,textAlign=TextAlign.Center))
+       }
+      }
       if(friends.length()==0){
        Text("Add Friends",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=22.sp))
       }else{
