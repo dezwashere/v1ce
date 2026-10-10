@@ -23,6 +23,7 @@ private struct WidgetFriend: Decodable, Identifiable {
   let id: String
   let name: String
   let avatar: String
+  let sobrietyDate: String?
 }
 
 private func selectedFriends() -> [WidgetFriend] {
@@ -418,6 +419,13 @@ struct V1CEWidgetView: View {
                     .font(.system(size: 11, weight: .semibold))
                     .lineLimit(2).minimumScaleFactor(0.7)
                     .multilineTextAlignment(.center)
+                  if index < widgetFriends.count, let date = widgetFriends[index].sobrietyDate, !date.isEmpty {
+                    let progress = display(days(date, entry.date))
+                    Text("\(progress.0) \(progress.1)")
+                      .font(.system(size: 10, weight: .medium))
+                      .foregroundStyle(.secondary)
+                      .lineLimit(1).minimumScaleFactor(0.65)
+                  }
                 }.frame(maxWidth: .infinity)
               }
             }
