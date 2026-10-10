@@ -122,8 +122,10 @@ export default function CoinBack({
   const safeMotto=(motto||"FREE FROM").slice(0,20);
   const safeName=(displayName||"").slice(0,20);
   const narrow=["star","cross","arrow","diamond","badge"].includes(shape);
-  const numberFontSize=size*(narrow?.24:.30);
-  const numberLineHeight=numberFontSize*1.45;
+  // Reserve room for the name and optional decoration, without clipping the year number.
+  const hasBackDetails = !!safeName || (backIcon !== "none" && !!backIcon);
+  const numberFontSize=size*(narrow ? (hasBackDetails ? .20 : .24) : (hasBackDetails ? .235 : .30));
+  const numberLineHeight=numberFontSize*1.36;
 
   return (
     <View style={[styles.wrap, { width: size, height: size }]}>
