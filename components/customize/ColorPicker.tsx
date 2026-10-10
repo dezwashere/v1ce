@@ -11,6 +11,7 @@ const FAMILIES = [
   { label: "BLUE", hue: 211, color: "#007AFF" },
   { label: "INDIGO", hue: 241, color: "#5856D6" },
   { label: "VIOLET", hue: 282, color: "#AF52DE" },
+  { label: "PINK", hue: 330, color: "#FF2D8D" },
 ] as const;
 
 const LIGHTNESS = [31, 42, 53, 66, 80];
@@ -81,8 +82,8 @@ export default function ColorPicker({ value, onChange }: { value: string; onChan
 }
 
 const styles=StyleSheet.create({
-  familyRow:{flexDirection:"row",justifyContent:"space-between",gap:5,marginBottom:14},
-  familyItem:{flex:1,alignItems:"center"},
+  familyRow:{flexDirection:"row",justifyContent:"space-between",flexWrap:"wrap",gap:5,rowGap:10,marginBottom:14},
+  familyItem:{width:"22%",alignItems:"center"},
   familyDot:{width:34,height:34,borderRadius:17,borderWidth:3},
   familyLabel:{fontFamily:fonts.bodyBold,fontSize:7,letterSpacing:.4,marginTop:5},
   activeLabel:{fontFamily:fonts.bodyBold,fontSize:10,letterSpacing:2,marginBottom:8},
