@@ -49,6 +49,23 @@ private fun circularAvatar(source:Bitmap, diameter:Int=112):Bitmap {
  canvas.drawBitmap(source,android.graphics.Rect(left,top,left+side,top+side),android.graphics.Rect(0,0,diameter,diameter),Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG))
  return output
 }
+private fun backDecoration(icon:String, tint:Int):Bitmap? {
+ if(icon=="none" || icon.isBlank()) return null
+ val bmp=Bitmap.createBitmap(56,56,Bitmap.Config.ARGB_8888)
+ val canvas=Canvas(bmp)
+ val p=Paint(Paint.ANTI_ALIAS_FLAG).apply { color=tint; style=Paint.Style.STROKE; strokeWidth=3f; strokeCap=Paint.Cap.ROUND; strokeJoin=Paint.Join.ROUND }
+ fun line(vararg coords:Float){val path=Path();path.moveTo(coords[0],coords[1]);for(i in 2 until coords.size step 2)path.lineTo(coords[i],coords[i+1]);canvas.drawPath(path,p)}
+ when(icon){
+  "mountain"->{line(3f,45f,20f,13f,32f,34f,39f,23f,53f,45f);line(15f,23f,20f,29f,25f,23f)}
+  "palm"->{line(28f,49f,29f,16f);line(29f,16f,9f,15f,4f,25f);line(29f,16f,42f,7f,53f,15f);line(29f,16f,11f,28f);line(29f,16f,47f,30f)}
+  "smiley"->{canvas.drawCircle(28f,28f,22f,p);p.style=Paint.Style.FILL;canvas.drawCircle(20f,22f,2f,p);canvas.drawCircle(36f,22f,2f,p);p.style=Paint.Style.STROKE;canvas.drawArc(15f,16f,41f,42f,20f,140f,false,p)}
+  "clover"->{for((x,y) in listOf(20f to 20f,36f to 20f,20f to 36f,36f to 36f))canvas.drawCircle(x,y,9f,p);line(28f,30f,34f,53f)}
+  "butterfly"->{canvas.drawOval(5f,7f,27f,29f,p);canvas.drawOval(29f,7f,51f,29f,p);canvas.drawOval(10f,29f,27f,48f,p);canvas.drawOval(29f,29f,46f,48f,p);line(28f,13f,28f,45f)}
+  "wave"->{for(y in listOf(18f,34f)){val path=Path();path.moveTo(2f,y);path.cubicTo(11f,y-11f,19f,y+11f,28f,y);path.cubicTo(37f,y-11f,45f,y+11f,54f,y);canvas.drawPath(path,p)}}
+  else->return null
+ }
+ return bmp
+}
 private fun parseColor(value:String, fallback:Color):Color=runCatching{Color(android.graphics.Color.parseColor(value))}.getOrDefault(fallback)
 private fun coinColor(value:String):Color=when(value){
  "gold"->Color(0xFFF5D680); "silver"->Color(0xFFE0E0E0); "bronze"->Color(0xFFCD7F32)
@@ -111,6 +128,8 @@ class V1CEWidget:GlanceAppWidget(){
    val value=if(y>0)y else if(m>0)m else days
    val label=if(y>0)if(y==1)"YEAR" else "YEARS" else if(m>0)if(m==1)"MONTH" else "MONTHS" else "DAYS"
    val showBack=((System.currentTimeMillis()/1_800_000L)%2L)==1L
+   val backIcon=d?.optString("coinBackIcon","none") ?: "none"
+   val backImage=if(showBack)backDecoration(backIcon,android.graphics.Color.rgb((numberColor.red*255).toInt(),(numberColor.green*255).toInt(),(numberColor.blue*255).toInt())) else null
    val shapeRes=context.resources.getIdentifier("v1ce_shape_$shape","drawable",context.packageName)
    val borderRes=context.resources.getIdentifier("v1ce_shape_${shape}_border","drawable",context.packageName)
 
@@ -126,6 +145,8 @@ class V1CEWidget:GlanceAppWidget(){
        Column(horizontalAlignment=Alignment.CenterHorizontally){
         Text(value.toString(),style=TextStyle(color=ColorProvider(numberColor),fontSize=38.sp,fontWeight=FontWeight.Bold,fontFamily=fontFamily(style),textAlign=TextAlign.Center))
         Text(label,style=TextStyle(color=ColorProvider(numberColor),fontSize=11.sp,textAlign=TextAlign.Center))
+        if(showBack && backImage!=null) Image(ImageProvider(backImage),"Coin back decoration",GlanceModifier.width(20.dp).height(20.dp))
+        if(showBack && name.isNotBlank()) Text(name.uppercase(),style=TextStyle(color=ColorProvider(numberColor),fontSize=8.sp,textAlign=TextAlign.Center),maxLines=1)
        }
       }
       if(friends.length()==0){
@@ -164,6 +185,7 @@ class V1CEWidget:GlanceAppWidget(){
       Text("V1CE",style=TextStyle(color=ColorProvider(numberColor),fontSize=10.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center))
       Text(value.toString(),style=TextStyle(color=ColorProvider(numberColor),fontSize=if(isLarge)48.sp else 34.sp,fontWeight=FontWeight.Bold,fontFamily=fontFamily(style),textAlign=TextAlign.Center))
       Text(if(motto.isNotBlank())motto else "FREE FROM",style=TextStyle(color=ColorProvider(numberColor),fontSize=8.sp,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center),maxLines=2)
+      if(backImage!=null) Image(ImageProvider(backImage),"Coin back decoration",GlanceModifier.width(18.dp).height(18.dp))
       if(name.isNotBlank()) Text(name.uppercase(),style=TextStyle(color=ColorProvider(numberColor),fontSize=7.sp,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center),maxLines=1)
      }else{
       Text(value.toString(),style=TextStyle(color=ColorProvider(numberColor),fontSize=if(isLarge)48.sp else 34.sp,fontWeight=FontWeight.Bold,fontFamily=fontFamily(style),textAlign=TextAlign.Center))
