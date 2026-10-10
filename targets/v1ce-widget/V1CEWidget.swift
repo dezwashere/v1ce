@@ -309,7 +309,7 @@ struct V1CEWidgetView: View {
     GeometryReader { geo in
       let isSmall = family == .systemSmall
       let isMedium = family == .systemMedium
-      let coinSide = max(0, min(geo.size.width, geo.size.height) - (isSmall ? 20 : 32))
+      let coinSide = family == .systemLarge ? min(geo.size.height * 0.48, 158) : max(0, min(geo.size.width, geo.size.height) - (isSmall ? 20 : 32))
       let numberFont = widgetFont(style, size: isSmall ? 34 : 42)
       let labelFont = widgetFont(style, size: isSmall ? 9 : 11)
       let detailFont = widgetFont(style, size: isSmall ? 7 : 9)
