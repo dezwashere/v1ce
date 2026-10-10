@@ -310,7 +310,7 @@ struct V1CEWidgetView: View {
     GeometryReader { geo in
       let isSmall = family == .systemSmall
       let isMedium = family == .systemMedium
-      let coinSide = family == .systemLarge ? min(geo.size.height * 0.48, 158) : max(0, min(geo.size.width, geo.size.height) - (isSmall ? 20 : 32))
+      let coinSide = family == .systemLarge ? max(92, min(geo.size.width * 0.46, geo.size.height * 0.43, 150)) : max(0, min(geo.size.width, geo.size.height) - (isSmall ? 20 : 32))
       let numberFont = widgetFont(style, size: isSmall ? 34 : 42)
       let labelFont = widgetFont(style, size: isSmall ? 9 : 11)
       let detailFont = widgetFont(style, size: isSmall ? 7 : 9)
@@ -409,10 +409,10 @@ struct V1CEWidgetView: View {
                     } placeholder: {
                       Image(systemName: "person.crop.circle").resizable().foregroundStyle(.secondary)
                     }
-                    .frame(width: 54, height: 54).clipShape(Circle())
+                    .frame(width: min(54, geo.size.width * 0.17), height: min(54, geo.size.width * 0.17)).clipShape(Circle())
                   } else {
                     Circle().strokeBorder(.secondary, lineWidth: 1)
-                      .frame(width: 54, height: 54)
+                      .frame(width: min(54, geo.size.width * 0.17), height: min(54, geo.size.width * 0.17))
                       .overlay(Image(systemName: "person").foregroundStyle(.secondary))
                   }
                   Text(index < widgetFriends.count ? widgetFriends[index].name : "Add friend")
@@ -426,7 +426,7 @@ struct V1CEWidgetView: View {
                       .foregroundStyle(.secondary)
                       .lineLimit(1).minimumScaleFactor(0.65)
                   }
-                }.frame(maxWidth: .infinity)
+                }.frame(maxWidth: .infinity, alignment: .top)
               }
             }
           }
