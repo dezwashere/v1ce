@@ -79,7 +79,7 @@ export default function Friends() {
     const validUserIds = userIds.filter((id): id is string => !!id);
     const { data: profiles, error } = validUserIds.length ? await supabase.rpc("get_friend_widget_progress", { target_ids: validUserIds }) : { data: [], error: null };
     if (error) console.warn("Could not load widget friend progress", error.message);
-    await writeWidgetFriends(selected.map((friend, index) => ({ ...friend, sobrietyDate: profiles?.find((friend) => friend.friend_id === userIds[index])?.sobriety_date || null })));
+    await writeWidgetFriends(selected.map((friend, index) => ({ ...friend, sobrietyDate: (profiles as { friend_id: string; sobriety_date: string | null }[] | null)?.find((friend) => friend.friend_id === userIds[index])?.sobriety_date || null })));
   };
 
   useEffect(() => {
