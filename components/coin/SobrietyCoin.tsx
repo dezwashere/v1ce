@@ -7,6 +7,7 @@ import CoinBack from "@/components/coin/CoinBack";
 type Props = React.ComponentProps<typeof CoinFront> & {
   motto?: string;
   substances?: string[];
+  backIcon?: string;
 };
 
 export default function SobrietyCoin(props: Props) {
@@ -59,6 +60,7 @@ export default function SobrietyCoin(props: Props) {
             imageOnlyMode={props.imageOnlyMode}
             days={props.days}
             displayName={props.displayName}
+            backIcon={props.backIcon}
           />
         </Animated.View>
       </View>
