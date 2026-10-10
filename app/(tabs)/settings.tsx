@@ -50,7 +50,7 @@ function randomItem<T>(items: readonly T[]): T {
 }
 
 // Match the actual families and shades offered by ColorPicker.
-const PICKER_HUES = [2, 32, 48, 138, 211, 241, 282] as const;
+const PICKER_HUES = [2, 32, 48, 138, 211, 241, 282, 330] as const;
 const PICKER_LIGHTNESS = [31, 42, 53, 66, 80] as const;
 function randomColor() {
   const hue = randomItem(PICKER_HUES);
