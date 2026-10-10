@@ -460,7 +460,7 @@ struct V1CEWidgetView: View {
                     AsyncImage(url: url) { image in
                       image.resizable().scaledToFill()
                     } placeholder: {
-                      Image(systemName: "person.crop.circle").resizable().foregroundStyle(.secondary)
+                      MarkerFriendAvatar()
                     }
                     .frame(width: min(54, geo.size.width * 0.17), height: min(54, geo.size.width * 0.17)).clipShape(Circle())
                   } else {
