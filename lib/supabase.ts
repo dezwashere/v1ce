@@ -35,6 +35,7 @@ export type SobrietyProfile = {
   coin_photo: string;
   coin_image_only: boolean;
   coin_motto: string;
+  coin_back_icon?: "none" | "mountain" | "palm" | "smiley" | "clover" | "butterfly" | "wave";
   personal_quote?: string | null;
   avatar_url: string;
   gifted_count: number;
@@ -102,6 +103,7 @@ export const defaultProfileFields = {
   coin_photo: "",
   coin_image_only: false,
   coin_motto: "",
+  coin_back_icon: "none",
   personal_quote: "",
   coin_background: "solid",
   coin_background_color: "#F5D680",
