@@ -77,9 +77,9 @@ export default function Friends() {
     });
     const userIds = selected.map((friend) => { const connection = accepted.find((f) => f.id === friend.id); return connection?.requester_id === user?.id ? connection?.recipient_id : connection?.requester_id; });
     const validUserIds = userIds.filter((id): id is string => !!id);
-    const { data: profiles, error } = validUserIds.length ? await supabase.from(TABLES.SobrietyProfile).select("user_id,sobriety_date").in("user_id", validUserIds) : { data: [], error: null };
+    const { data: profiles, error } = validUserIds.length ? await supabase.rpc("get_friend_widget_progress", { target_ids: validUserIds }) : { data: [], error: null };
     if (error) console.warn("Could not load widget friend progress", error.message);
-    await writeWidgetFriends(selected.map((friend, index) => ({ ...friend, sobrietyDate: profiles?.find((profile) => profile.user_id === userIds[index])?.sobriety_date || null })));
+    await writeWidgetFriends(selected.map((friend, index) => ({ ...friend, sobrietyDate: profiles?.find((friend) => friend.friend_id === userIds[index])?.sobriety_date || null })));
   };
 
   useEffect(() => {
