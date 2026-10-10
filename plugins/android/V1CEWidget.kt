@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.GlanceModifier
+import androidx.glance.background
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
@@ -133,12 +134,12 @@ class V1CEWidget:GlanceAppWidget(){
    val shapeRes=context.resources.getIdentifier("v1ce_shape_$shape","drawable",context.packageName)
    val borderRes=context.resources.getIdentifier("v1ce_shape_${shape}_border","drawable",context.packageName)
 
-   Box(GlanceModifier.fillMaxSize().clickable(actionStartActivity<app.v1ce.MainActivity>()),contentAlignment=Alignment.Center){
+   Box((if(isLarge) GlanceModifier.fillMaxSize().background(ColorProvider(Color.Black)) else GlanceModifier.fillMaxSize()).clickable(actionStartActivity<app.v1ce.MainActivity>()),contentAlignment=Alignment.Center){
     if(!isLarge && shapeRes!=0) Image(ImageProvider(shapeRes),"V1CE coin",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(bg)))
     if(!isLarge && showBorder && borderRes!=0) Image(ImageProvider(borderRes),"",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(borderColor)))
     if(isLarge){
      Column(horizontalAlignment=Alignment.CenterHorizontally,verticalAlignment=Alignment.CenterVertically){
-      Text("V1CE",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=15.sp,fontWeight=FontWeight.Bold))
+      Text("V1CE",style=TextStyle(color=ColorProvider(Color.White),fontSize=15.sp,fontWeight=FontWeight.Bold))
       Box(GlanceModifier.width(minOf(148f,width*0.46f,height*0.43f).coerceAtLeast(92f).dp).height(minOf(148f,width*0.46f,height*0.43f).coerceAtLeast(92f).dp),contentAlignment=Alignment.Center){
        if(shapeRes!=0)Image(ImageProvider(shapeRes),"Your coin",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(bg)))
        if(showBorder && borderRes!=0)Image(ImageProvider(borderRes),"",GlanceModifier.fillMaxSize(),colorFilter=ColorFilter.tint(ColorProvider(borderColor)))
@@ -150,7 +151,7 @@ class V1CEWidget:GlanceAppWidget(){
        }
       }
       if(friends.length()==0){
-       Text("Add Friends",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=22.sp))
+       Text("Add Friends",style=TextStyle(color=ColorProvider(Color.White),fontSize=22.sp))
       }else{
        Row(verticalAlignment=Alignment.CenterVertically){
         for(i in 0..2){
@@ -160,9 +161,9 @@ class V1CEWidget:GlanceAppWidget(){
           if(avatar!=null){
            Image(ImageProvider(avatar),"Friend avatar",GlanceModifier.width(minOf(54f,width*0.17f).dp).height(minOf(54f,width*0.17f).dp))
           }else{
-           Text("◯",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=32.sp))
+           Text("◯",style=TextStyle(color=ColorProvider(Color.White),fontSize=32.sp))
           }
-          Text(friend?.optString("name") ?: "Add Friend",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=11.sp,textAlign=TextAlign.Center),maxLines=2)
+          Text(friend?.optString("name") ?: "Add Friend",style=TextStyle(color=ColorProvider(Color.White),fontSize=11.sp,textAlign=TextAlign.Center),maxLines=2)
           val friendDate=friend?.optString("sobrietyDate").orEmpty()
           if(friendDate.isNotBlank() && friendDate!="null"){
            val friendDays=runCatching{java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.parse(friendDate.take(10)),java.time.LocalDate.now()).coerceAtLeast(0).toInt()}.getOrNull()
@@ -170,14 +171,14 @@ class V1CEWidget:GlanceAppWidget(){
             val fy=friendDays/365;val fm=(friendDays%365)/30
             val fv=if(fy>0)fy else if(fm>0)fm else friendDays
             val fl=if(fy>0)if(fy==1)"YEAR" else "YEARS" else if(fm>0)if(fm==1)"MONTH" else "MONTHS" else "DAYS"
-            Text("$fv $fl",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=10.sp,textAlign=TextAlign.Center),maxLines=1)
+            Text("$fv $fl",style=TextStyle(color=ColorProvider(Color.White),fontSize=10.sp,textAlign=TextAlign.Center),maxLines=1)
            }
           }
          }
         }
        }
       }
-      Text("Manage widget friends from the Friends page",style=TextStyle(color=ColorProvider(contrast(bg)),fontSize=10.sp))
+      Text("Manage widget friends from the Friends page",style=TextStyle(color=ColorProvider(Color.White),fontSize=10.sp))
      }
     }else Column(horizontalAlignment=Alignment.CenterHorizontally,verticalAlignment=Alignment.CenterVertically){
      val motto=d?.optString("coinMotto","")?:""
