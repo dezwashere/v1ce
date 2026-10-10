@@ -141,9 +141,9 @@ export async function writeWidgetProfileSnapshot(profile: SobrietyProfile | null
       iosWidgetStorage.set(V1CE_WIDGET_CACHE_KEY, snapshot);
       writeIosWidgetFields(snapshotObject);
       ExtensionStorage.reloadWidget();
-    } catch {}
+    } catch (error) { console.warn("iOS widget snapshot write failed", error); }
   } else {
-    try { V1CEWidgetData.setSnapshot(snapshot); } catch {}
+    try { V1CEWidgetData.setSnapshot(snapshot); } catch (error) { console.warn("Android widget snapshot write failed", error); }
   }
 }
 
