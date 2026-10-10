@@ -338,7 +338,7 @@ struct V1CEWidgetView: View {
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .minimumScaleFactor(0.58)
-          if let name = data?.displayName, !name.isEmpty {
+          if entry.showBack, let name = data?.displayName, !name.isEmpty {
             Text(String(name.prefix(20)).uppercased())
               .font(detailFont)
               .tracking(1.2)
