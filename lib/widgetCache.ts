@@ -123,8 +123,9 @@ export async function writeWidgetProfileSnapshot(profile: SobrietyProfile | null
     if (Platform.OS === "ios") {
       try {
         clearIosWidgetFields();
+        V1CEWidgetData.clearSnapshot();
         ExtensionStorage.reloadWidget();
-      } catch {}
+      } catch (error) { console.warn("iOS widget clear failed", error); }
     } else {
       try { V1CEWidgetData.clearSnapshot(); } catch {}
     }
