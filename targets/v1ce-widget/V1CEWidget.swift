@@ -15,6 +15,7 @@ private let coinShowBorderKey = "v1ce_widget_coin_show_border"
 private let coinBorderColorKey = "v1ce_widget_coin_border_color"
 private let coinNumberColorKey = "v1ce_widget_coin_number_color"
 private let coinMottoKey = "v1ce_widget_coin_motto"
+private let coinBackIconKey = "v1ce_widget_coin_back_icon"
 private let isPremiumKey = "v1ce_widget_is_premium"
 private let personalQuoteKey = "v1ce_widget_personal_quote"
 private let selectedFriendsKey = "v1ce_widget_selected_friends"
@@ -44,6 +45,7 @@ struct Snapshot: Codable {
   let coinBorderColor: String?
   let coinNumberColor: String?
   let coinMotto: String
+  let coinBackIcon: String
   let isPremium: Bool
   let personalQuote: String
 
@@ -58,6 +60,7 @@ struct Snapshot: Codable {
     coinBorderColor: String?,
     coinNumberColor: String?,
     coinMotto: String,
+    coinBackIcon: String,
     isPremium: Bool,
     personalQuote: String
   ) {
@@ -71,6 +74,7 @@ struct Snapshot: Codable {
     self.coinBorderColor = coinBorderColor
     self.coinNumberColor = coinNumberColor
     self.coinMotto = coinMotto
+    self.coinBackIcon = coinBackIcon
     self.isPremium = isPremium
     self.personalQuote = personalQuote
   }
@@ -87,6 +91,7 @@ struct Snapshot: Codable {
     coinBorderColor = try c.decodeIfPresent(String.self, forKey: .coinBorderColor)
     coinNumberColor = try c.decodeIfPresent(String.self, forKey: .coinNumberColor)
     coinMotto = try c.decodeIfPresent(String.self, forKey: .coinMotto) ?? ""
+    coinBackIcon = try c.decodeIfPresent(String.self, forKey: .coinBackIcon) ?? "none"
     isPremium = try c.decodeIfPresent(Bool.self, forKey: .isPremium) ?? false
     personalQuote = try c.decodeIfPresent(String.self, forKey: .personalQuote) ?? ""
   }
@@ -109,6 +114,7 @@ private func snap() -> Snapshot? {
       coinBorderColor: defaults.string(forKey: coinBorderColorKey),
       coinNumberColor: defaults.string(forKey: coinNumberColorKey),
       coinMotto: defaults.string(forKey: coinMottoKey) ?? "",
+      coinBackIcon: defaults.string(forKey: coinBackIconKey) ?? "none",
       isPremium: defaults.integer(forKey: isPremiumKey) != 0,
       personalQuote: defaults.string(forKey: personalQuoteKey) ?? ""
     )
@@ -339,6 +345,24 @@ struct V1CEWidgetView: View {
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .minimumScaleFactor(0.58)
+          if entry.showBack, let icon = data?.coinBackIcon, icon != "none" {
+            let symbol: String = {
+              switch icon {
+              case "mountain": return "mountain.2"
+              case "palm": return "tree"
+              case "smiley": return "face.smiling"
+              case "clover": return "leaf"
+              case "butterfly": return "butterfly"
+              case "wave": return "water.waves"
+              default: return ""
+              }
+            }()
+            if !symbol.isEmpty {
+              Image(systemName: symbol)
+                .font(.system(size: max(8, coinSide * 0.095), weight: .light))
+                .accessibilityHidden(true)
+            }
+          }
           if entry.showBack, let name = data?.displayName, !name.isEmpty {
             Text(String(name.prefix(20)).uppercased())
               .font(detailFont)
