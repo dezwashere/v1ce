@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Image, Path, Polygon } from "react-native-svg";
+import Svg, { Circle, Image, Path, Polygon, Defs, LinearGradient, Stop } from "react-native-svg";
 import { COIN_COLORS, NUMBER_STYLES, resolveCoinColor } from "@/constants/coin";
 import { CoinBackground } from "@/components/coin/CoinBackground";
 import { fonts } from "@/constants/typography";
@@ -121,22 +121,24 @@ export default function CoinFront({
   const numberLineHeight=numberFontSize*1.45;
   const selectedFontFamily=FONT_FAMILIES[numStyle.fontFamily]||undefined;
   const safeMotto=(motto||"FREE FROM").slice(0,20);
-  const safeName=(displayName||"").slice(0,20);
+
   const verticalOffset=size*bounds.y;
+  const highlight="#FFFFFF";
   const path=PATHS[shape]||PATHS.hexagon;
 
   const content=(
     <View style={[styles.wrap,{width:size,height:size}]}>
       <Svg width={size} height={size} viewBox="0 0 100 100">
+        <Defs><LinearGradient id="coinSheenFront" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor="#FFFFFF" stopOpacity=".24"/><Stop offset=".42" stopColor="#FFFFFF" stopOpacity="0"/><Stop offset="1" stopColor="#000000" stopOpacity=".22"/></LinearGradient></Defs>
         {shape==="circle" ? (
           <>
-            <Circle cx="50" cy="50" r="48" fill={colors.bg}/>
+            <Circle cx="50" cy="50" r="48" fill={colors.bg}/><Circle cx="50" cy="50" r="48" fill="url(#coinSheenFront)"/><Circle cx="50" cy="50" r="45.2" fill="none" stroke="#FFFFFF" strokeOpacity=".27" strokeWidth=".8"/>
             {coinPhoto ? <Image href={{uri:coinPhoto}} x="2" y="2" width="96" height="96" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? <Circle cx="50" cy="50" r="48" fill="none" stroke={resolvedBorderColor} strokeWidth="3"/> : null}
           </>
         ) : (
           <>
-            {customPoints ? <Polygon points={customPoints} fill={colors.bg}/> : <Path d={path} fill={colors.bg}/>}
+            {customPoints ? <><Polygon points={customPoints} fill={colors.bg}/><Polygon points={customPoints} fill="url(#coinSheenFront)"/></> : <><Path d={path} fill={colors.bg}/><Path d={path} fill="url(#coinSheenFront)"/></>}
             {coinPhoto ? <Image href={{uri:coinPhoto}} x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" opacity={imageOnlyMode?1:.35}/> : null}
             {showBorder ? (customPoints
               ? <Polygon points={customPoints} fill="none" stroke={resolvedBorderColor} strokeWidth="3"/>
@@ -152,6 +154,7 @@ export default function CoinFront({
         <View style={[styles.content,{pointerEvents:"none",width:maxWidth,minHeight:safeHeight,top:(size-safeHeight)/2+verticalOffset}]}>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.3} style={[styles.number,{
             color:resolvedNumberColor,
+            textShadowColor:"rgba(0,0,0,0.24)",textShadowOffset:{width:1,height:2},textShadowRadius:1,
             fontSize:numberFontSize,
             lineHeight:numberLineHeight,includeFontPadding:true,
             letterSpacing:numberFontSize*(numStyle.letterSpacing??0),
@@ -161,9 +164,7 @@ export default function CoinFront({
           }]}>{mainNumber}</Text>
           <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.label,{color:resolvedNumberColor,fontSize:size*.075,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{label}</Text>
           <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.4} style={[styles.motto,{color:resolvedNumberColor,fontSize:size*.042,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{safeMotto}</Text>
-          {safeName ? (
-            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.45} style={[styles.name,{color:resolvedNumberColor,fontSize:size*.036,fontFamily:selectedFontFamily,fontWeight:numStyle.fontWeight,maxWidth}]}>{safeName}</Text>
-          ) : null}
+
         </View>
       )}
     </View>
