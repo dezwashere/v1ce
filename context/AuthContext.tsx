@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useState, useEffect, useMemo, t
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase, TABLES, type SobrietyProfile } from "@/lib/supabase";
 import { writeWidgetProfileSnapshot } from "@/lib/widgetCache";
+import { refreshWidgetFriendsForUser } from "@/lib/widgetFriendsSync";
 
 interface AuthContextType {
   user: { email: string; id: string } | null;
@@ -44,6 +45,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfileState(effective);
     void writeWidgetProfileSnapshot(effective);
   }, []);
+
+  useEffect(() => {
+    if (!user?.id || !profile?.sobriety_date) return;
+    // Widget friends must refresh even when the Friends tab is never opened.
+    void refreshWidgetFriendsForUser(user.id).catch((error) => {
+      console.warn("Could not refresh V1CE widget friends", error);
+    });
+  }, [user?.id, profile?.sobriety_date]);
 
   const refreshProfile = useCallback(async () => {
     const email = user?.email || (await AsyncStorage.getItem("v1ce_email")) || "";
