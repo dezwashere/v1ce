@@ -164,10 +164,11 @@ class V1CEWidget:GlanceAppWidget(){
       Text("V1CE",style=TextStyle(color=ColorProvider(numberColor),fontSize=10.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center))
       Text(value.toString(),style=TextStyle(color=ColorProvider(numberColor),fontSize=if(isLarge)48.sp else 34.sp,fontWeight=FontWeight.Bold,fontFamily=fontFamily(style),textAlign=TextAlign.Center))
       Text(if(motto.isNotBlank())motto else "FREE FROM",style=TextStyle(color=ColorProvider(numberColor),fontSize=8.sp,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center),maxLines=2)
+      if(name.isNotBlank()) Text(name.uppercase(),style=TextStyle(color=ColorProvider(numberColor),fontSize=7.sp,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center),maxLines=1)
      }else{
       Text(value.toString(),style=TextStyle(color=ColorProvider(numberColor),fontSize=if(isLarge)48.sp else 34.sp,fontWeight=FontWeight.Bold,fontFamily=fontFamily(style),textAlign=TextAlign.Center))
       Text(label,style=TextStyle(color=ColorProvider(numberColor),fontSize=9.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center))
-      if(showBack && name.isNotBlank()) Text(name.uppercase(),style=TextStyle(color=ColorProvider(numberColor),fontSize=7.sp,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center),maxLines=1)
+
      }
     }
    }
