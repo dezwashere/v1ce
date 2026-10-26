@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { useCoinContext } from "@/context/CoinContext";
@@ -8,6 +8,7 @@ import { useTranslation } from "@/lib/i18n";
 import { supabase, TABLES } from "@/lib/supabase";
 import { daysSince } from "@/constants/app";
 import { fonts } from "@/constants/typography";
+import { coinInputFromProfile } from "@/lib/coinDesign";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
 import RotatingLabel from "@/components/home/RotatingLabel";
 import SobrietyCounter from "@/components/home/SobrietyCounter";
@@ -53,9 +54,10 @@ export default function Home() {
   }, [days, profile?.coin_color, profile?.display_name, updateCoinData]);
 
   const persist = async (values: Record<string, unknown>) => {
-    if (!profile?.id) return;
-    const { data } = await supabase.from(TABLES.SobrietyProfile).update(values).eq("id", profile.id).select().single();
-    if (data) setProfile(data);
+    if (!profile?.id) throw new Error("Sign in before saving your changes.");
+    const { data, error } = await supabase.from(TABLES.SobrietyProfile).update(values).eq("id", profile.id).select().single();
+    if (error || !data) throw new Error("Your changes could not be saved. Please try again.");
+    setProfile(data);
   };
 
   return (
@@ -74,10 +76,11 @@ export default function Home() {
           <RotatingLabel />
           <View style={styles.coinWrap}>
             <SobrietyCoin
+              {...coinInputFromProfile(profile)}
               days={days}
               shape={profile?.coin_shape || "circle"}
               color={profile?.coin_color || "#F5D680"}
-              numberStyle={profile?.number_style || "classic"}
+              numberStyle={profile?.number_style || "walter_turncoat"}
               size={250}
               displayName={profile?.display_name || ""}
               motto={profile?.coin_motto}
@@ -119,7 +122,7 @@ export default function Home() {
             <CalendarField
               value={sobrietyDate}
               onChange={(next) => {
-                persist({ sobriety_date: next });
+                void persist({ sobriety_date: next }).catch(() => Alert.alert("Not saved", "Your date could not be saved. Please try again."));
               }}
             />
           </View>
@@ -144,10 +147,7 @@ export default function Home() {
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t("home.whatsYourDoc")}</Text>
         <SubstanceChecklist
           selected={substances}
-          onChange={(next) => {
-            setSubstances(next);
-            persist({ substances: next });
-          }}
+          onChange={(next) => persist({ substances: next })}
         />
       </View>
 

@@ -16,6 +16,9 @@ export default function RotatingTextSettings({ title, prefs, onChange }: { title
       <TouchableOpacity onPress={() => onChange({ ...prefs, rotating: !prefs.rotating })} style={[styles.toggle, { borderColor: colors.foreground, backgroundColor: prefs.rotating ? colors.foreground : colors.background }]}>
         <Text style={{ color: prefs.rotating ? colors.background : colors.foreground, fontFamily: fonts.black, letterSpacing: 1.5 }}>{t("rotating.rotation")} {prefs.rotating ? t("rotating.on") : t("rotating.off")}</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => onChange({ ...prefs, useCustomWords: !prefs.useCustomWords })} style={[styles.toggle, { borderColor: colors.border, backgroundColor: prefs.useCustomWords ? colors.border : colors.background }]}>
+        <Text style={{ color: colors.foreground, fontFamily: fonts.black, letterSpacing: 1.2 }}>{prefs.useCustomWords ? "USING MY WORDS" : "USE DEFAULT WORDS"}</Text>
+      </TouchableOpacity>
       {!prefs.rotating ? <>
         <Text style={[styles.label, { color: colors.mutedForeground }]}>{t("rotating.pauseOn")}</Text>
         <TextInput value={prefs.pausedWord} onChangeText={(pausedWord) => onChange({ ...prefs, pausedWord: pausedWord.toUpperCase().slice(0, 24) })} maxLength={24} placeholder={t("settings.freeFrom")} placeholderTextColor={colors.mutedForeground} autoCapitalize="characters" style={[styles.input, { borderColor: colors.foreground, color: colors.foreground }]} />

@@ -1,0 +1,10 @@
+{
+  "assetVersion": "1.0.0",
+  "source": "tools/blender/master/v1ce_coin_master.blend",
+  "runtimeExport": "tools/blender/master/v1ce_coin_master.obj",
+  "runtimeMaterial": "tools/blender/master/v1ce_coin_master.mtl",
+  "containsUserData": false,
+  "wordmark": "assets/images/v1ce-wordmark-approved.png",
+  "runtimeRenderer": "SceneKit OBJ/MTL",
+  "notes": "Reusable coin geometry/material source only; personalized text is added on-device."
+}

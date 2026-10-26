@@ -1,0 +1,3 @@
+export function formatUSDate(value:string){const digits=value.replace(/\D/g,"").slice(0,8);if(digits.length<=2)return digits;if(digits.length<=4)return `${digits.slice(0,2)}/${digits.slice(2)}`;return `${digits.slice(0,2)}/${digits.slice(2,4)}/${digits.slice(4)}`}
+export function toDatabaseDate(value:string){const m=value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return "";const month=Number(m[1]),day=Number(m[2]),year=Number(m[3]);const d=new Date(Date.UTC(year,month-1,day));return d.getUTCFullYear()===year&&d.getUTCMonth()===month-1&&d.getUTCDate()===day?`${m[3]}-${m[1]}-${m[2]}`:""}
+export function fromDatabaseDate(value?:string){if(!value)return "";const m=value.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[2]}/${m[3]}/${m[1]}`:""}

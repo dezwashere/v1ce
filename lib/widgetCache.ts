@@ -3,10 +3,16 @@ import { Platform } from "react-native";
 import { ExtensionStorage } from "@bacons/apple-targets";
 import type { SobrietyProfile } from "@/lib/supabase";
 import V1CEWidgetData from "@/modules/v1ce-widget-data/src";
+import { buildCoinDesign, coinInputFromProfile, normalizeShape, type CoinDesign } from "./coinDesign";
+import { normalizeNumberStyle } from "../constants/coin";
+import { cacheWidgetPhoto } from "./widgetPhoto";
+import { V1CECoinRenderer } from "@/modules/v1ce-coin-renderer/src";
+import { formatMilestoneDuration } from "./milestoneDuration";
 
 export const V1CE_WIDGET_CACHE_KEY = "v1ce_widget_profile_v1";
+export const V1CE_WIDGET_DESIGN_KEY = "v1ce_widget_coin_design_v2";
 export const V1CE_WIDGET_FRIENDS_KEY = "v1ce_widget_selected_friends";
-export type WidgetFriend = { id: string; name: string; avatar: string; sobrietyDate?: string | null };
+export type WidgetFriend = { id: string; name: string; avatar: string; avatarSeed?: string; photoFile?: string; sobrietyDate?: string | null };
 const V1CE_APP_GROUP = "group.app.v1ce";
 const iosWidgetStorage = new ExtensionStorage(V1CE_APP_GROUP);
 
@@ -28,6 +34,7 @@ const IOS_WIDGET_KEYS = {
 } as const;
 
 export type WidgetProfileSnapshot = {
+  coinDesign: CoinDesign;
   userId: string;
   sobrietyDate: string;
   displayName: string;
@@ -44,18 +51,20 @@ export type WidgetProfileSnapshot = {
   coinBackIcon: string;
   isPremium: boolean;
   personalQuote: string;
+  milestoneDisplayFormat?: import("./milestoneDuration").MilestoneDisplayFormat;
   substances: string[];
 };
 
 export function toWidgetProfileSnapshot(profile: SobrietyProfile): WidgetProfileSnapshot {
   return {
+    coinDesign: buildCoinDesign(coinInputFromProfile(profile)),
     userId: profile.user_id || profile.id || "",
     sobrietyDate: profile.sobriety_date,
     displayName: profile.display_name || "",
     coinColor: profile.coin_color || "#F5D680",
-    coinShape: profile.coin_shape || "circle",
+    coinShape: normalizeShape(profile.coin_shape),
     coinShapePath: profile.coin_shape_path || null,
-    numberStyle: profile.number_style || "classic",
+    numberStyle: normalizeNumberStyle(profile.number_style),
     coinShowBorder: profile.coin_show_border ?? true,
     coinBorderColor: profile.coin_border_color || null,
     coinNumberColor: profile.coin_number_color || null,
@@ -65,6 +74,7 @@ export function toWidgetProfileSnapshot(profile: SobrietyProfile): WidgetProfile
     coinBackIcon: profile.coin_back_icon || "none",
     isPremium: !!profile.is_premium,
     personalQuote: (profile.personal_quote || "").slice(0, 90),
+    milestoneDisplayFormat: profile.milestone_display_format || "automatic",
     substances: Array.isArray(profile.substances) ? profile.substances : [],
   };
 }
@@ -74,7 +84,13 @@ export async function writeWidgetFriends(friends: WidgetFriend[]) {
     id: friend.id,
     name: friend.name.slice(0, 60),
     avatar: friend.avatar || "",
+    avatarSeed: friend.avatarSeed || friend.name,
+    photoFile: undefined as string | undefined,
     sobrietyDate: friend.sobrietyDate || null,
+  }));
+  if (Platform.OS === "ios") await Promise.all(selected.map(async friend => {
+    if (!friend.avatar) return;
+    try { friend.photoFile = await cacheWidgetPhoto(`friend:${friend.id}`, friend.avatar); } catch {}
   }));
   const json = JSON.stringify(selected);
   await AsyncStorage.setItem(V1CE_WIDGET_FRIENDS_KEY, json);
@@ -89,6 +105,7 @@ export async function writeWidgetFriends(friends: WidgetFriend[]) {
 function clearIosWidgetFields() {
   Object.values(IOS_WIDGET_KEYS).forEach((key) => iosWidgetStorage.remove(key));
   iosWidgetStorage.remove(V1CE_WIDGET_CACHE_KEY);
+  iosWidgetStorage.remove(V1CE_WIDGET_DESIGN_KEY);
   iosWidgetStorage.remove(V1CE_WIDGET_FRIENDS_KEY);
 }
 
@@ -115,10 +132,13 @@ function writeIosWidgetFields(snapshot: WidgetProfileSnapshot) {
   iosWidgetStorage.set(IOS_WIDGET_KEYS.ready, 1);
 }
 
+let snapshotRevision = 0;
 export async function writeWidgetProfileSnapshot(profile: SobrietyProfile | null) {
+  const revision = ++snapshotRevision;
   if (!profile?.sobriety_date) {
     await AsyncStorage.removeItem(V1CE_WIDGET_CACHE_KEY);
     await AsyncStorage.removeItem(V1CE_WIDGET_FRIENDS_KEY);
+    if (revision !== snapshotRevision) return;
     if (Platform.OS === "ios") {
       try {
         clearIosWidgetFields();
@@ -131,8 +151,14 @@ export async function writeWidgetProfileSnapshot(profile: SobrietyProfile | null
   }
 
   const snapshotObject = toWidgetProfileSnapshot(profile);
+  if (Platform.OS === "ios" && snapshotObject.coinPhoto) {
+    try { snapshotObject.coinDesign.photoFile = await cacheWidgetPhoto(snapshotObject.userId, snapshotObject.coinPhoto); }
+    catch { /* Still publish current colors/text; widget explicitly shows that its photo needs refreshing. */ }
+  }
+  if (revision !== snapshotRevision) return; // Discard a slow older photo request after an edit/sign-out.
   const snapshot = JSON.stringify(snapshotObject);
   await AsyncStorage.setItem(V1CE_WIDGET_CACHE_KEY, snapshot);
+  if (revision !== snapshotRevision) return;
 
   if (Platform.OS === "ios") {
     try {
@@ -140,6 +166,26 @@ export async function writeWidgetProfileSnapshot(profile: SobrietyProfile | null
       // native fields individually so WidgetKit does not depend on JSON decoding.
       iosWidgetStorage.set(V1CE_WIDGET_CACHE_KEY, snapshot);
       writeIosWidgetFields(snapshotObject);
+      // One complete payload is the atomic source for the new widget renderer.
+      iosWidgetStorage.set(V1CE_WIDGET_DESIGN_KEY, snapshot);
+      if (V1CECoinRenderer) {
+        const progress = snapshotObject.milestoneDisplayFormat
+          ? { value: formatMilestoneDuration(snapshotObject.sobrietyDate, snapshotObject.milestoneDisplayFormat), label: "" }
+          : getCoinDisplay(getDaysSober(snapshotObject.sobrietyDate));
+        for (const showBack of [false, true]) {
+          V1CECoinRenderer.renderSnapshot(JSON.stringify({
+            displayName: snapshotObject.displayName,
+            milestone: `${progress.value}${progress.label ? ` ${progress.label}` : ""}`,
+            coinMotto: snapshotObject.coinMotto,
+            selections: snapshotObject.substances.slice(0, 3),
+            color: snapshotObject.coinColor,
+            numberStyle: snapshotObject.numberStyle,
+            showBack,
+            width: 1024,
+            height: 1024,
+          }));
+        }
+      }
       ExtensionStorage.reloadWidget();
     } catch {}
   } else {
@@ -161,6 +207,8 @@ export async function verifyWidgetSharedSnapshot() {
     if (sobrietyDate !== parsed.sobrietyDate) return { ok: false, reason: "WIDGET SOBRIETY DATE DOES NOT MATCH" };
     if (coinColor !== parsed.coinColor) return { ok: false, reason: "WIDGET COIN COLOR DOES NOT MATCH" };
     if (coinShape !== parsed.coinShape) return { ok: false, reason: "WIDGET COIN SHAPE DOES NOT MATCH" };
+    if (iosWidgetStorage.get(V1CE_WIDGET_DESIGN_KEY) !== expected) return { ok: false, reason: "WIDGET COIN DESIGN DOES NOT MATCH" };
+    if (parsed.coinPhoto && !parsed.coinDesign.photoFile) return { ok: false, reason: "WIDGET PHOTO COULD NOT BE CACHED" };
     return { ok: true, reason: "APP GROUP WIDGET FIELDS MATCH" };
   } catch {
     return { ok: false, reason: "SHARED STORAGE COULD NOT BE READ" };

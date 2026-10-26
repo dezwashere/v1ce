@@ -1,61 +1,66 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SUBSTANCES } from "@/constants/app";
 import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 
-export default function SubstanceChecklist({
-  selected,
-  onChange,
-}: {
+export default function SubstanceChecklist({ selected, onChange }: {
   selected: string[];
-  onChange: (next: string[]) => void;
+  onChange: (next: string[]) => Promise<void>;
 }) {
   const colors = useColors();
-  const customValues = selected.filter((value) => !SUBSTANCES.includes(value));
-  const otherActive = selected.includes("Other") || customValues.length > 0;
-  const otherValue = customValues[0] || "";
-  const toggle = (item: string) => {
-    if (item === "Other") {
-      onChange(otherActive ? selected.filter((value) => value !== "Other" && SUBSTANCES.includes(value)) : [...selected, "Other"]);
-      return;
+  const customValues = selected.filter(value => !SUBSTANCES.includes(value));
+  const savedOther = customValues[0] || "";
+  const [editing, setEditing] = useState(selected.includes("Other") || !!savedOther);
+  const [draft, setDraft] = useState(savedOther);
+  const [saving, setSaving] = useState(false);
+  const busy = useRef(false);
+  const [message, setMessage] = useState("");
+  useEffect(() => {
+    setDraft(savedOther);
+    setEditing(selected.includes("Other") || !!savedOther);
+  }, [savedOther, selected.includes("Other")]);
+
+  const save = async (next: string[]) => {
+    if (busy.current) return;
+    busy.current = true;
+    setSaving(true);
+    setMessage("");
+    try {
+      await onChange([...new Set(next)]);
+      setMessage("SAVED");
+    } catch {
+      setMessage("NOT SAVED — PLEASE TRY AGAIN. YOUR EDIT IS STILL HERE.");
+    } finally {
+      busy.current = false;
+      setSaving(false);
     }
-    onChange(selected.includes(item) ? selected.filter((value) => value !== item) : [...selected, item]);
   };
-  return (
-    <View style={styles.wrap}>
-      {SUBSTANCES.map((item) => {
-        const active = item === "Other" ? otherActive : selected.includes(item);
-        return (
-          <TouchableOpacity
-            key={item}
-            onPress={() => toggle(item)}
-            style={[
-              styles.chip,
-              { borderColor: colors.foreground, backgroundColor: active ? colors.foreground : "transparent" },
-            ]}
-          >
-            <Text style={{ color: active ? colors.background : colors.foreground, fontSize: 12, fontFamily: fonts.bodyBold, letterSpacing: 0.6 }}>
-              {item.toUpperCase()}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-      {otherActive ? (
-        <TextInput
-          value={otherValue}
-          onChangeText={(value) => {
-            const base = selected.filter((item) => item !== "Other" && SUBSTANCES.includes(item));
-            onChange(value.trim() ? [...base, value.slice(0, 60)] : [...base, "Other"]);
-          }}
-          placeholder="TYPE YOUR DOC"
-          placeholderTextColor={colors.mutedForeground}
-          maxLength={60}
-          style={[styles.otherInput, { borderColor: colors.foreground, color: colors.foreground }]}
-        />
-      ) : null}
-    </View>
-  );
+  return <View style={styles.wrap}>
+    {SUBSTANCES.map(item => {
+      const active = item === "Other" ? editing : selected.includes(item);
+      return <TouchableOpacity key={item} disabled={saving} accessibilityRole="checkbox" accessibilityState={{ checked: active, disabled: saving }}
+        onPress={() => item === "Other" ? setEditing(true) : void save(selected.includes(item) ? selected.filter(value => value !== item) : [...selected, item])}
+        style={[styles.chip, { borderColor: colors.foreground, backgroundColor: active ? colors.foreground : "transparent", opacity: saving ? .5 : 1 }]}>
+        <Text style={{ color: active ? colors.background : colors.foreground, fontSize: 12, fontFamily: fonts.bodyBold }}>{item.toUpperCase()}</Text>
+      </TouchableOpacity>;
+    })}
+    {editing ? <View style={{ width: "100%", gap: 8 }}>
+      <TextInput value={draft} onChangeText={value => { setDraft(value); setMessage(""); }} editable={!saving}
+        placeholder="TYPE YOUR DOC" accessibilityLabel="Other DOC" placeholderTextColor={colors.mutedForeground} maxLength={60}
+        style={[styles.otherInput, { borderColor: colors.foreground, color: colors.foreground }]} />
+      <TouchableOpacity disabled={saving} accessibilityRole="button" onPress={() => {
+        // Replace only the edited custom value; retain every other saved choice.
+        const base = selected.filter(value => value !== "Other" && value !== savedOther);
+        const value = draft.trim();
+        void save(value ? [...base, value] : base);
+      }} style={[styles.chip, { borderColor: colors.foreground }]}>
+        <Text style={{ color: colors.foreground, fontFamily: fonts.bodyBold }}>{saving ? "SAVING…" : "SAVE OTHER"}</Text>
+      </TouchableOpacity>
+      <Text style={{ color: colors.mutedForeground, fontFamily: fonts.body, fontSize: 11 }}>Clear the text and save to remove this custom value.</Text>
+    </View> : null}
+    {!!message && <Text accessibilityLiveRegion="polite" style={{ color: colors.foreground, fontFamily: fonts.body, fontSize: 12 }}>{message}</Text>}
+  </View>;
 }
 
 const styles = StyleSheet.create({

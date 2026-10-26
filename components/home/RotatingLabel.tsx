@@ -3,14 +3,15 @@ import { DeviceEventEmitter, Text, View } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { useTranslation } from "@/lib/i18n";
 import { fonts } from "@/constants/typography";
+import { ROTATING_WORDS } from "@/constants/app";
 import { useColors } from "@/hooks/useColors";
 import OutlineText from "@/components/ui/OutlineText";
 import { DEFAULT_ROTATING_PREFS, HOME_WORD_PREFS_KEY, ROTATING_PREFS_CHANGED, loadRotatingTextPrefs, type RotatingTextPrefs } from "@/lib/rotatingTextPrefs";
 
 export default function RotatingLabel({ prefsKey = HOME_WORD_PREFS_KEY }: { prefsKey?: string }) {
   const colors=useColors();
-  const { t,tList }=useTranslation();
-  const defaultWords=tList("home.rotatingWords");
+  const { t }=useTranslation();
+  const defaultWords=ROTATING_WORDS;
   const [prefs,setPrefs]=useState<RotatingTextPrefs>(DEFAULT_ROTATING_PREFS);
   const [index,setIndex]=useState(0);
   useFocusEffect(useCallback(() => {
@@ -27,7 +28,7 @@ export default function RotatingLabel({ prefsKey = HOME_WORD_PREFS_KEY }: { pref
     return () => { active = false; subscription.remove(); };
   }, [prefsKey]));
   const customWords=prefs.customWords.map(word=>word.trim()).filter(Boolean);
-  const words=customWords.length?customWords:defaultWords;
+  const words=prefs.useCustomWords && customWords.length ? customWords : defaultWords;
   const shouldRotate=prefs.rotating && words.length > 1;
   useEffect(()=>{ setIndex(0); if(!shouldRotate||words.length<2)return; const id=setInterval(()=>setIndex(v=>(v+1)%words.length),1600); return()=>clearInterval(id); },[shouldRotate,words.length,words.join("|")]);
   const visibleWord=prefs.rotating ? (words[index%Math.max(words.length,1)]||"") : (prefs.pausedWord.trim()||words[0]||"");

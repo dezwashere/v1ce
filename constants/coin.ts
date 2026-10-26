@@ -8,26 +8,43 @@ export const COIN_COLORS = {
 } as const;
 
 export const NUMBER_STYLES = {
-  classic: { fontFamily: "Cinzel", fontWeight: "700" as const, letterSpacing: 0.02 },
-  poppins: { fontFamily: "Poppins", fontWeight: "700" as const, letterSpacing: -0.01 },
-  monospace: { fontFamily: "Space Mono", fontWeight: "700" as const, letterSpacing: -0.03 },
-  fredoka: { fontFamily: "Fredoka One", fontWeight: "400" as const, letterSpacing: 0.02 },
-  serif: { fontFamily: "IBM Plex Serif", fontWeight: "700" as const, letterSpacing: 0.01 },
-  dmsans: { fontFamily: "DM Sans", fontWeight: "700" as const, letterSpacing: -0.02 },
-  courier: { fontFamily: "Courier Prime", fontWeight: "700" as const, letterSpacing: 0.05 },
-  bodoni: { fontFamily: "Bodoni Moda", fontWeight: "700" as const, letterSpacing: 0.03 },
-  syne: { fontFamily: "Syne", fontWeight: "700" as const, letterSpacing: -0.02 },
-  pacifico: { fontFamily: "Pacifico", fontWeight: "400" as const, letterSpacing: 0.01 },
-  bebas: { fontFamily: "Bebas Neue", fontWeight: "400" as const, letterSpacing: 0.08 },
-  inter: { fontFamily: "Inter", fontWeight: "700" as const, letterSpacing: -0.02 },
-  big_shoulders_stencil: { fontFamily: "Big Shoulders Stencil", fontWeight: "400" as const, letterSpacing: 0.02 },
-  roboto_mono: { fontFamily: "Roboto Mono", fontWeight: "700" as const, letterSpacing: -0.03 },
-  oswald: { fontFamily: "Oswald", fontWeight: "600" as const, letterSpacing: 0.02 },
-  raleway: { fontFamily: "Raleway", fontWeight: "700" as const, letterSpacing: 0.01 },
-  fraunces: { fontFamily: "Fraunces", fontWeight: "700" as const, letterSpacing: 0.01 },
-  caveat: { fontFamily: "Caveat", fontWeight: "400" as const, letterSpacing: 0.01 },
-  dyna_puff: { fontFamily: "DynaPuff", fontWeight: "600" as const, letterSpacing: 0.01 },
+  vt323: { fontFamily: "VT323", fontWeight: "400" as const, letterSpacing: 0.02 },
+  im_fell_english_sc: { fontFamily: "IM Fell English SC", fontWeight: "400" as const, letterSpacing: 0.01 },
+  slackey: { fontFamily: "Slackey", fontWeight: "400" as const, letterSpacing: 0 },
+  josefin_sans: { fontFamily: "Josefin Sans", fontWeight: "700" as const, letterSpacing: 0.02 },
+  varela_round: { fontFamily: "Varela Round", fontWeight: "400" as const, letterSpacing: 0 },
+  walter_turncoat: { fontFamily: "Walter Turncoat", fontWeight: "400" as const, letterSpacing: 0.01 },
 } as const;
+
+/** Legacy choices remain readable without rewriting stored user profiles. */
+const LEGACY_NUMBER_STYLE_MAP: Record<string, keyof typeof NUMBER_STYLES> = {
+  classic: "im_fell_english_sc",
+  poppins: "varela_round",
+  monospace: "vt323",
+  fredoka: "varela_round",
+  serif: "im_fell_english_sc",
+  dmsans: "josefin_sans",
+  courier: "vt323",
+  bodoni: "im_fell_english_sc",
+  syne: "josefin_sans",
+  pacifico: "walter_turncoat",
+  bebas: "vt323",
+  inter: "josefin_sans",
+  big_shoulders_stencil: "vt323",
+  roboto_mono: "vt323",
+  oswald: "josefin_sans",
+  raleway: "josefin_sans",
+  fraunces: "im_fell_english_sc",
+  caveat: "walter_turncoat",
+  dyna_puff: "varela_round",
+};
+
+export function normalizeNumberStyle(value?: string): keyof typeof NUMBER_STYLES {
+  if (value && Object.prototype.hasOwnProperty.call(NUMBER_STYLES, value)) {
+    return value as keyof typeof NUMBER_STYLES;
+  }
+  return (value && LEGACY_NUMBER_STYLE_MAP[value]) || "walter_turncoat";
+}
 
 export function resolveCoinColor(value?: string) {
   if (value && value in COIN_COLORS) return COIN_COLORS[value as keyof typeof COIN_COLORS];

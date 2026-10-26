@@ -65,7 +65,7 @@ export default function AppChrome({ showNav = true }: { showNav?: boolean }) {
     <View style={{ backgroundColor: colors.background, paddingTop: insets.top }}>
       <View style={[styles.header, { borderBottomColor: colors.foreground }]}>
         <View style={[styles.logoWrap, { pointerEvents: "none" }]}>
-          <Image source={require("../../assets/images/v1ce-logo.png")} style={styles.logo} tintColor={colors.foreground} resizeMode="contain" />
+          <Image source={require("../../assets/images/v1ce-wordmark-approved.png")} style={styles.logo} resizeMode="contain" />
         </View>
         <View style={styles.left}>
           <TouchableOpacity onPress={toggleTheme} hitSlop={8} style={styles.iconBtn}>

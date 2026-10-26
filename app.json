@@ -35,6 +35,22 @@
     },
     "plugins": [
       [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundRecording": false
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.4"
+          }
+        }
+      ],
+      [
         "expo-dev-client",
         {
           "launchMode": "launcher"
@@ -47,6 +63,7 @@
         }
       ],
       "expo-font",
+      "expo-calendar",
       "expo-web-browser",
       [
         "expo-splash-screen",
@@ -60,12 +77,14 @@
         "@bacons/apple-targets"
       ],
       "./plugins/withV1CEWidgetFonts.js",
+      "./plugins/withV1CECoinRuntimeAssets.js",
       "./plugins/app.plugin.js"
     ],
     "extra": {
       "eas": {
         "projectId": "7da6caaf-6da0-45af-a389-3eac8719c6f8"
-      }
+      },
+      "v1ceSourceLabel": "internal candidate | 2026-10-15 | coin/widget UI and build diagnostics | source 0fb8d65022ab63df3ccc37483546291184269418 + working tree"
     },
     "experiments": {
       "typedRoutes": true,

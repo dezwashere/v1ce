@@ -4,9 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 type PremiumContextValue = { isPremium:boolean; unlockPremium:()=>void };
 const PremiumContext=createContext<PremiumContextValue|null>(null);
 
-// Preview mode is intentionally unlocked so every V1CE feature can be tested without a paywall.
-// Turn this off before store release.
-const PREVIEW_UNLOCK_ALL = true;
+const PREVIEW_UNLOCK_ALL = false;
 
 export function PremiumProvider({children}:{children:ReactNode}){
   const {profile,setProfile}=useAuth();

@@ -7,6 +7,7 @@ import { supabase, TABLES, type BlockedUser, type FriendConnection } from "@/lib
 import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 import { useTranslation } from "@/lib/i18n";
+import { friendConnectionsWithAvatars } from "@/lib/friendAvatars";
 import FriendAvatar from "@/components/lounge/FriendAvatar";
 import CoinPreview from "@/components/lounge/CoinPreview";
 import { writeWidgetFriends } from "@/lib/widgetCache";
@@ -30,7 +31,7 @@ export default function Friends() {
   const load = async () => {
     if (!user?.id) return;
     const [{ data, error }, { data: blocks, error: blockError }] = await Promise.all([
-      supabase.rpc("get_my_friend_connections"),
+      friendConnectionsWithAvatars(),
       supabase.from(TABLES.BlockedUser).select("*").eq("blocker_id", user.id),
     ]);
     if (error) Alert.alert("V1CE", error.message);
@@ -73,7 +74,7 @@ export default function Friends() {
       const friend = accepted.find((f) => f.id === id);
       if (!friend) return [];
       const isRequester = friend.requester_id === user?.id;
-      return [{ id, name: isRequester ? (friend.recipient_name || "Friend") : (friend.requester_name || "Friend"), avatar: (isRequester ? friend.recipient_avatar : friend.requester_avatar) || "" }];
+      return [{ id, name: isRequester ? (friend.recipient_name || "Friend") : (friend.requester_name || "Friend"), avatar: (isRequester ? friend.recipient_avatar : friend.requester_avatar) || "", avatarSeed: isRequester ? friend.recipient_avatar_seed : friend.requester_avatar_seed }];
     });
     const userIds = selected.map((friend) => { const connection = accepted.find((f) => f.id === friend.id); return connection?.requester_id === user?.id ? connection?.recipient_id : connection?.requester_id; });
     const validUserIds = userIds.filter((id): id is string => !!id);
@@ -255,7 +256,7 @@ export default function Friends() {
             const photo = (f.requester_id === user?.id ? f.recipient_avatar : f.requester_avatar) || "";
             return (
               <View key={f.id} style={[styles.friendTile, { borderColor: colors.border }]}>
-                <TouchableOpacity onPress={() => setPreviewFriend(f)} accessibilityRole="button" accessibilityLabel={`View ${name} profile`}><FriendAvatar seed={name} uri={photo} size={58} /></TouchableOpacity>
+                <TouchableOpacity onPress={() => setPreviewFriend(f)} accessibilityRole="button" accessibilityLabel={`View ${name} profile`}><FriendAvatar seed={(f.requester_id === user?.id ? f.recipient_avatar_seed : f.requester_avatar_seed) || name} uri={photo} size={58} /></TouchableOpacity>
                 <TouchableOpacity disabled={!widgetSelectionLoaded} onPress={() => void toggleWidgetFriend(f.id)} accessibilityRole="checkbox" accessibilityState={{ checked: widgetFriendIds.includes(f.id), disabled: !widgetSelectionLoaded }}>
                   <Text style={[styles.friendTileStatus, { color: colors.foreground }]}>{widgetFriendIds.includes(f.id) ? "Selected for widget" : "Add to widget"}</Text>
                 </TouchableOpacity>
@@ -273,7 +274,7 @@ export default function Friends() {
         </View>
       )}
 
-      <CoinPreview visible={!!previewFriend} onClose={() => setPreviewFriend(null)} name={previewFriend ? friendName(previewFriend) : ""} days={0} showDays={false} showCoinPlaceholder={false} avatarSeed={previewFriend ? friendName(previewFriend) : ""} showCoin={false} />
+      <CoinPreview avatar={previewFriend ? ((previewFriend.requester_id === user?.id ? previewFriend.recipient_avatar : previewFriend.requester_avatar) || "") : ""} visible={!!previewFriend} onClose={() => setPreviewFriend(null)} name={previewFriend ? friendName(previewFriend) : ""} days={0} showDays={false} showCoinPlaceholder={false} avatarSeed={previewFriend ? ((previewFriend.requester_id === user?.id ? previewFriend.recipient_avatar_seed : previewFriend.requester_avatar_seed) || friendName(previewFriend)) : ""} showCoin={false} />
       {blocked.length > 0 ? (
         <>
           <Text style={[styles.heading, { color: colors.foreground, marginTop: 28 }]}>{t("friends.blockedUsers")}</Text>

@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 import { fonts } from "@/constants/typography";
 import { daysSince } from "@/constants/app";
+import { coinInputFromProfile } from "@/lib/coinDesign";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
 import RotatingLabel from "@/components/home/RotatingLabel";
 import { CUSTOMIZE_WORD_PREFS_KEY } from "@/lib/rotatingTextPrefs";
@@ -23,10 +24,11 @@ export default function CoinScreen() {
       <View style={styles.rotating}><RotatingLabel prefsKey={CUSTOMIZE_WORD_PREFS_KEY} /></View>
       <View style={styles.coin}>
         <SobrietyCoin
+          {...coinInputFromProfile(profile)}
           days={daysSince(profile.sobriety_date)}
           shape={profile.coin_shape || "circle"}
           color={profile.coin_color || "#F5D680"}
-          numberStyle={profile.number_style || "classic"}
+          numberStyle={profile.number_style || "walter_turncoat"}
           size={285}
           displayName={profile.display_name || ""}
           motto={profile.coin_motto || "FREE FROM"}

@@ -10,6 +10,7 @@ import {daysSince} from "@/constants/app";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
 import LofiAvatar from "@/components/lounge/LofiAvatar";
 import {useTranslation} from "@/lib/i18n";
+import {formatUSDate,toDatabaseDate,fromDatabaseDate} from "@/lib/sobrietyDate";
 
 const AVATARS=["MIA","CROSS","LEAF","JORDAN","PINK","DOTS","TAYLOR","CASEY"];
 const STATUS_MAX=100;
@@ -24,10 +25,11 @@ export default function ProfileScreen(){
   const [avatarSeed,setAvatarSeed]=useState(profile?.default_avatar_seed||"MIA");
   const [avatarUrl,setAvatarUrl]=useState(profile?.avatar_url||"");
   const [showCoin,setShowCoin]=useState(profile?.show_coin??true);
+  const [sobrietyDate,setSobrietyDate]=useState(fromDatabaseDate(profile?.sobriety_date));
   const [saving,setSaving]=useState(false);
   const [uploading,setUploading]=useState(false);
 
-  useEffect(()=>{if(!profile)return;setStatus(profile.status_note||"");setQuote(profile.personal_quote||"");setAvatarSeed(profile.default_avatar_seed||"MIA");setAvatarUrl(profile.avatar_url||"");setShowCoin(profile.show_coin??true);},[profile?.id]);
+  useEffect(()=>{if(!profile)return;setStatus(profile.status_note||"");setQuote(profile.personal_quote||"");setAvatarSeed(profile.default_avatar_seed||"MIA");setAvatarUrl(profile.avatar_url||"");setShowCoin(profile.show_coin??true);setSobrietyDate(fromDatabaseDate(profile.sobriety_date));},[profile?.id]);
   if(!profile)return <View style={{flex:1,backgroundColor:colors.background}}/>;
 
   const pickAvatar=async()=>{
@@ -54,7 +56,8 @@ export default function ProfileScreen(){
   const save=async()=>{
     if(saving||!profile.id)return;
     setSaving(true);
-    const values={personal_quote:quote.trim().slice(0,QUOTE_MAX),status_note:status.trim(),default_avatar_seed:avatarSeed,show_coin:showCoin,avatar_url:avatarUrl||null};
+    const nextDate=toDatabaseDate(sobrietyDate); if(!nextDate)return Alert.alert("V1CE","Enter a complete valid sobriety date as MM/DD/YYYY.");
+    const values={personal_quote:quote.trim().slice(0,QUOTE_MAX),status_note:status.trim(),default_avatar_seed:avatarSeed,show_coin:showCoin,avatar_url:avatarUrl||null,sobriety_date:nextDate};
     const {data,error}=await supabase.from(TABLES.SobrietyProfile).update(values).eq("id",profile.id).select().single();
     if(error)Alert.alert("V1CE",error.message);else if(data)setProfile(data);
     setSaving(false);
@@ -90,6 +93,9 @@ export default function ProfileScreen(){
       <Text style={[styles.counter,{color:colors.mutedForeground}]}>{status.length}/{STATUS_MAX}</Text>
     </View>
 
+    <Text style={[styles.sectionLabel,{color:colors.foreground,marginTop:22}]}>Sobriety date</Text>
+    <TextInput value={sobrietyDate} onChangeText={next=>setSobrietyDate(formatUSDate(next))} maxLength={10} keyboardType="number-pad" placeholder="MM/DD/YYYY" placeholderTextColor={colors.mutedForeground} style={[styles.statusInput,{color:colors.foreground,borderColor:colors.border,borderWidth:1,padding:12}]} />
+
     <Text style={[styles.sectionLabel,{color:colors.foreground,marginTop:22}]}>Personal quote</Text>
     <View style={[styles.statusBox,{borderColor:colors.border}]}>
       <TextInput value={quote} onChangeText={v=>setQuote(v.slice(0,QUOTE_MAX))} maxLength={QUOTE_MAX} multiline placeholder="Your quote for the medium widget" placeholderTextColor={colors.mutedForeground} style={[styles.statusInput,{color:colors.foreground}]}/>
@@ -107,7 +113,7 @@ export default function ProfileScreen(){
     </View>
 
     <View style={[styles.previewCard,{backgroundColor:colors.secondary}]}>
-      {showCoin?<SobrietyCoin days={days} shape={profile.coin_shape||"circle"} color={profile.coin_color||"#F5D680"} numberStyle={profile.number_style||"classic"} size={112} displayName={profile.display_name||""} motto={(profile.coin_motto||"FREE FROM").slice(0,18)} backIcon={profile.coin_back_icon||"none"} substances={profile.substances||[]} showBorder={profile.coin_show_border??true} borderColor={profile.coin_border_color||undefined} numberColor={profile.coin_number_color||undefined}/>:<View style={styles.hiddenCoin}><Text style={[styles.hiddenText,{color:colors.mutedForeground}]}>{t("profile.coinHidden")}</Text></View>}
+      {showCoin?<SobrietyCoin days={days} shape={profile.coin_shape||"circle"} color={profile.coin_color||"#F5D680"} numberStyle={profile.number_style||"walter_turncoat"} size={112} displayName={profile.display_name||""} motto={(profile.coin_motto||"FREE FROM").slice(0,18)} backIcon={profile.coin_back_icon||"none"} substances={profile.substances||[]} showBorder={profile.coin_show_border??true} borderColor={profile.coin_border_color||undefined} numberColor={profile.coin_number_color||undefined}/>:<View style={styles.hiddenCoin}><Text style={[styles.hiddenText,{color:colors.mutedForeground}]}>{t("profile.coinHidden")}</Text></View>}
       <View style={styles.previewCopy}>
         <Text style={[styles.previewQuote,{color:colors.foreground}]}>{status.trim()?"“"+status.trim()+"”":`“${t("profile.statusPlaceholder")}”`}</Text>
         <Text style={[styles.previewHelp,{color:colors.mutedForeground}]}>{t("profile.previewHelp")}</Text>

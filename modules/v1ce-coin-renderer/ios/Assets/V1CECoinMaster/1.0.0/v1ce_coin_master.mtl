@@ -1,0 +1,42 @@
+# Blender 5.2.2 LTS MTL File: 'v1ce_coin_master.blend'
+# www.blender.org
+
+newmtl approved_v1ce_wordmark
+Ns 490.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd ../Users/deser/dezwashere_v1ce/assets/images/v1ce-wordmark-approved.png
+map_d ../Users/deser/dezwashere_v1ce/assets/images/v1ce-wordmark-approved.png
+
+newmtl coin_face
+Ns 435.599945
+Ka 0.720000 0.720000 0.720000
+Kd 0.960784 0.839216 0.501961
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+
+newmtl coin_rim
+Ns 435.599945
+Ka 0.850000 0.850000 0.850000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+
+newmtl lettering_relief
+Ns 435.599945
+Ka 0.450000 0.450000 0.450000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3

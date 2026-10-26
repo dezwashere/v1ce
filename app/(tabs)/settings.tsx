@@ -10,6 +10,9 @@ import {
   View,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import Constants from "expo-constants";
+import * as Updates from "expo-updates";
+import { requireOptionalNativeModule } from "expo-modules-core";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -19,6 +22,8 @@ import { useColors } from "@/hooks/useColors";
 import { useTranslation } from "@/lib/i18n";
 import GifterBadge from "@/components/GifterBadge";
 import { fonts } from "@/constants/typography";
+import { normalizeShape, coinInputFromProfile } from "@/lib/coinDesign";
+import { normalizeNumberStyle } from "@/constants/coin";
 import { daysSince } from "@/constants/app";
 import { verifyWidgetSharedSnapshot, writeWidgetProfileSnapshot } from "@/lib/widgetCache";
 import SobrietyCoin from "@/components/coin/SobrietyCoin";
@@ -35,15 +40,16 @@ import {
   saveRotatingTextPrefs,
   type RotatingTextPrefs,
 } from "@/lib/rotatingTextPrefs";
+import { loadAudioPreferences, saveAudioPreferences } from "@/lib/audioPreferences";
+import { formatMilestoneDuration, type MilestoneDisplayFormat } from "@/lib/milestoneDuration";
 
-const ALL_SHAPES = ["star", "cross", "badge", "circle", "hexagon", "octagon", "shield", "diamond"] as const;
+// Registration check only; this does not verify App Group access.
+const widgetStorageModuleAvailable = requireOptionalNativeModule("ExtensionStorage") !== null;
+
+const ALL_SHAPES = ["star", "badge", "circle", "hexagon", "octagon", "shield", "diamond"] as const;
 const FREE_SHAPES = ["circle"] as const;
-const ALL_FONTS = [
-  "big_shoulders_stencil", "bebas", "bodoni", "courier", "classic", "poppins",
-  "monospace", "fredoka", "serif", "dmsans", "syne", "pacifico", "inter",
-  "roboto_mono", "oswald", "raleway", "fraunces", "caveat", "dyna_puff",
-] as const;
-const FREE_FONTS = ["classic", "bebas", "bodoni", "big_shoulders_stencil"] as const;
+const ALL_FONTS = ["vt323", "im_fell_english_sc", "slackey", "josefin_sans", "varela_round", "walter_turncoat"] as const;
+const FREE_FONTS = ["walter_turncoat"] as const;
 const COIN_MESSAGE_MAX = 20;
 function randomItem<T>(items: readonly T[]): T {
   return items[Math.floor(Math.random() * items.length)];
@@ -195,18 +201,21 @@ export default function Settings() {
 
   const [name, setName] = useState(profile?.display_name || "");
   const [birthday, setBirthday] = useState(profile?.birthday || "");
+  const [milestoneDisplayFormat, setMilestoneDisplayFormat] = useState<MilestoneDisplayFormat>(profile?.milestone_display_format || "automatic");
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
   const [uploading, setUploading] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingCoin, setSavingCoin] = useState(false);
   const [widgetDiagnostic, setWidgetDiagnostic] = useState("");
+  const [musicEnabled, setMusicEnabled] = useState(true);
+  const [sfxEnabled, setSfxEnabled] = useState(true);
 
-  const [shape, setShape] = useState(profile?.coin_shape || "circle");
+  const [shape, setShape] = useState(normalizeShape(profile?.coin_shape));
   const [coinColor, setCoinColor] = useState(profile?.coin_color || "#F5D680");
   const [showBorder, setShowBorder] = useState(profile?.coin_show_border ?? true);
   const [borderColor, setBorderColor] = useState(profile?.coin_border_color || "");
   const [numberColor, setNumberColor] = useState(profile?.coin_number_color || "");
-  const [numberStyle, setNumberStyle] = useState(profile?.number_style || "classic");
+  const [numberStyle, setNumberStyle] = useState(normalizeNumberStyle(profile?.number_style));
   const [message, setMessage] = useState(profile?.coin_motto || "FREE FROM");
   const [backIcon, setBackIcon] = useState<CoinBackIconName>((profile?.coin_back_icon || "none") as CoinBackIconName);
   const [shapeOpen, setShapeOpen] = useState(false);
@@ -229,16 +238,34 @@ export default function Settings() {
   }, []);
 
   useEffect(() => {
+    void loadAudioPreferences().then((preferences) => {
+      setMusicEnabled(preferences.musicEnabled);
+      setSfxEnabled(preferences.sfxEnabled);
+    });
+  }, []);
+
+  const updateMusicPreference = (value: boolean) => {
+    setMusicEnabled(value);
+    void saveAudioPreferences({ musicEnabled: value });
+  };
+
+  const updateSfxPreference = (value: boolean) => {
+    setSfxEnabled(value);
+    void saveAudioPreferences({ sfxEnabled: value });
+  };
+
+  useEffect(() => {
     if (!profile) return;
     setName(profile.display_name || "");
     setBirthday(profile.birthday || "");
+    setMilestoneDisplayFormat(profile.milestone_display_format || "automatic");
     setAvatarUrl(profile.avatar_url || "");
-    setShape(ALL_SHAPES.includes(profile.coin_shape as any) ? profile.coin_shape : "circle");
+    setShape(normalizeShape(profile.coin_shape));
     setCoinColor(profile.coin_color || "#F5D680");
     setShowBorder(profile.coin_show_border ?? true);
     setBorderColor(profile.coin_border_color || "");
     setNumberColor(profile.coin_number_color || "");
-    setNumberStyle(profile.number_style || "classic");
+    setNumberStyle(normalizeNumberStyle(profile.number_style));
     setMessage(profile.coin_motto || "FREE FROM");
     setBackIcon(COIN_BACK_ICONS.includes(profile.coin_back_icon as CoinBackIconName) ? profile.coin_back_icon as CoinBackIconName : "none");
   }, [profile]);
@@ -290,21 +317,20 @@ export default function Settings() {
       number_style: numberStyle,
       coin_motto: message.trim().slice(0, COIN_MESSAGE_MAX),
       coin_back_icon: backIcon,
-      coin_shape_path: null,
+      coin_shape_path: shape === "drawn" ? profile.coin_shape_path : null,
     };
-    const { data, error } = await supabase
+    try {
+    let { data, error } = await supabase
       .from(TABLES.SobrietyProfile)
       .update(values)
       .eq("id", profile.id)
       .select()
       .single();
-    if (error) Alert.alert("V1CE", error.message);
-    else {
-      const updated = (data || { ...profile, ...values }) as typeof profile;
-      await writeWidgetProfileSnapshot(updated);
-      setProfile(updated);
-    }
-    setSavingCoin(false);
+    if (error || !data) throw new Error("Coin could not be saved. Please try again.");
+    setProfile(data);
+    Alert.alert("V1CE", "Coin saved.");
+    } catch (error) { Alert.alert("V1CE", error instanceof Error ? error.message : "Could not save your coin."); }
+    finally { setSavingCoin(false); }
   };
 
   const pickAvatar = async () => {
@@ -350,12 +376,15 @@ export default function Settings() {
   const saveProfile = async () => {
     if (!user?.id || savingProfile) return;
     setSavingProfile(true);
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from(TABLES.SobrietyProfile)
-      .update({ display_name: name.trim(), birthday: birthday || null })
+      .update({ display_name: name.trim(), birthday: birthday || null, milestone_display_format: milestoneDisplayFormat })
       .eq("id", user.id)
       .select()
       .single();
+    if (error && ["PGRST204", "42703"].includes(error.code) && error.message.includes("milestone_display_format")) {
+      ({ data, error } = await supabase.from(TABLES.SobrietyProfile).update({ display_name: name.trim(), birthday: birthday || null }).eq("id", user.id).select().single());
+    }
     if (error) Alert.alert("V1CE", error.message);
     else setProfile(data);
     setSavingProfile(false);
@@ -378,6 +407,7 @@ export default function Settings() {
       <View style={[styles.section, { borderBottomColor: colors.border }]}>
         <View style={styles.preview}>
           <SobrietyCoin
+            {...coinInputFromProfile(profile)}
             days={days}
             shape={shape}
             color={coinColor}
@@ -456,7 +486,7 @@ export default function Settings() {
           open={fontOpen}
           onToggle={() => setFontOpen((value) => !value)}
         >
-          <NumberStylePicker value={numberStyle} onChange={setNumberStyle} />
+          <NumberStylePicker value={numberStyle} onChange={value => setNumberStyle(normalizeNumberStyle(value))} />
         </DropdownSection>
 
         <Text style={[styles.controlTitle, { color: colors.foreground }]}>{t("settings.coinMessage")}</Text>
@@ -468,6 +498,15 @@ export default function Settings() {
           placeholderTextColor={colors.mutedForeground}
           style={[styles.input, { borderColor: colors.foreground, color: colors.foreground }]}
         />
+        <Text style={[styles.label, { color: colors.mutedForeground, marginTop: 18 }]}>DISPLAY MY TIME AS</Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+          {(["automatic", "total_days", "years_months_days"] as MilestoneDisplayFormat[]).map((format) => (
+            <TouchableOpacity key={format} onPress={() => setMilestoneDisplayFormat(format)} style={{ borderWidth: 1, borderColor: colors.foreground, padding: 10, backgroundColor: milestoneDisplayFormat === format ? colors.foreground : colors.background }}>
+              <Text style={{ color: milestoneDisplayFormat === format ? colors.background : colors.foreground, fontFamily: fonts.bodyBold, fontSize: 11 }}>{format === "automatic" ? "AUTOMATIC" : format === "total_days" ? "TOTAL DAYS" : "YEARS, MONTHS, DAYS"}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={[styles.helper, { color: colors.mutedForeground }]}>{formatMilestoneDuration(profile.sobriety_date, milestoneDisplayFormat)}</Text>
         <Text style={[styles.helper, { color: colors.mutedForeground, textAlign: "right" }]}>{message.length}/{COIN_MESSAGE_MAX}</Text>
         <Text style={[styles.controlTitle, { color: colors.foreground }]}>COIN BACK DECORATION</Text>
         <Text style={[styles.helper, { color: colors.mutedForeground }]}>Optional. Tap the coin to preview its back.</Text>
@@ -565,6 +604,10 @@ export default function Settings() {
 
       <View style={[styles.section, { borderBottomColor: colors.border }]}>
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t("settings.app")}</Text>
+        <Text style={[styles.label, { color: colors.mutedForeground }]}>AUDIO</Text>
+        <Toggle value={musicEnabled} onPress={() => updateMusicPreference(!musicEnabled)} label={`MUSIC ${musicEnabled ? "ON" : "OFF"}`} />
+        <Toggle value={sfxEnabled} onPress={() => updateSfxPreference(!sfxEnabled)} label={`SOUND EFFECTS ${sfxEnabled ? "ON" : "OFF"}`} />
+        <Text style={[styles.helper, { color: colors.mutedForeground }]}>Sound-effect preference is saved for future cues; this release has no active sound-effect cues.</Text>
         <Text style={[styles.label, { color: colors.mutedForeground }]}>{t("settings.theme")}</Text>
         <TouchableOpacity onPress={toggleTheme} style={[styles.outline, { borderColor: colors.foreground }]}>
           <Text style={[styles.outlineText, { color: colors.foreground }]}>{isDark ? t("settings.dark") : t("settings.light")}</Text>
@@ -576,6 +619,34 @@ export default function Settings() {
         >
           <Text style={[styles.outlineText, { color: colors.foreground }]}>{t("settings.shareWidget")}</Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={[styles.section, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>APP INFORMATION</Text>
+        <Text selectable style={[styles.helper, { color: colors.foreground }]}>
+          Version: {Constants.expoConfig?.version ?? "Unavailable"}
+        </Text>
+        <Text selectable style={[styles.helper, { color: colors.foreground }]}>
+          Native build: {Constants.nativeBuildVersion ?? Constants.platform?.ios?.buildNumber ?? "Unavailable"}
+        </Text>
+        <Text selectable style={[styles.helper, { color: colors.foreground }]}>
+          Widget storage module: {widgetStorageModuleAvailable ? "Available" : "Unavailable"}
+        </Text>
+        <Text selectable style={[styles.helper, { color: colors.foreground }]}>
+          Update channel: {Updates.channel || "Embedded/default"}
+        </Text>
+        <Text selectable style={[styles.helper, { color: colors.foreground }]}>
+          Update ID: {Updates.isEnabled ? Updates.updateId || "Embedded/no update ID" : "Updates unavailable"}
+        </Text>
+        <Text selectable style={[styles.helper, { color: colors.foreground }]}>
+          Runtime: {Updates.runtimeVersion || (typeof Constants.expoConfig?.runtimeVersion === "string" ? Constants.expoConfig.runtimeVersion : "Unavailable")}
+        </Text>
+        <Text selectable style={[styles.helper, { color: colors.foreground }]}>
+          JavaScript: {__DEV__ ? "Development client" : Updates.isEmbeddedLaunch ? "Embedded in native build" : "Downloaded OTA update"}
+        </Text>
+        <Text selectable style={[styles.helper, { color: colors.foreground }]}>
+          Source label: {Constants.expoConfig?.extra?.v1ceSourceLabel ?? "Not embedded"}
+        </Text>
       </View>
 
       <View style={styles.account}>

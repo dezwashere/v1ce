@@ -1,4 +1,5 @@
 /* AUTO-GENERATED from base44-source/Pasted code(2).js */
+import { ROTATING_WORDS } from "@/constants/app";
 export type I18nLang = "en" | "ko" | "es" | "vi" | "zh" | "am";
 export const I18N_RESOURCES = {
   "en": {
@@ -17,29 +18,7 @@ export const I18N_RESOURCES = {
     "home.minutesLabel": "MIN",
     "home.secondsLabel": "SEC",
     "home.setDatePrompt": "Set your sobriety date to start tracking.",
-    "home.rotatingWords": [
-      "SOBER",
-      "UNBOTHERED",
-      "HYDRATED",
-      "EMPLOYABLE",
-      "ASCENDING",
-      "CRAZY",
-      "SLAYING",
-      "FEELING",
-      "EXPERIENCING",
-      "SHOWING UP",
-      "CAFFEINATED",
-      "UNHINGED",
-      "VALID",
-      "VIBING",
-      "GRATEFUL",
-      "GAY",
-      "PROUD",
-      "CLEAN",
-      "HAPPY",
-      "RICH",
-      "LOVED"
-    ],
+    "home.rotatingWords": ROTATING_WORDS,
     "onboarding.welcome": "WELCOME\nTO V1CE.",
     "onboarding.welcomeSub": "Your sobriety, your coin. Let's get you set up — no account needed.",
     "onboarding.namePlaceholder": "e.g. Alex",

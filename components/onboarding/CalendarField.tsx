@@ -30,7 +30,7 @@ function isoFromDisplay(value: string) {
 export default function CalendarField({ value, onChange, placeholder = "MM/DD/YYYY" }: { value: string; onChange: (iso: string) => void; placeholder?: string }) {
   const [text, setText] = useState(displayFromIso(value));
   useEffect(() => { if (!text && value) setText(displayFromIso(value)); }, [value]);
-  return <TextInput value={text} onChangeText={(next) => { const formatted = formatTypedDate(next); setText(formatted); onChange(isoFromDisplay(formatted)); }} style={styles.field} placeholder={placeholder} placeholderTextColor="#A3A3A3" keyboardType="number-pad" inputMode="numeric" maxLength={10} autoCorrect={false} returnKeyType="done" accessibilityLabel="Sober date" />;
+  return <TextInput value={text} onChangeText={(next) => { const formatted = formatTypedDate(next); setText(formatted); const iso = isoFromDisplay(formatted); if (iso) onChange(iso); }} style={styles.field} placeholder={placeholder} placeholderTextColor="#A3A3A3" keyboardType="number-pad" inputMode="numeric" maxLength={10} autoCorrect={false} returnKeyType="done" accessibilityLabel="Sober date" />;
 }
 
 const styles = StyleSheet.create({

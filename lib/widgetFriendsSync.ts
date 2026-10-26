@@ -1,3 +1,4 @@
+import { friendConnectionsWithAvatars } from "./friendAvatars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase, type FriendConnection } from "@/lib/supabase";
 import { writeWidgetFriends, type WidgetFriend } from "@/lib/widgetCache";
@@ -26,7 +27,7 @@ export async function refreshWidgetFriendsForUser(userId: string): Promise<void>
     return;
   }
 
-  const { data, error } = await supabase.rpc("get_my_friend_connections");
+  const { data, error } = await friendConnectionsWithAvatars();
   if (error) throw error;
   const accepted = ((data || []) as FriendConnection[]).filter((f) => f.status === "accepted");
   const selected = selectedIds.flatMap((id): { userId: string; friend: WidgetFriend }[] => {
@@ -41,6 +42,7 @@ export async function refreshWidgetFriendsForUser(userId: string): Promise<void>
         id,
         name: (requester ? connection.recipient_name : connection.requester_name) || "Friend",
         avatar: (requester ? connection.recipient_avatar : connection.requester_avatar) || "",
+        avatarSeed: requester ? connection.recipient_avatar_seed : connection.requester_avatar_seed,
       },
     }];
   });

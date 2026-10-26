@@ -1,15 +1,14 @@
 import React, { useState } from "react";
-import { Alert, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
-import { supabase } from "@/lib/supabase";
 import { fonts } from "@/constants/typography";
 import { useTranslation } from "@/lib/i18n";
 
 export default function ShareScreen(){
   const {user}=useAuth(); const c=useColors(); const {t}=useTranslation();
   const [giftEmail,setGiftEmail]=useState(""); const [plan,setPlan]=useState<"monthly"|"yearly">("monthly"); const [busy,setBusy]=useState(false);
-  const gift=async()=>{const email=giftEmail.trim();if(!email)return;setBusy(true);const {data,error}=await supabase.functions.invoke("create-checkout",{body:{plan,giftEmail:email,gifterEmail:user?.email||"",successUrl:"v1ce://share?gift=1",cancelUrl:"v1ce://share"}});setBusy(false);if(error||!data?.url){Alert.alert("V1CE",error?.message||"Gift checkout is not available.");return;}Linking.openURL(data.url);};
+  const gift=()=>{const email=giftEmail.trim();if(!email)return;Alert.alert("V1CE","Pay It Forward is coming soon. No purchase was started.");};
   return <ScrollView style={{backgroundColor:c.background}} contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
     <Text style={[styles.title,{color:c.foreground}]}>{t("share.title")}</Text>
     <View style={[styles.card,{borderColor:c.foreground}]}>
@@ -29,7 +28,7 @@ export default function ShareScreen(){
         <TouchableOpacity onPress={()=>setPlan("monthly")} style={[styles.plan,{backgroundColor:plan==="monthly"?c.foreground:c.background,borderColor:c.foreground}]}><Text style={[styles.planText,{color:plan==="monthly"?c.background:c.foreground}]}>$2.99 / MO</Text></TouchableOpacity>
         <TouchableOpacity onPress={()=>setPlan("yearly")} style={[styles.plan,{backgroundColor:plan==="yearly"?c.foreground:c.background,borderColor:c.foreground}]}><Text style={[styles.planText,{color:plan==="yearly"?c.background:c.foreground}]}>$22 / YR GIFT</Text></TouchableOpacity>
       </View>
-      <TouchableOpacity disabled={busy} onPress={gift} style={[styles.primary,{backgroundColor:c.foreground,opacity:busy?.5:1}]}><Text style={[styles.primaryText,{color:c.background}]}>{busy?t("share.loading"):t("share.sendGift")}</Text></TouchableOpacity>
+      <TouchableOpacity disabled={busy} onPress={gift} style={[styles.primary,{backgroundColor:c.foreground,opacity:busy?.5:1}]}><Text style={[styles.primaryText,{color:c.background}]}>COMING SOON</Text></TouchableOpacity>
     </View>
   </ScrollView>;
 }

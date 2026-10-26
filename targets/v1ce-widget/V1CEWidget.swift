@@ -2,6 +2,8 @@ import SwiftUI
 import WidgetKit
 import Foundation
 import CoreText
+import ImageIO
+import UIKit
 
 private let group = "group.app.v1ce"
 private let readyKey = "v1ce_widget_ready"
@@ -20,32 +22,43 @@ private let isPremiumKey = "v1ce_widget_is_premium"
 private let personalQuoteKey = "v1ce_widget_personal_quote"
 private let selectedFriendsKey = "v1ce_widget_selected_friends"
 
-private struct MarkerFriendAvatar: View {
-  var body: some View {
-    GeometryReader { geometry in
-      let side = min(geometry.size.width, geometry.size.height)
-      ZStack {
-        Circle().fill(Color.white)
-        Circle().stroke(Color.black, lineWidth: 1.5)
-        Path { p in
-          p.move(to: CGPoint(x: side * 0.12, y: side))
-          p.addQuadCurve(to: CGPoint(x: side * 0.88, y: side), control: CGPoint(x: side * 0.50, y: side * 0.67))
-          p.move(to: CGPoint(x: side * 0.30, y: side * 0.35))
-          p.addQuadCurve(to: CGPoint(x: side * 0.70, y: side * 0.35), control: CGPoint(x: side * 0.50, y: side * 0.02))
-          p.addLine(to: CGPoint(x: side * 0.73, y: side * 0.62))
-          p.addQuadCurve(to: CGPoint(x: side * 0.28, y: side * 0.62), control: CGPoint(x: side * 0.50, y: side * 0.90))
-          p.closeSubpath()
-          p.move(to: CGPoint(x: side * 0.37, y: side * 0.46))
-          p.addLine(to: CGPoint(x: side * 0.43, y: side * 0.46))
-          p.move(to: CGPoint(x: side * 0.58, y: side * 0.46))
-          p.addLine(to: CGPoint(x: side * 0.64, y: side * 0.46))
-          p.move(to: CGPoint(x: side * 0.41, y: side * 0.64))
-          p.addQuadCurve(to: CGPoint(x: side * 0.59, y: side * 0.64), control: CGPoint(x: side * 0.50, y: side * 0.71))
-        }
-        .stroke(Color.black, style: StrokeStyle(lineWidth: 1.8, lineCap: .round, lineJoin: .round))
-      }
-      .clipShape(Circle())
+private func sharedPhoto(_ name: String?) -> UIImage? {
+  guard let name = name,
+    name.range(of: "^v1ce-coin-photo-[a-z0-9-]+\\.img$", options: .regularExpression) != nil,
+    let directory = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: group),
+    let source = CGImageSourceCreateWithURL(directory.appendingPathComponent(name) as CFURL, nil) else { return nil }
+  let options: [CFString: Any] = [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceThumbnailMaxPixelSize: 512, kCGImageSourceCreateThumbnailWithTransform: true]
+  guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+  return UIImage(cgImage: image)
+}
+
+private func sharedCoin3DSnapshot(showBack: Bool) -> UIImage? {
+  guard let directory = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: group) else { return nil }
+  let file = directory.appendingPathComponent("v1ce-coin-3d-\(showBack ? "back" : "front").png")
+  guard let source = CGImageSourceCreateWithURL(file as CFURL, nil), let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return nil }
+  return UIImage(cgImage: image)
+}
+
+private struct FriendAvatar: View {
+  let friend: WidgetFriend?
+  private var asset: String {
+    let keys = ["MIA", "CROSS", "LEAF", "JORDAN", "PINK", "DOTS", "TAYLOR", "CASEY"]
+    let seed = friend?.avatarSeed ?? friend?.name ?? "MIA"
+    if keys.contains(seed.uppercased()) { return "Avatar-" + seed.uppercased() }
+    // Match the app's first UTF-16 code unit for each Unicode code point.
+    let sum = seed.unicodeScalars.reduce(0) { total, scalar in
+      total + (scalar.value > 0xFFFF ? Int(0xD800 + ((scalar.value - 0x10000) >> 10)) : Int(scalar.value))
     }
+    return "Avatar-" + keys[sum % keys.count]
+  }
+  var body: some View {
+    Group {
+      if let photo = sharedPhoto(friend?.photoFile) {
+        Image(uiImage: photo).resizable().scaledToFill()
+      } else {
+        Image(asset).resizable().scaledToFill()
+      }
+    }.clipShape(Circle())
   }
 }
 
@@ -54,6 +67,8 @@ private struct WidgetFriend: Decodable, Identifiable {
   let name: String
   let avatar: String
   let sobrietyDate: String?
+  let avatarSeed: String?
+  let photoFile: String?
 }
 
 private func selectedFriends() -> [WidgetFriend] {
@@ -77,6 +92,7 @@ struct Snapshot: Codable {
   let coinBackIcon: String
   let isPremium: Bool
   let personalQuote: String
+  var coinDesign: SharedCoinDesign? = nil
 
   init(
     sobrietyDate: String,
@@ -115,7 +131,7 @@ struct Snapshot: Codable {
     coinColor = try c.decodeIfPresent(String.self, forKey: .coinColor) ?? "#F5D680"
     coinShape = try c.decodeIfPresent(String.self, forKey: .coinShape) ?? "circle"
     coinShapePath = try c.decodeIfPresent(String.self, forKey: .coinShapePath)
-    numberStyle = try c.decodeIfPresent(String.self, forKey: .numberStyle) ?? "classic"
+    numberStyle = try c.decodeIfPresent(String.self, forKey: .numberStyle) ?? "walter_turncoat"
     coinShowBorder = try c.decodeIfPresent(Bool.self, forKey: .coinShowBorder) ?? true
     coinBorderColor = try c.decodeIfPresent(String.self, forKey: .coinBorderColor)
     coinNumberColor = try c.decodeIfPresent(String.self, forKey: .coinNumberColor)
@@ -123,11 +139,19 @@ struct Snapshot: Codable {
     coinBackIcon = try c.decodeIfPresent(String.self, forKey: .coinBackIcon) ?? "none"
     isPremium = try c.decodeIfPresent(Bool.self, forKey: .isPremium) ?? false
     personalQuote = try c.decodeIfPresent(String.self, forKey: .personalQuote) ?? ""
+    coinDesign = try c.decodeIfPresent(SharedCoinDesign.self, forKey: .coinDesign)
   }
 }
 
 private func snap() -> Snapshot? {
   guard let defaults = UserDefaults(suiteName: group) else { return nil }
+
+  if let json = defaults.string(forKey: "v1ce_widget_coin_design_v2"),
+     let bytes = json.data(using: .utf8), bytes.count < 150_000,
+     let snapshot = try? JSONDecoder().decode(Snapshot.self, from: bytes),
+     snapshot.coinDesign?.version == 2 {
+    return snapshot
+  }
 
   if defaults.integer(forKey: readyKey) == 1,
      let sobrietyDate = defaults.string(forKey: sobrietyDateKey),
@@ -138,7 +162,7 @@ private func snap() -> Snapshot? {
       coinColor: defaults.string(forKey: coinColorKey) ?? "#F5D680",
       coinShape: defaults.string(forKey: coinShapeKey) ?? "circle",
       coinShapePath: defaults.string(forKey: coinShapePathKey),
-      numberStyle: defaults.string(forKey: numberStyleKey) ?? "classic",
+      numberStyle: defaults.string(forKey: numberStyleKey) ?? "walter_turncoat",
       coinShowBorder: defaults.integer(forKey: coinShowBorderKey) != 0,
       coinBorderColor: defaults.string(forKey: coinBorderColorKey),
       coinNumberColor: defaults.string(forKey: coinNumberColorKey),
@@ -211,14 +235,20 @@ private func customColor(_ value: String?, fallback: Color) -> Color {
 }
 
 private let fontNames: [String: String] = [
+  "vt323": "VT323-Regular",
+  "im_fell_english_sc": "IMFellEnglishSC-Regular",
+  "slackey": "Slackey-Regular",
+  "josefin_sans": "JosefinSans-Bold",
+  "varela_round": "VarelaRound-Regular",
+  "walter_turncoat": "WalterTurncoat-Regular",
   "classic": "Cinzel",
   "poppins": "Poppins",
   "monospace": "Space Mono",
   "fredoka": "Fredoka",
-  "serif": "IBM Plex Serif",
+  "serif": "Cinzel-Bold",
   "dmsans": "DM Sans",
   "courier": "Courier Prime",
-  "bodoni": "Bodoni Moda",
+  "bodoni": "Cinzel-Bold",
   "syne": "Syne",
   "pacifico": "Pacifico",
   "bebas": "Bebas Neue",
@@ -227,13 +257,13 @@ private let fontNames: [String: String] = [
   "roboto_mono": "Roboto Mono",
   "oswald": "Oswald",
   "raleway": "Raleway",
-  "fraunces": "Fraunces",
+  "fraunces": "Cinzel-Bold",
   "caveat": "Caveat",
   "dyna_puff": "DynaPuff"
 ]
 
 private func widgetFont(_ style: String, size: CGFloat) -> Font {
-  Font.custom(fontNames[style] ?? "Big Shoulders Stencil", size: size)
+  Font.custom(fontNames[style] ?? "WalterTurncoat-Regular", size: size)
 }
 
 private func polygon(_ points: String, in rect: CGRect) -> Path {
@@ -257,7 +287,7 @@ private let shapePoints: [String: String] = [
   "octagon": "30,0 70,0 100,30 100,70 70,100 30,100 0,70 0,30",
   "shield": "50,0 100,15 100,65 50,100 0,65 0,15",
   "diamond": "50,0 95,50 50,100 5,50",
-  "star": "50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35",
+  "star": "50,2 68,27 98,35 80,59 79,94 50,80 21,94 20,59 2,35 32,27",
   "badge": "50,0 65,10 82,5 90,20 100,30 95,50 100,70 90,80 82,95 65,90 50,100 35,90 18,95 10,80 0,70 5,50 0,30 10,20 18,5 35,10",
   "arrow": "0,35 55,35 55,10 100,50 55,90 55,65 0,65"
 ]
@@ -278,7 +308,7 @@ private struct CoinShape: Shape {
   let custom: String?
 
   func path(in rect: CGRect) -> Path {
-    if name == "circle" { return Path(ellipseIn: rect) }
+    if name == "circle" || name == "cross" { return Path(ellipseIn: rect) }
     if name == "drawn", let custom { return polygon(custom, in: rect) }
     return polygon(shapePoints[name] ?? shapePoints["hexagon"]!, in: rect)
   }
@@ -286,6 +316,7 @@ private struct CoinShape: Shape {
 
 private func registerWidgetFonts() {
   let names = [
+    "VT323", "IMFellEnglishSC", "Slackey", "JosefinSans", "VarelaRound", "WalterTurncoat",
     "BigShouldersStencilDisplay-Regular",
     "Cinzel", "Poppins", "SpaceMono", "Fredoka", "IBMPlexSerif", "DMSans",
     "CourierPrime", "BodoniModa", "Syne", "Pacifico", "BebasNeue", "Inter",
@@ -294,6 +325,135 @@ private func registerWidgetFonts() {
   for name in names {
     guard let url = Bundle.main.url(forResource: name, withExtension: "ttf") else { continue }
     CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+  }
+}
+
+
+struct SharedPoint: Codable { let x: Double; let y: Double }
+struct SharedArtwork: Codable {
+  let points: [SharedPoint]; let fill: String; let stroke: String
+  let width: Double; let opacity: Double; let closed: Bool
+}
+struct SharedTextBox: Codable, Identifiable {
+  let id: String; let text: String; let x: Double; let y: Double
+  let width: Double; let height: Double; let fontSize: Double; let lines: Int?
+}
+struct SharedCoinDesign: Codable {
+  let version: Int; let polygon: [SharedPoint]; let rim: [[SharedPoint]]
+  let face: String; let rimPrimary: String; let rimSecondary: String
+  let shadow: String; let highlight: String; let text: String
+  let showBorder: Bool; let nativeFont: String; let tracking: Double
+  let front: [SharedTextBox]; let back: [SharedTextBox]
+  let photo: String?; let imageOnly: Bool; let background: String; let backIcon: String
+  let backgroundArt: [SharedArtwork]?; let backArt: [SharedArtwork]?
+  let photoFile: String?
+}
+private struct SharedCoinView: View {
+  let design: SharedCoinDesign
+  let value: (Int, String)
+  let showBack: Bool
+
+  private func cachedPhoto() -> UIImage? { sharedPhoto(design.photoFile) }
+
+  private func path(_ points: [SharedPoint], _ unit: CGFloat, _ origin: CGPoint, _ dy: CGFloat = 0, closed: Bool = true) -> Path {
+    Path { p in
+      for (index, point) in points.enumerated() {
+        let next = CGPoint(x: origin.x + CGFloat(point.x) * unit, y: origin.y + (CGFloat(point.y) + dy) * unit)
+        if index == 0 { p.move(to: next) } else { p.addLine(to: next) }
+      }
+      if closed { p.closeSubpath() }
+    }
+  }
+
+  private func drawArt(_ items: [SharedArtwork], context: inout GraphicsContext, unit: CGFloat, origin: CGPoint) {
+    for item in items {
+      let outline = path(item.points, unit, origin, closed: item.closed)
+      if !item.fill.isEmpty { context.fill(outline, with: .color(hexColor(item.fill).opacity(item.opacity))) }
+      if !item.stroke.isEmpty { context.stroke(outline, with: .color(hexColor(item.stroke).opacity(item.opacity)), style: StrokeStyle(lineWidth: CGFloat(item.width) * unit, lineCap: .round, lineJoin: .round)) }
+    }
+  }
+
+  var body: some View {
+    let photo = cachedPhoto()
+    let face = showBack ? "back" : "front"
+    Canvas { context, size in
+      let unit = min(size.width, size.height) / 111
+      let origin = CGPoint(x: (size.width - 106 * unit) / 2 + 3 * unit, y: 3 * unit)
+      let outline = path(design.polygon, unit, origin)
+      for depth in stride(from: 5, through: 1, by: -1) {
+        context.fill(path(design.polygon, unit, origin, CGFloat(depth)), with: .color(hexColor(design.shadow)))
+        if design.showBorder {
+          for segment in design.rim {
+            context.fill(path(segment, unit, origin, CGFloat(depth)), with: .color(hexColor(design.rimPrimary)))
+          }
+        }
+      }
+      context.fill(outline, with: .color(hexColor(design.face)))
+      var faceContext = context
+      faceContext.clip(to: outline)
+      if let photo {
+        let edge = 100 * unit
+        let scale = max(edge / photo.size.width, edge / photo.size.height)
+        let width = photo.size.width * scale, height = photo.size.height * scale
+        var photoContext = faceContext
+        photoContext.opacity = design.imageOnly ? 1 : 0.35
+        photoContext.draw(Image(uiImage: photo), in: CGRect(x: origin.x + (edge-width)/2, y: origin.y + (edge-height)/2, width: width, height: height))
+      }
+      drawArt(design.backgroundArt ?? [], context: &faceContext, unit: unit, origin: origin)
+      context.fill(outline, with: .linearGradient(Gradient(colors: [.white.opacity(0.38), .clear, .black.opacity(0.18)]),
+        startPoint: origin, endPoint: CGPoint(x: origin.x + 100 * unit, y: origin.y + 100 * unit)))
+      if design.showBorder {
+        context.stroke(outline, with: .color(hexColor(design.rimSecondary)), lineWidth: 2 * unit)
+        for segment in design.rim {
+          let panel = path(segment, unit, origin)
+          context.fill(panel, with: .color(hexColor(design.rimPrimary)))
+          context.stroke(panel, with: .color(hexColor(design.highlight).opacity(0.45)), lineWidth: 0.35 * unit)
+        }
+      }
+      context.stroke(outline, with: .color(hexColor(design.highlight)), lineWidth: 0.6 * unit)
+      if design.photo != nil && photo == nil {
+        let message = Text("Open V1CE to refresh photo").font(.system(size: 6)).foregroundColor(hexColor(design.text))
+        context.draw(context.resolve(message), at: CGPoint(x: size.width/2, y: size.height-5))
+      }
+      if !design.imageOnly {
+        if showBack { drawArt(design.backArt ?? [], context: &faceContext, unit: unit, origin: origin) }
+        for box in (showBack ? design.back : design.front) where box.width > 0 && box.height > 0 {
+          let content = box.text == "$value" ? String(value.0) : box.text == "$unit" ? value.1 : box.text
+          let target = CGFloat(box.fontSize) * unit
+          let font = CTFontCreateWithName(design.nativeFont as CFString, target, nil)
+          let attributes: [NSAttributedString.Key: Any] = [.font: font, .kern: target * design.tracking]
+          func measure(_ string: String) -> (CGFloat, CGFloat) {
+            let line = CTLineCreateWithAttributedString(NSAttributedString(string: string, attributes: attributes))
+            var ascent: CGFloat = 0, descent: CGFloat = 0, leading: CGFloat = 0
+            let width = CGFloat(CTLineGetTypographicBounds(line, &ascent, &descent, &leading))
+            return (width, ascent + descent + leading)
+          }
+          var lines = [content]
+          if (box.lines ?? 1) > 1 && measure(content).0 > CGFloat(box.width) * unit {
+            let chars = Array(content)
+            let spaces = chars.indices.filter { chars[$0] == " " && $0 > 0 && $0 < chars.count - 1 }
+            let candidates = spaces.isEmpty ? Array(1..<max(1, chars.count)) : spaces
+            var best = CGFloat.greatestFiniteMagnitude
+            for split in candidates {
+              let a = String(chars[..<split]).trimmingCharacters(in: .whitespaces)
+              let b = String(chars[split...]).trimmingCharacters(in: .whitespaces)
+              let width = max(measure(a).0, measure(b).0)
+              if width < best { best = width; lines = [a,b] }
+            }
+          }
+          let metrics = lines.map { measure($0) }
+          let width = metrics.map { $0.0 }.max() ?? 1
+          let lineHeight = metrics.map { $0.1 }.max() ?? 1
+          let scale = min(1, CGFloat(box.width) * unit / max(width, 1), CGFloat(box.height) * unit / max(lineHeight * CGFloat(lines.count), 1))
+          for (index, line) in lines.enumerated() {
+            let text = Text(line).font(.custom(design.nativeFont, size: target * scale)).tracking(target * scale * design.tracking).foregroundColor(hexColor(design.text))
+            let y = origin.y + CGFloat(box.y) * unit + (CGFloat(index) - CGFloat(lines.count - 1)/2) * lineHeight * scale
+            context.draw(context.resolve(text), at: CGPoint(x: origin.x + CGFloat(box.x) * unit, y: y))
+          }
+        }
+      }
+    }
+    .accessibilityLabel("V1CE coin, \\(value.0) \\(value.1), \\(face)")
   }
 }
 
@@ -345,12 +505,36 @@ struct V1CEWidgetView: View {
     GeometryReader { geo in
       let isSmall = family == .systemSmall
       let isMedium = family == .systemMedium
-      let coinSide = family == .systemLarge ? max(92, min(geo.size.width * 0.46, geo.size.height * 0.43, 150)) : max(0, min(geo.size.width, geo.size.height) - (isSmall ? 20 : 32))
+      let usableWidth = max(0, geo.size.width - (isSmall ? 8 : 20))
+      let usableHeight = max(0, geo.size.height - (isSmall ? 8 : 20))
+      let coinSide: CGFloat = {
+        if isSmall {
+          // WidgetKit supplies the content geometry after the system margin.
+          // Keep the coin dominant while reserving a small safety inset for
+          // bevels and shadows on the smallest supported widget.
+          return min(usableWidth, usableHeight) * 0.86
+        }
+        if isMedium {
+          // The left column owns the count and quote; the coin owns roughly
+          // 90% of the usable height on the right.
+          return min(usableHeight * 0.90, usableWidth * 0.52)
+        }
+        return max(112, min(geo.size.width * 0.58, geo.size.height * 0.48, 190))
+      }()
       let numberFont = widgetFont(style, size: isSmall ? 34 : 42)
       let labelFont = widgetFont(style, size: isSmall ? 9 : 11)
       let detailFont = widgetFont(style, size: isSmall ? 7 : 9)
 
-      let coin = ZStack {
+      let coin = Group {
+        if let snapshot = sharedCoin3DSnapshot(showBack: entry.showBack) {
+          Image(uiImage: snapshot).resizable().scaledToFit()
+            .frame(width: coinSide, height: coinSide)
+            .accessibilityLabel("V1CE personalized 3D coin")
+        } else if let design = data?.coinDesign, design.version == 2 {
+          SharedCoinView(design: design, value: value, showBack: entry.showBack)
+            .frame(width: coinSide, height: coinSide)
+        } else {
+        ZStack {
         CoinShape(name: shapeName, custom: data?.coinShapePath)
           .fill(bg)
           .frame(width: coinSide, height: coinSide)
@@ -411,12 +595,20 @@ struct V1CEWidgetView: View {
         }
       }
 
+        }
+      }
+
       Group {
         if isSmall {
-          coin.frame(maxWidth: .infinity, maxHeight: .infinity)
+          coin.frame(width: coinSide, height: coinSide)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         } else if isMedium {
-          HStack(spacing: 8) {
+          HStack(spacing: 6) {
             VStack(alignment: .leading, spacing: 4) {
+              Image("V1CEWordmark")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 92, maxHeight: 18, alignment: .leading)
               Text("\(value.0) \(value.1)")
                 .font(.system(size: 23, weight: .semibold, design: .rounded))
                 .minimumScaleFactor(0.6)
@@ -437,36 +629,37 @@ struct V1CEWidgetView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             coin.frame(width: coinSide, height: coinSide)
+              .frame(maxHeight: .infinity, alignment: .center)
           }
-          .padding(10)
+          .padding(.horizontal, 8)
+          .padding(.vertical, 6)
         } else if family == .systemLarge {
           let widgetFriends = selectedFriends()
           VStack(spacing: 9) {
             HStack {
-              Text("V1CE").font(.system(size: 15, weight: .bold)).tracking(4)
+              Image("V1CEWordmark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 72, height: 18, alignment: .leading)
               Spacer()
-              Text("PROGRESS OVER PERFECTION")
-                .font(.system(size: 8, weight: .medium)).tracking(0.7)
-                .lineLimit(1).minimumScaleFactor(0.7)
             }
-            coin.frame(width: coinSide, height: coinSide)
+            HStack(alignment: .center, spacing: 12) {
+              coin.frame(width: coinSide, height: coinSide)
+              Text(data?.personalQuote.isEmpty == false ? (data?.personalQuote ?? "") : "Add a personal quote in your profile")
+                .font(.system(size: 12))
+                .italic()
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.leading)
+                .lineLimit(4)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
             Spacer(minLength: 0)
             HStack(alignment: .top, spacing: 6) {
               ForEach(0..<3, id: \.self) { index in
                 VStack(spacing: 4) {
-                  if index < widgetFriends.count,
-                     let url = URL(string: widgetFriends[index].avatar),
-                     url.scheme == "https" {
-                    AsyncImage(url: url) { image in
-                      image.resizable().scaledToFill()
-                    } placeholder: {
-                      MarkerFriendAvatar()
-                    }
-                    .frame(width: min(54, geo.size.width * 0.17), height: min(54, geo.size.width * 0.17)).clipShape(Circle())
-                  } else {
-                    MarkerFriendAvatar()
-                      .frame(width: min(54, geo.size.width * 0.17), height: min(54, geo.size.width * 0.17))
-                  }
+                  FriendAvatar(friend: index < widgetFriends.count ? widgetFriends[index] : nil)
+                    .frame(width: min(54, geo.size.width * 0.17), height: min(54, geo.size.width * 0.17))
                   Text(index < widgetFriends.count ? widgetFriends[index].name : "Add friend")
                     .font(.system(size: 11, weight: .semibold))
                     .lineLimit(2).minimumScaleFactor(0.7)
@@ -501,7 +694,11 @@ struct V1CEWidgetView: View {
       removal: .push(from: entry.showBack ? .leading : .trailing)
     ))
     .animation(.easeInOut(duration: 0.8), value: entry.showBack)
-    .v1ceWidgetBackground(family == .systemLarge ? Color.black : bg)
+    // WidgetKit does not provide arbitrary Home Screen transparency. The
+    // system widget background is the closest reliable transparent treatment;
+    // keep the large legacy dark presentation and avoid tying the container
+    // background to the user's coin color.
+    .v1ceWidgetBackground(Color.clear)
     .widgetURL(URL(string: "v1ce://widget"))
   }
 }

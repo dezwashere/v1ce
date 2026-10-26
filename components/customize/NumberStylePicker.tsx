@@ -2,25 +2,24 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
-import { NUMBER_STYLES } from "@/constants/coin";
+import { FONT_NAMES } from "@/lib/coinDesign";
+import { NUMBER_STYLES, normalizeNumberStyle } from "@/constants/coin";
 import { useRouter } from "expo-router";
 import { usePremium } from "@/context/PremiumContext";
 import { fonts } from "@/constants/typography";
 
-const FONT_FAMILIES: Record<string,string>={
-  Cinzel:"Cinzel_700Bold",Poppins:"Poppins_700Bold","Space Mono":"SpaceMono_700Bold","Fredoka One":"Fredoka_400Regular",
-  "IBM Plex Serif":"IBMPlexSerif_700Bold","DM Sans":"DMSans_700Bold","Courier Prime":"CourierPrime_700Bold","Bodoni Moda":"BodoniModa_700Bold",
-  Syne:"Syne_700Bold",Pacifico:"Pacifico_400Regular","Bebas Neue":"BebasNeue_400Regular",Inter:"Inter_700Bold",
-  "Big Shoulders Stencil":"BigShouldersStencilDisplayRegular","Roboto Mono":"RobotoMono_700Bold",Oswald:"Oswald_600SemiBold",Raleway:"Raleway_700Bold",
-  Fraunces:"Fraunces_700Bold",Caveat:"Caveat_400Regular",DynaPuff:"DynaPuff_600SemiBold",
-};
-const LABELS:Record<string,string>={classic:"Classic",poppins:"Poppins",monospace:"Space Mono",fredoka:"Fredoka",serif:"IBM Plex Serif",dmsans:"DM Sans",courier:"Courier Prime",bodoni:"Bodoni Moda",syne:"Syne",pacifico:"Pacifico",bebas:"Bebas Neue",inter:"Inter",big_shoulders_stencil:"Big Shoulders",roboto_mono:"Roboto Mono",oswald:"Oswald",raleway:"Raleway",fraunces:"Fraunces",caveat:"Caveat",dyna_puff:"DynaPuff"};
-const ORDER=["big_shoulders_stencil","bebas","bodoni","courier","classic","poppins","monospace","fredoka","serif","dmsans","syne","pacifico","inter","roboto_mono","oswald","raleway","fraunces","caveat","dyna_puff"] as const;
+const LABELS:Record<string,string>={vt323:"VT323",im_fell_english_sc:"IM FELL English SC",slackey:"Slackey",josefin_sans:"Josefin Sans",varela_round:"Varela Round",walter_turncoat:"Walter Turncoat"};
+const ORDER=["vt323","im_fell_english_sc","slackey","josefin_sans","varela_round","walter_turncoat"] as const;
 export default function NumberStylePicker({value,onChange}:{value:string;onChange:(value:string)=>void}){
  const colors=useColors(); const {isPremium}=usePremium(); const router=useRouter();
- return <View style={styles.wrap}>{ORDER.map(key=>{const style=NUMBER_STYLES[key];const locked=!["classic","bebas","bodoni","big_shoulders_stencil"].includes(key)&&!isPremium;const active=value===key;return <TouchableOpacity key={key} onPress={()=>locked?router.push("/(tabs)/premium"):onChange(key)} style={[styles.card,{borderColor:active?colors.foreground:colors.border},locked&&{opacity:.42}]}>
+ return <View style={styles.wrap}>
+  {ORDER.map(key=>{
+   const style=NUMBER_STYLES[key];
+   const locked=key!=="walter_turncoat"&&!isPremium;
+   const active=normalizeNumberStyle(value)===key;
+   return <TouchableOpacity key={key} onPress={()=>locked?router.push("/(tabs)/premium"):onChange(key)} style={[styles.card,{borderColor:active?colors.foreground:colors.border},locked&&{opacity:.42}]}>
   {locked?<Feather name="lock" size={12} color={colors.mutedForeground} style={styles.lock}/>:null}
-  <Text style={{color:colors.foreground,fontFamily:FONT_FAMILIES[style.fontFamily],fontSize:40,lineHeight:48}}>42</Text>
+  <Text style={{color:colors.foreground,fontFamily:FONT_NAMES[key].app,fontSize:40,lineHeight:48}}>42</Text>
   <Text numberOfLines={1} style={[styles.name,{color:colors.foreground}]}>{LABELS[key]||key}</Text>
  </TouchableOpacity>})}</View>;
 }

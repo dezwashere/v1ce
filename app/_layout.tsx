@@ -9,12 +9,10 @@ import {
   Inter_900Black_Italic,
 } from "@expo-google-fonts/inter";
 import { BebasNeue_400Regular } from "@expo-google-fonts/bebas-neue";
-import { BodoniModa_700Bold } from "@expo-google-fonts/bodoni-moda";
 import { Cinzel_700Bold } from "@expo-google-fonts/cinzel";
 import { CourierPrime_700Bold } from "@expo-google-fonts/courier-prime";
 import { DMSans_700Bold } from "@expo-google-fonts/dm-sans";
 import { Fredoka_400Regular } from "@expo-google-fonts/fredoka";
-import { IBMPlexSerif_700Bold } from "@expo-google-fonts/ibm-plex-serif";
 import { Pacifico_400Regular } from "@expo-google-fonts/pacifico";
 import { Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { SpaceMono_700Bold } from "@expo-google-fonts/space-mono";
@@ -22,9 +20,14 @@ import { Syne_700Bold } from "@expo-google-fonts/syne";
 import { RobotoMono_700Bold } from "@expo-google-fonts/roboto-mono";
 import { Oswald_600SemiBold } from "@expo-google-fonts/oswald";
 import { Raleway_700Bold } from "@expo-google-fonts/raleway";
-import { Fraunces_700Bold } from "@expo-google-fonts/fraunces";
 import { Caveat_400Regular } from "@expo-google-fonts/caveat";
 import { DynaPuff_600SemiBold } from "@expo-google-fonts/dynapuff";
+import { VT323_400Regular } from "@expo-google-fonts/vt323";
+import { IMFellEnglishSC_400Regular } from "@expo-google-fonts/im-fell-english-sc";
+import { Slackey_400Regular } from "@expo-google-fonts/slackey";
+import { JosefinSans_700Bold } from "@expo-google-fonts/josefin-sans";
+import { VarelaRound_400Regular } from "@expo-google-fonts/varela-round";
+import { WalterTurncoat_400Regular } from "@expo-google-fonts/walter-turncoat";
 import {
   SpaceGrotesk_400Regular,
   SpaceGrotesk_500Medium,
@@ -79,12 +82,10 @@ export default function RootLayout() {
     Inter_800ExtraBold_Italic,
     Inter_900Black_Italic,
     BebasNeue_400Regular,
-    BodoniModa_700Bold,
     Cinzel_700Bold,
     CourierPrime_700Bold,
     DMSans_700Bold,
     Fredoka_400Regular,
-    IBMPlexSerif_700Bold,
     Pacifico_400Regular,
     Poppins_700Bold,
     SpaceMono_700Bold,
@@ -92,9 +93,14 @@ export default function RootLayout() {
     RobotoMono_700Bold,
     Oswald_600SemiBold,
     Raleway_700Bold,
-    Fraunces_700Bold,
     Caveat_400Regular,
     DynaPuff_600SemiBold,
+    VT323_400Regular,
+    IMFellEnglishSC_400Regular,
+    Slackey_400Regular,
+    JosefinSans_700Bold,
+    VarelaRound_400Regular,
+    WalterTurncoat_400Regular,
     SpaceGrotesk_400Regular,
     SpaceGrotesk_500Medium,
     SpaceGrotesk_600SemiBold,

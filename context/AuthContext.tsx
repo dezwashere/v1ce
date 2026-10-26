@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase, TABLES, type SobrietyProfile } from "@/lib/supabase";
 import { writeWidgetProfileSnapshot } from "@/lib/widgetCache";
 import { refreshWidgetFriendsForUser } from "@/lib/widgetFriendsSync";
+import { loadCoinLayout, cachedCoinLayout } from "@/lib/coinLayoutStorage";
 
 interface AuthContextType {
   user: { email: string; id: string } | null;
@@ -27,11 +28,11 @@ export const useAuth = () => useContext(AuthContext);
 async function loadProfileByIdentity(userId?: string, email?: string) {
   if (userId) {
     const { data } = await supabase.from(TABLES.SobrietyProfile).select("*").eq("id", userId).maybeSingle();
-    if (data) return data as SobrietyProfile;
+    if (data) return { ...data, coin_text_layout: await loadCoinLayout(data.id, data.coin_text_layout) } as SobrietyProfile;
   }
   if (email) {
     const { data } = await supabase.from(TABLES.SobrietyProfile).select("*").eq("email", email).maybeSingle();
-    if (data) return data as SobrietyProfile;
+    if (data) return { ...data, coin_text_layout: await loadCoinLayout(data.id, data.coin_text_layout) } as SobrietyProfile;
   }
   return null;
 }
@@ -41,7 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfileState] = useState<SobrietyProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const setProfile = useCallback((next: SobrietyProfile | null) => {
-    const effective = __DEV__ && next ? ({ ...next, is_premium: true } as SobrietyProfile) : next;
+    const withLayout = next ? { ...next, coin_text_layout: next.coin_text_layout ?? cachedCoinLayout(next.id || next.user_id || "") } : null;
+    const effective = __DEV__ && withLayout ? ({ ...withLayout, is_premium: true } as SobrietyProfile) : withLayout;
     setProfileState(effective);
     void writeWidgetProfileSnapshot(effective);
   }, []);

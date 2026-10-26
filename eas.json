@@ -9,6 +9,12 @@
       "autoIncrement": true,
       "channel": "development"
     },
+    "internal": {
+      "developmentClient": false,
+      "distribution": "internal",
+      "autoIncrement": true,
+      "channel": "internal"
+    },
     "preview": {
       "distribution": "internal",
       "autoIncrement": true,

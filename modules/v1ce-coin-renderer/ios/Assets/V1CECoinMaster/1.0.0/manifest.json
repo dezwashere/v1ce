@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "source": "tools/blender/master/v1ce_coin_master.blend",
+  "format": "obj-mtl",
+  "sourceGlb": "v1ce_coin_master.glb",
+  "runtimeGeometry": "v1ce_coin_master.obj",
+  "runtimeMaterial": "v1ce_coin_master.mtl",
+  "coordinateSystem": "Blender-Z-up",
+  "wordmark": "approved-v1ce-wordmark-relief",
+  "containsUserData": false,
+  "runtimeRenderer": "SceneKit"
+}

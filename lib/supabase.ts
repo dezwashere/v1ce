@@ -29,6 +29,8 @@ export type SobrietyProfile = {
   coin_background?: string;
   coin_background_color?: string;
   number_style: string;
+  /** Cloud-backed after the prepared migration; device fallback supports older schemas. */
+  coin_text_layout?: import("./coinDesign").CoinTextLayout;
   coin_show_border: boolean;
   coin_border_color: string;
   coin_number_color: string;
@@ -37,6 +39,7 @@ export type SobrietyProfile = {
   coin_motto: string;
   coin_back_icon?: "none" | "mountain" | "palm" | "smiley" | "clover" | "butterfly" | "wave";
   personal_quote?: string | null;
+  milestone_display_format?: import("./milestoneDuration").MilestoneDisplayFormat;
   avatar_url: string;
   gifted_count: number;
   is_premium: boolean;
@@ -57,9 +60,28 @@ export type FriendConnection = {
   recipient_name: string;
   requester_avatar?: string | null;
   recipient_avatar?: string | null;
+  requester_avatar_seed?: string;
+  recipient_avatar_seed?: string;
   status: "pending" | "accepted" | "rejected" | "declined" | "blocked" | string;
   is_active_in_lounge?: boolean;
   created_at: string;
+  friend_profile?: FriendProfile;
+};
+
+export type FriendProfile = {
+  id: string;
+  display_name?: string | null;
+  sobriety_date?: string | null;
+  birthday?: string | null;
+  personal_quote?: string | null;
+  milestone_display_format?: import("./milestoneDuration").MilestoneDisplayFormat;
+  coin_color?: string | null;
+  coin_shape?: string | null;
+  coin_motto?: string | null;
+  number_style?: string | null;
+  avatar_url?: string | null;
+  default_avatar_seed?: string | null;
+  show_coin?: boolean | null;
 };
 
 export type BlockedUser = {
@@ -72,6 +94,7 @@ export type BlockedUser = {
 };
 
 export type LoungeChatMessage = {
+  default_avatar_seed?: string;
   id: string;
   sender_id?: string;
   body?: string;
@@ -96,7 +119,7 @@ export type GiveawayEntry = {
 export const defaultProfileFields = {
   coin_color: "#F5D680",
   coin_shape: "circle",
-  number_style: "classic",
+  number_style: "walter_turncoat",
   coin_show_border: true,
   coin_border_color: "",
   coin_number_color: "",
@@ -105,6 +128,7 @@ export const defaultProfileFields = {
   coin_motto: "",
   coin_back_icon: "none",
   personal_quote: "",
+  milestone_display_format: "automatic" as const,
   coin_background: "solid",
   coin_background_color: "#F5D680",
   coin_shape_path: "",
